@@ -68,7 +68,7 @@ Program.Main
   - Grava primeiro em `*.tmp`; só depois da verificação o arquivo é renomeado para `.db`. Um backup interrompido no meio nunca parece válido.
 - **Verificação:** `PRAGMA integrity_check` no arquivo novo, aberto somente leitura. Falhou → apaga o `.tmp`, registra `Error`, e a limpeza não roda nesse ciclo (os backups antigos são justamente o que se quer preservar quando algo vai mal).
 - **Quando:**
-  - Diário: depois que a janela abre, em segundo plano via `FireAndForget`, se o backup diário válido mais recente tiver mais de 24 h. A data vem do nome do arquivo, não do relógio do sistema de arquivos (que muda ao copiar a pasta para outro computador).
+  - Diário: depois que a janela abre, em segundo plano via `FireAndForget`, se ainda não houver backup diário válido com a data local de hoje (primeira abertura do dia). A data vem do nome do arquivo, não do relógio do sistema de arquivos (que muda ao copiar a pasta para outro computador).
   - Antes de atualizar: no `DatabaseInitializer`, de forma síncrona (a UI ainda não existe).
 - **Retenção:** depois de cada backup válido, mantém os 7 diários e os 3 de atualização mais recentes, ordenados pelo nome. Arquivos que não seguem o padrão de nome ficam intocados: se o usuário guardou uma cópia ali, o app não apaga.
 - **Relógio:** `TimeProvider` injetado, como no limite de notificações, para os testes controlarem "hoje" e "ontem".
@@ -113,7 +113,7 @@ public static class UiSettings
 | Preferências chave/valor em JSON | Uma tabela para todas as specs; tipo novo sem migration | Uma coluna por preferência (migration a cada configuração nova) |
 | WAL | UI lê enquanto a transcrição grava, sem `database is locked` | Modo padrão (rollback journal) |
 | Gravação com atraso de 500 ms + gravação ao fechar | Arraste da divisória não vira centenas de escritas; nada se perde ao fechar | Gravar a cada mudança; gravar só ao fechar (perde tudo num travamento) |
-| `dotnet-ef` no manifesto local (`.config/dotnet-tools.json`) | Mesma versão do EF para todo mundo e na CI; `dotnet tool restore` instala | Ferramenta global (versão varia por máquina) |
+| `dotnet-ef` no manifesto local (`dotnet-tools.json` na raiz) | Mesma versão do EF para todo mundo e na CI; `dotnet tool restore` instala | Ferramenta global (versão varia por máquina) |
 
 ## Mudanças em dados
 

@@ -1,6 +1,6 @@
 # 0004 — Persistência local (SQLite), backups e preferências
 
-**Status:** Aprovada
+**Status:** Implementada
 **Branch:** `feature/0004-persistencia`
 
 ## Problema
@@ -52,18 +52,18 @@ O app tem um banco SQLite em `<pasta de dados>/vibePlayer.db`, criado e atualiza
 
 ## Critérios de aceite
 
-- [ ] CA1 — Na primeira abertura, `vibePlayer.db` é criado na pasta de dados com todas as migrations aplicadas (E2E).
-- [ ] CA2 — Todas as mudanças no modelo do EF Core têm migration correspondente; um modelo alterado sem migration faz um teste falhar (unitário).
-- [ ] CA3 — Com um banco de uma versão anterior (migrations pendentes), a abertura cria um backup de atualização, aplica as migrations e preserva os dados existentes (E2E).
-- [ ] CA4 — Se aplicar uma migration falhar, o banco volta ao conteúdo de antes, o erro é registrado no log e o usuário vê "Não foi possível atualizar seus dados" com o caminho do backup; o app encerra sem exceção não tratada (E2E).
-- [ ] CA10 — Na primeira abertura do dia é criado um backup diário válido (abre e passa na verificação de integridade); na segunda abertura do mesmo dia, nenhum (unitário com relógio controlado).
-- [ ] CA11 — O backup diário roda com o app aberto e gravando, e a cópia contém os dados gravados até o momento do backup (E2E).
-- [ ] CA12 — Com 8 backups diários e 4 de atualização, a limpeza mantém os 7 e os 3 mais recentes; backups com defeito não entram na contagem e são removidos (unitário).
-- [ ] CA13 — Se o backup falhar (disco cheio, pasta sem permissão, banco corrompido), o erro vai para o log, o app segue normalmente e os backups anteriores continuam intactos (unitário).
-- [ ] CA5 — `ISettingsStore` devolve o valor padrão quando a chave nunca foi gravada e o último valor gravado depois de salvo, para tipos simples e compostos (unitário, SQLite em memória).
-- [ ] CA6 — Fechar e reabrir o app restaura: painel aberto/fechado, largura, aba selecionada, tamanho da janela e estado maximizado (E2E com duas "aberturas" sobre o mesmo banco em pasta temporária).
-- [ ] CA7 — Uma sequência rápida de mudanças (ex.: arrastar a divisória) resulta em uma única gravação, e fechar o app logo depois de uma mudança não a perde (unitário + E2E).
-- [ ] CA8 — Um valor salvo inválido ou corrompido (ex.: largura negativa, JSON quebrado) é ignorado com aviso no log e o padrão é usado; o app abre normalmente (unitário).
+- [x] CA1 — Na primeira abertura, `vibePlayer.db` é criado na pasta de dados com todas as migrations aplicadas (E2E).
+- [x] CA2 — Todas as mudanças no modelo do EF Core têm migration correspondente; um modelo alterado sem migration faz um teste falhar (unitário).
+- [x] CA3 — Com um banco de uma versão anterior (migrations pendentes), a abertura cria um backup de atualização, aplica as migrations e preserva os dados existentes (E2E).
+- [x] CA4 — Se aplicar uma migration falhar, o banco volta ao conteúdo de antes, o erro é registrado no log e o usuário vê "Não foi possível atualizar seus dados" com o caminho do backup; o app encerra sem exceção não tratada (E2E).
+- [x] CA10 — Na primeira abertura do dia é criado um backup diário válido (abre e passa na verificação de integridade); na segunda abertura do mesmo dia, nenhum (unitário com relógio controlado).
+- [x] CA11 — O backup diário roda com o app aberto e gravando, e a cópia contém os dados gravados até o momento do backup (E2E).
+- [x] CA12 — Com 8 backups diários e 4 de atualização, a limpeza mantém os 7 e os 3 mais recentes; backups com defeito não entram na contagem e são removidos (unitário).
+- [x] CA13 — Se o backup falhar (disco cheio, pasta sem permissão, banco corrompido), o erro vai para o log, o app segue normalmente e os backups anteriores continuam intactos (unitário).
+- [x] CA5 — `ISettingsStore` devolve o valor padrão quando a chave nunca foi gravada e o último valor gravado depois de salvo, para tipos simples e compostos (unitário, SQLite em memória).
+- [x] CA6 — Fechar e reabrir o app restaura: painel aberto/fechado, largura, aba selecionada, tamanho da janela e estado maximizado (E2E com duas "aberturas" sobre o mesmo banco em pasta temporária).
+- [x] CA7 — Uma sequência rápida de mudanças (ex.: arrastar a divisória) resulta em uma única gravação, e fechar o app logo depois de uma mudança não a perde (unitário + E2E).
+- [x] CA8 — Um valor salvo inválido ou corrompido (ex.: largura negativa, JSON quebrado) é ignorado com aviso no log e o padrão é usado; o app abre normalmente (unitário).
 - [ ] CA9 — Os pacotes de release dos quatro RIDs incluem a biblioteca nativa do SQLite e o app abre neles (manual, na próxima release).
 
 ## Impacto para o usuário

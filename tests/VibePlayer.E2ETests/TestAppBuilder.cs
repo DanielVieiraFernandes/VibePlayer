@@ -41,7 +41,10 @@ public static class TestAppBuilder
             logger,
             overrides => overrides.AddSingleton<TimeProvider>(new SteppingTimeProvider(TimeSpan.FromMinutes(1))));
 
-        return AppBuilder.Configure(() => new VibePlayerApp(services))
+        // Mesmo preparo da produção: banco criado com as migrations na pasta temporária.
+        var startup = AppStartup.Prepare(services);
+
+        return AppBuilder.Configure(() => new VibePlayerApp(services, startup))
             .UseHeadless(new AvaloniaHeadlessPlatformOptions())
             .WithInterFont();
     }

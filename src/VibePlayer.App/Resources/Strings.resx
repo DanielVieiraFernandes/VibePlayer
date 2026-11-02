@@ -111,4 +111,22 @@
   <data name="Error_Message" xml:space="preserve">
     <value>Os detalhes foram registrados no log.</value>
   </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>Fechar</value>
+  </data>
+  <data name="DatabaseError_Title" xml:space="preserve">
+    <value>Não foi possível atualizar seus dados</value>
+    <comment>Janela mostrada quando a atualização do banco falha na inicialização; o app fecha em seguida.</comment>
+  </data>
+  <data name="DatabaseError_BackupMessage" xml:space="preserve">
+    <value>Seus dados foram preservados e há um backup em {0}. Os detalhes estão no log.</value>
+    <comment>{0} = caminho do backup.</comment>
+  </data>
+  <data name="DatabaseError_NoBackupMessage" xml:space="preserve">
+    <value>Nenhum dado foi alterado. Os detalhes estão no log, em {0}.</value>
+    <comment>{0} = pasta de logs.</comment>
+  </data>
+  <data name="DatabaseError_Hint" xml:space="preserve">
+    <value>O VibePlayer será fechado. Tente abrir de novo ou instale uma versão mais recente.</value>
+  </data>
 </root>

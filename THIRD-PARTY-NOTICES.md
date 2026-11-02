@@ -12,6 +12,9 @@ O VibePlayer usa os componentes abaixo, cada um sob sua própria licença. Esses
 | FluentIcons.Avalonia (inclui os ícones Fluent UI System Icons, da Microsoft) | MIT (ícones: MIT) | https://github.com/davidxuang/FluentIcons · https://github.com/microsoft/fluentui-system-icons |
 | Microsoft.Extensions.DependencyInjection | MIT | https://github.com/dotnet/runtime |
 | Microsoft.Extensions.Logging | MIT | https://github.com/dotnet/runtime |
+| Microsoft.EntityFrameworkCore.Sqlite (inclui Microsoft.Data.Sqlite) | MIT | https://github.com/dotnet/efcore |
+| SQLitePCLRaw (bundle_e_sqlite3) | Apache 2.0 | https://github.com/ericsink/SQLitePCL.raw |
+| SQLite (biblioteca nativa e_sqlite3) | Domínio público | https://www.sqlite.org/copyright.html |
 | Serilog | Apache 2.0 | https://github.com/serilog/serilog |
 | Serilog.Sinks.File | Apache 2.0 | https://github.com/serilog/serilog-sinks-file |
 | Serilog.Extensions.Logging | Apache 2.0 | https://github.com/serilog/serilog-extensions-logging |
@@ -27,5 +30,6 @@ O VibePlayer usa os componentes abaixo, cada um sob sua própria licença. Esses
 | Shouldly | BSD-3-Clause | https://github.com/shouldly/shouldly |
 | NetArchTest.Rules | MIT | https://github.com/BenMorris/NetArchTest |
 | Avalonia.Headless.XUnit | MIT | https://github.com/AvaloniaUI/Avalonia |
+| Microsoft.EntityFrameworkCore.Design e dotnet-ef | MIT | https://github.com/dotnet/efcore |
 
 Os textos completos das licenças acompanharão o pacote de cada release.
