@@ -1,0 +1,13 @@
+# Normaliza fim de linha no repositório (LF) e converte conforme o SO no checkout.
+# Evita diffs gigantes quando o mesmo arquivo é editado em Windows e em macOS/Linux.
+* text=auto
+
+# Scripts de shell precisam de LF mesmo no Windows, senão quebram na CI Linux/macOS.
+*.sh text eol=lf
+
+# Binários nunca devem passar por conversão de texto.
+*.png binary
+*.ico binary
+*.icns binary
+*.mp4 binary
+*.wav binary
