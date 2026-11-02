@@ -11,13 +11,14 @@ src/VibePlayer.App/
   Resources/
     Strings.resx        Textos da UI (pt-BR), com classe gerada no build para uso via {x:Static}
   Views/
-    MainWindow.axaml    Shell: barra superior + grid de 3 colunas com divisórias
+    MainWindow.axaml    Shell: barra superior + grid de 2 colunas (player | painel lateral) com divisória
     Shell/TopBar.axaml
-    Library/LibraryPanel.axaml
+    Shell/SidePanel.axaml           Abas Aulas | Chat | Resumo | Pontos principais
     Player/PlayerPanel.axaml
-    Assistant/AssistantPanel.axaml
+    Library/LibraryView.axaml       Conteúdo da aba Aulas
+    Assistant/ChatView.axaml, SummaryView.axaml, KeyPointsView.axaml
   ViewModels/
-    MainWindowViewModel  Visibilidade e largura dos painéis, comandos de alternância
+    MainWindowViewModel  Visibilidade e largura do painel lateral, aba selecionada, comandos
     LibraryViewModel, PlayerViewModel, AssistantViewModel (só estado vazio por enquanto)
   Services/
     INotificationService + implementação sobre o WindowNotificationManager do Avalonia
@@ -27,22 +28,25 @@ src/VibePlayer.App/
 
 ```
 ┌──────────────────────────── Barra superior (48 px) ────────────────────────────┐
-│ [≡ Biblioteca]  VibePlayer                          [✦ Assistente] [⚙]         │
-├───────────────┬┬──────────────────────────────────────┬┬───────────────────────┤
-│ Biblioteca    ││ Área do vídeo (fundo sempre escuro)  ││ Chat | Resumo | Pontos│
-│ 280 px        ││                                      ││ 380 px                │
-│ (220–400)     ││   "Selecione uma aula"               ││ (320–560)             │
-│               ││                                      ││                       │
-│ estado vazio  │├──────────────────────────────────────┤│ estado vazio          │
-│ [Adicionar…]  ││ ▶  00:00 ━━━━━━━━━━━━ 00:00  🔊 1x ⛶ ││ [mensagem…]   [→]     │
-└───────────────┴┴──────────────────────────────────────┴┴───────────────────────┘
-                 ↑ divisórias arrastáveis              ↑         notificações ↘
+│ VibePlayer                                                     [◨ Painel] [⚙] │
+├────────────────────────────────────────────────────┬┬──────────────────────────┤
+│ Área do vídeo (fundo sempre escuro)                ││ Aulas|Chat|Resumo|Pontos │
+│                                                    ││ 380 px (320–560)         │
+│               "Selecione uma aula"                 ││                          │
+│                                                    ││ estado vazio da aba      │
+├────────────────────────────────────────────────────┤│                          │
+│ ▶  00:00 ━━━━━━━━━━━━━━━━━━━━━━━━ 00:00  🔊  1x  ⛶ ││ [Adicionar…] [mensagem…] │
+└────────────────────────────────────────────────────┴┴──────────────────────────┘
+                                                      ↑ divisória    notificações ↘
 ```
 
+- Player à esquerda porque é o foco da tela. Biblioteca e assistente são apoio e dividem o mesmo painel, em abas, já que raramente são usados ao mesmo tempo (o usuário escolhe a aula, depois conversa sobre ela).
+- O painel abre na aba *Aulas*. A aba escolhida fica guardada só durante a sessão (lembrar entre aberturas depende da persistência).
 - Painel recolhido: a coluna vai a zero e a divisória some; ao reabrir, volta à última largura usada na sessão.
-- Player com largura mínima de 400 px; as divisórias respeitam os limites de cada painel.
-- Abertura com janela < 1200 px: assistente recolhido. Não há recolhimento automático ao redimensionar depois (o usuário controla).
-- Atalhos: **Ctrl+B** biblioteca, **Ctrl+I** assistente (no macOS, **⌘** no lugar de Ctrl, via `OnPlatform`).
+- Player com largura mínima de 400 px. Na janela mínima (960 px) com o painel na largura padrão sobram 580 px para o player, então não há recolhimento automático em janelas estreitas.
+- Atalhos (no macOS, **⌘** no lugar de Ctrl, via `OnPlatform`):
+  - **Ctrl+B** mostra/oculta o painel lateral;
+  - **Ctrl+1** a **Ctrl+4** abrem o painel direto em *Aulas*, *Chat*, *Resumo* e *Pontos principais*.
 
 ### Tokens
 
@@ -97,10 +101,10 @@ Nenhuma.
 ## Logs e erros
 
 - Notificação de erro não substitui o log: o registro com stack trace continua igual.
-- Alternar painéis registra em `Debug` (útil para depurar o layout, silencioso em release).
+- Alternar o painel e trocar de aba registram em `Debug` (útil para depurar o layout, silencioso em release).
 
 ## Riscos
 
 - **Contraste com o violeta:** cores de destaque saturadas costumam falhar em texto pequeno no tema escuro. Mitigação: o teste de contraste define os tons finais; o `Accent` como texto só é usado em tamanho grande ou ícone.
-- **Divisórias + recolhimento:** o `GridSplitter` grava larguras fixas nas colunas, o que conflita com recolher/reabrir. Mitigação: a largura de cada painel fica no ViewModel e a View só aplica.
+- **Divisória + recolhimento:** o `GridSplitter` grava larguras fixas nas colunas, o que conflita com recolher/reabrir. Mitigação: a largura do painel fica no ViewModel e a View só aplica.
 - **Fontes na CI:** a Inter já vem embutida (`Avalonia.Fonts.Inter`), então capturas e medidas são iguais nos três SOs.
