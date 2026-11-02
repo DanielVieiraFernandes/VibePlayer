@@ -1,0 +1,65 @@
+name: Iniciar hotfix
+
+# Cria hotfix/X.Y.Z a partir de main e abre um PR em rascunho para main.
+# O PR sai do rascunho quando a correção estiver pronta; ao mesclar, release.yml publica a versão.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versão do hotfix no formato X.Y.Z (ex.: 0.1.1)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: start-hotfix
+  cancel-in-progress: false
+
+jobs:
+  start:
+    name: Criar hotfix/${{ inputs.version }}
+    runs-on: ubuntu-latest
+    env:
+      # Mesmos motivos de start-release.yml: entrada por variável de ambiente e token pessoal.
+      VERSION: ${{ inputs.version }}
+      GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+    steps:
+      - name: Verificar RELEASE_TOKEN
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Secret RELEASE_TOKEN não configurado. Veja a seção Git e GitHub do CLAUDE.md."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Validar versão
+        run: bash .github/scripts/validate-version.sh "$VERSION" hotfix
+
+      - name: Criar branch
+        run: |
+          # Uma branch idêntica a main não tem commits a comparar e o GitHub recusa abrir o PR;
+          # um commit vazio marca o início do hotfix e resolve isso.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "chore: inicia hotfix v$VERSION"
+          git push origin "HEAD:refs/heads/hotfix/$VERSION"
+
+      - name: Abrir PR para main (rascunho)
+        run: |
+          gh pr create \
+            --draft \
+            --base main \
+            --head "hotfix/$VERSION" \
+            --title "hotfix: v$VERSION" \
+            --body "Hotfix **v$VERSION**, criado a partir de \`main\`.
+
+          - Envie a correção para esta branch e tire o PR do rascunho quando estiver pronta.
+          - Ao mesclar (merge commit), a pipeline *Publicar release* cria a tag \`v$VERSION\`, publica os binários e leva a correção de volta para \`develop\`."
