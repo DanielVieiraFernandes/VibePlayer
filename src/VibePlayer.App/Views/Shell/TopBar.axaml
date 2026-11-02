@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ic="using:FluentIcons.Avalonia"
+             xmlns:res="using:VibePlayer.App.Resources"
+             xmlns:vm="using:VibePlayer.App.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="48"
+             x:Class="VibePlayer.App.Views.Shell.TopBar"
+             x:DataType="vm:MainWindowViewModel">
+
+    <!-- Barra de título do sistema fica acima; esta barra é do app (DESIGN.md, "Barra superior"). -->
+    <Border Classes="surface"
+            Height="{StaticResource TopBarHeight}"
+            Padding="{StaticResource PaddingBar}"
+            BorderBrush="{DynamicResource BorderSubtleBrush}"
+            BorderThickness="{StaticResource BorderBottom}">
+        <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpaceSm}" VerticalAlignment="Center">
+                <ic:SymbolIcon Symbol="VideoClip" Foreground="{DynamicResource AccentTextBrush}" />
+                <TextBlock Classes="subtitle" Text="{x:Static res:Strings.AppName}" VerticalAlignment="Center" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="{StaticResource SpaceXs}" VerticalAlignment="Center">
+                <ToggleButton x:Name="SidePanelToggle"
+                              Classes="icon"
+                              IsChecked="{Binding IsSidePanelOpen}"
+                              AutomationProperties.Name="{x:Static res:Strings.TopBar_ToggleSidePanel}"
+                              ToolTip.Tip="{x:Static res:Strings.TopBar_ToggleSidePanel}">
+                    <ic:SymbolIcon Symbol="PanelRight" />
+                </ToggleButton>
+                <!-- Sem ação até a spec de configurações; desabilitado para não parecer quebrado. -->
+                <Button Classes="icon"
+                        IsEnabled="False"
+                        AutomationProperties.Name="{x:Static res:Strings.TopBar_Settings}"
+                        ToolTip.Tip="{x:Static res:Strings.Common_ComingSoon}"
+                        ToolTip.ShowOnDisabled="True">
+                    <ic:SymbolIcon Symbol="Settings" />
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+
+</UserControl>

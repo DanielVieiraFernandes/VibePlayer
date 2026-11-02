@@ -7,6 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!--
+      Gera a classe Strings no próprio build (em obj/), sem o Designer.cs do Visual Studio:
+      funciona com dotnet build em qualquer SO e não deixa arquivo gerado no repositório.
+      Pública porque as Views a usam via {x:Static} e os testes conferem os textos.
+    -->
+    <EmbeddedResource Update="Resources\Strings.resx">
+      <StronglyTypedFileName>$(IntermediateOutputPath)Strings.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>VibePlayer.App.Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>Strings</StronglyTypedClassName>
+      <PublicClass>true</PublicClass>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\VibePlayer.Core\VibePlayer.Core.csproj" />
     <ProjectReference Include="..\VibePlayer.Infrastructure\VibePlayer.Infrastructure.csproj" />
   </ItemGroup>
@@ -17,6 +32,7 @@
     <PackageReference Include="Avalonia.Themes.Fluent" />
     <PackageReference Include="Avalonia.Fonts.Inter" />
     <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="FluentIcons.Avalonia" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Logging" />
     <PackageReference Include="Serilog" />

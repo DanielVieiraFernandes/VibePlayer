@@ -1,0 +1,56 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ic="using:FluentIcons.Avalonia"
+             xmlns:res="using:VibePlayer.App.Resources"
+             xmlns:vm="using:VibePlayer.App.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700"
+             x:Class="VibePlayer.App.Views.Player.PlayerPanel"
+             x:DataType="vm:PlayerViewModel">
+
+    <Grid RowDefinitions="*,Auto">
+        <!-- Fundo do vídeo sempre escuro, nos dois temas (DESIGN.md, "Vídeo sempre escuro"). -->
+        <Border x:Name="VideoArea" Background="{DynamicResource VideoBackgroundBrush}">
+            <StackPanel Classes="emptyState" Margin="{StaticResource PaddingEmptyState}">
+                <ic:SymbolIcon Symbol="Video" Foreground="{DynamicResource VideoTextSecondaryBrush}" />
+                <TextBlock Classes="title" Foreground="{DynamicResource VideoTextBrush}" Text="{x:Static res:Strings.Player_EmptyTitle}" />
+                <TextBlock Foreground="{DynamicResource VideoTextSecondaryBrush}" Text="{x:Static res:Strings.Player_EmptyDescription}" />
+            </StackPanel>
+        </Border>
+
+        <!-- Controles existem para o layout e ficam desabilitados até haver aula (spec do player). -->
+        <Border Grid.Row="1"
+                Classes="surface"
+                Height="{StaticResource PlayerControlsHeight}"
+                Padding="{StaticResource PaddingBar}"
+                BorderBrush="{DynamicResource BorderSubtleBrush}"
+                BorderThickness="{StaticResource BorderTop}"
+                IsEnabled="{Binding HasLesson}">
+            <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto,Auto" VerticalAlignment="Center">
+                <Button Grid.Column="0" Classes="icon" AutomationProperties.Name="{x:Static res:Strings.Player_Play}">
+                    <ic:SymbolIcon Symbol="Play" />
+                </Button>
+                <TextBlock Grid.Column="1" Classes="caption secondary tabular"
+                           Margin="{StaticResource PaddingTab}" VerticalAlignment="Center"
+                           AutomationProperties.Name="{x:Static res:Strings.Player_CurrentTime}"
+                           Text="{x:Static res:Strings.Player_TimeZero}" />
+                <Slider Grid.Column="2" VerticalAlignment="Center" Minimum="0" Maximum="1" Value="0"
+                        AutomationProperties.Name="{x:Static res:Strings.Player_Progress}" />
+                <TextBlock Grid.Column="3" Classes="caption secondary tabular"
+                           Margin="{StaticResource PaddingTab}" VerticalAlignment="Center"
+                           AutomationProperties.Name="{x:Static res:Strings.Player_Duration}"
+                           Text="{x:Static res:Strings.Player_TimeZero}" />
+                <Button Grid.Column="4" Classes="icon" AutomationProperties.Name="{x:Static res:Strings.Player_Volume}">
+                    <ic:SymbolIcon Symbol="Speaker2" />
+                </Button>
+                <Button Grid.Column="5" Classes="ghost" Content="{x:Static res:Strings.Player_SpeedNormal}"
+                        AutomationProperties.Name="{x:Static res:Strings.Player_Speed}" />
+                <Button Grid.Column="6" Classes="icon" AutomationProperties.Name="{x:Static res:Strings.Player_Fullscreen}">
+                    <ic:SymbolIcon Symbol="FullScreenMaximize" />
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+
+</UserControl>

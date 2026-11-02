@@ -1,0 +1,169 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ic="using:FluentIcons.Avalonia">
+    <!--
+        Estilos por classe do design system (DESIGN.md, "Componentes"). As Views aplicam classes
+        (Classes="title secondary") em vez de repetir setters, para que um ajuste valha no app todo.
+
+        Os estilos de estado (:pointerover, :pressed, :disabled) miram o ContentPresenter do template
+        do Fluent porque é ele que pinta o fundo nesses estados; setar só o Background do Button
+        seria sobrescrito pelo tema assim que o ponteiro passasse por cima.
+    -->
+
+    <!-- Texto. Tamanho e cor padrão vêm da janela (Window, mais abaixo) por herança, e não de um
+         estilo "TextBlock" global: esse estilo atingiria também os TextBlocks de dentro dos templates
+         do Fluent (botões, abas, placeholder) e quebraria as cores de hover e desabilitado. -->
+    <Style Selector="Window">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+        <Setter Property="Background" Value="{DynamicResource AppBackgroundBrush}" />
+    </Style>
+    <Style Selector="TextBlock.body">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="LineHeight" Value="{StaticResource LineHeightBody}" />
+    </Style>
+    <Style Selector="TextBlock.display">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeDisplay}" />
+        <Setter Property="LineHeight" Value="{StaticResource LineHeightDisplay}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.title">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeTitle}" />
+        <Setter Property="LineHeight" Value="{StaticResource LineHeightTitle}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.subtitle">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeSubtitle}" />
+        <Setter Property="LineHeight" Value="{StaticResource LineHeightSubtitle}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.caption">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeCaption}" />
+        <Setter Property="LineHeight" Value="{StaticResource LineHeightCaption}" />
+    </Style>
+    <Style Selector="TextBlock.secondary">
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+    </Style>
+    <Style Selector="TextBlock.tabular">
+        <!-- Algarismos de largura fixa: o tempo do vídeo não "pula" enquanto conta. -->
+        <Setter Property="FontFeatures" Value="+tnum" />
+    </Style>
+
+    <!-- Superfícies -->
+    <Style Selector="Border.surface">
+        <Setter Property="Background" Value="{DynamicResource SurfaceBackgroundBrush}" />
+    </Style>
+
+    <!-- Estado vazio: ícone, título, explicação e, quando houver, a ação principal. -->
+    <Style Selector="StackPanel.emptyState">
+        <Setter Property="Spacing" Value="{StaticResource SpaceMd}" />
+        <Setter Property="MaxWidth" Value="{StaticResource EmptyStateMaxWidth}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="StackPanel.emptyState > TextBlock">
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="StackPanel.emptyState > ic|SymbolIcon">
+        <Setter Property="FontSize" Value="{StaticResource IconSizeEmptyState}" />
+        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <!-- Ícones -->
+    <Style Selector="ic|SymbolIcon">
+        <Setter Property="FontSize" Value="{StaticResource IconSize}" />
+    </Style>
+
+    <!-- Botões -->
+    <Style Selector="Button, ToggleButton">
+        <Setter Property="MinHeight" Value="{StaticResource ButtonHeight}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingButton}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusMd}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Button.primary">
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}" />
+    </Style>
+    <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AccentPressedBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}" />
+    </Style>
+
+    <!-- Botão de ícone: quadrado, sem fundo até o ponteiro passar; usado nas barras. -->
+    <Style Selector="Button.icon, ToggleButton.icon">
+        <Setter Property="Width" Value="{StaticResource IconButtonSize}" />
+        <Setter Property="Height" Value="{StaticResource IconButtonSize}" />
+        <Setter Property="MinHeight" Value="{StaticResource IconButtonSize}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSm}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+    </Style>
+    <Style Selector="ToggleButton.icon:checked /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AccentSubtleBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+    </Style>
+
+    <!-- Botões sem fundo continuam sem fundo quando desabilitados; o Fluent pinta um cinza que,
+         numa barra cheia de controles desabilitados, parece uma fileira de blocos. -->
+    <Style Selector="Button.icon:disabled /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.icon:disabled /template/ ContentPresenter#PART_ContentPresenter, Button.ghost:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource TextDisabledBrush}" />
+    </Style>
+
+    <!-- Botão de texto compacto sem fundo (ex.: velocidade "1x" na barra do player). -->
+    <Style Selector="Button.ghost">
+        <Setter Property="MinHeight" Value="{StaticResource ButtonHeightCompact}" />
+        <Setter Property="Height" Value="{StaticResource ButtonHeightCompact}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingTab}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSm}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+    </Style>
+
+    <!-- Abas do painel lateral: o Fluent usa cabeçalhos grandes (24 px), feitos para navegação de
+         página; aqui elas são secundárias e precisam caber quatro em 320 px. -->
+    <Style Selector="TabItem">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="MinHeight" Value="{StaticResource TabHeight}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingTab}" />
+    </Style>
+
+    <!-- Campos -->
+    <Style Selector="TextBox">
+        <Setter Property="MinHeight" Value="{StaticResource ButtonHeight}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusMd}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <!-- Divisória arrastável entre o player e o painel lateral. -->
+    <Style Selector="Thumb.splitter">
+        <Setter Property="Width" Value="{StaticResource SplitterWidth}" />
+        <Setter Property="Background" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="Cursor" Value="SizeWestEast" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}" />
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="Thumb.splitter:pointerover">
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+    </Style>
+</Styles>

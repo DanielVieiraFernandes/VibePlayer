@@ -8,6 +8,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\VibePlayer.Core\VibePlayer.Core.csproj" />
     <ProjectReference Include="..\..\src\VibePlayer.Infrastructure\VibePlayer.Infrastructure.csproj" />
+    <!-- ViewModels e serviços de UI sem janela; nada aqui sobe o Avalonia. -->
+    <ProjectReference Include="..\..\src\VibePlayer.App\VibePlayer.App.csproj" />
   </ItemGroup>
 
   <ItemGroup>

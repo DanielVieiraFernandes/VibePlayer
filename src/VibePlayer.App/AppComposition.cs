@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using VibePlayer.App.Diagnostics;
+using VibePlayer.App.Services;
 using VibePlayer.App.ViewModels;
 using VibePlayer.Core;
 using VibePlayer.Infrastructure;
@@ -17,7 +18,13 @@ public static class AppComposition
     /// Logger Serilog já configurado. Recebido de fora para que os testes E2E injetem um
     /// logger em memória e verifiquem o que foi registrado, sem gravar arquivos.
     /// </param>
-    public static ServiceProvider BuildServices(IAppPaths paths, Serilog.ILogger logger)
+    /// <param name="overrides">
+    /// Só para testes: troca registros depois dos de produção (ex.: um relógio falso).
+    /// </param>
+    public static ServiceProvider BuildServices(
+        IAppPaths paths,
+        Serilog.ILogger logger,
+        Action<IServiceCollection>? overrides = null)
     {
         var services = new ServiceCollection();
 
@@ -27,8 +34,17 @@ public static class AppComposition
         services.AddLogging(builder => builder.ClearProviders().AddSerilog(logger, dispose: false));
 
         services.AddInfrastructure(paths);
+        services.AddSingleton(TimeProvider.System);
+        services.AddSingleton<NotificationService>();
+        services.AddSingleton<INotificationService>(sp => sp.GetRequiredService<NotificationService>());
         services.AddSingleton<GlobalExceptionHandler>();
+
         services.AddTransient<MainWindowViewModel>();
+        services.AddTransient<LibraryViewModel>();
+        services.AddTransient<PlayerViewModel>();
+        services.AddTransient<AssistantViewModel>();
+
+        overrides?.Invoke(services);
 
         // ValidateOnBuild acusa dependências não registradas na inicialização,
         // em vez de só quando a tela que as usa for aberta.

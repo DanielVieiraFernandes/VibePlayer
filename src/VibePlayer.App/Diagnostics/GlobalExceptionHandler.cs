@@ -1,5 +1,7 @@
 using Avalonia.Threading;
 using Microsoft.Extensions.Logging;
+using VibePlayer.App.Resources;
+using VibePlayer.App.Services;
 
 namespace VibePlayer.App.Diagnostics;
 
@@ -15,9 +17,10 @@ namespace VibePlayer.App.Diagnostics;
 /// esses padrões por regra (segundo plano sempre via <c>FireAndForget</c>).
 ///
 /// Não é fluxo normal de erro: comandos tratam suas falhas esperadas. Chegar aqui significa
-/// um bug, por isso o registro é Error com stack trace completo.
+/// um bug, por isso o registro é Error com stack trace completo. Depois do log, o usuário vê um
+/// aviso discreto: sem ele, a ação que falhou simplesmente "não faria nada".
 /// </remarks>
-public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
+public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, INotificationService notifications)
 {
     private Dispatcher? _attachedDispatcher;
     private bool _attachedToTaskScheduler;
@@ -48,6 +51,7 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
     {
         logger.LogError(e.Exception, "Exceção não tratada na thread de UI; o app continua em execução");
         e.Handled = true;
+        NotifyUser();
     }
 
     private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
@@ -57,5 +61,8 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
         // Marca como observada para que nenhuma configuração do runtime
         // (ThrowUnobservedTaskExceptions) transforme isso em encerramento do processo.
         e.SetObserved();
+        NotifyUser();
     }
+
+    private void NotifyUser() => notifications.ShowError(Strings.Error_Title, Strings.Error_Message);
 }

@@ -1,16 +1,19 @@
 using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Headless.XUnit;
+using Avalonia.Controls.Notifications;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Serilog.Events;
 using VibePlayer.App;
+using VibePlayer.App.Resources;
 
 namespace VibePlayer.E2ETests;
 
 public sealed class UnhandledExceptionTests
 {
     [AvaloniaFact]
-    public void ExcecaoEmComandoDaUi_RegistraErroEJanelaContinuaAberta()
+    public void ExcecaoEmComandoDaUi_MostraNotificacaoERegistraErro()
     {
         var app = (VibePlayerApp)Application.Current!;
         var window = app.CreateMainWindow();
@@ -25,6 +28,12 @@ public sealed class UnhandledExceptionTests
         TestAppBuilder.LogSink.Events.ShouldContain(e =>
             e.Level == LogEventLevel.Error && e.Exception != null && e.Exception.Message == marker);
         window.IsVisible.ShouldBeTrue();
+
+        WindowTestExtensions.Settle();
+        window.GetVisualDescendants().OfType<NotificationCard>()
+            .Select(card => card.Content)
+            .OfType<INotification>()
+            .ShouldContain(n => n.Type == NotificationType.Error && n.Title == Strings.Error_Title);
 
         window.Close();
     }
