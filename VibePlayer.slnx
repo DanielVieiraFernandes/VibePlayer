@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/VibePlayer.App/VibePlayer.App.csproj" />
+    <Project Path="src/VibePlayer.Core/VibePlayer.Core.csproj" />
+    <Project Path="src/VibePlayer.Infrastructure/VibePlayer.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/VibePlayer.E2ETests/VibePlayer.E2ETests.csproj" />
+    <Project Path="tests/VibePlayer.UnitTests/VibePlayer.UnitTests.csproj" />
+  </Folder>
+</Solution>

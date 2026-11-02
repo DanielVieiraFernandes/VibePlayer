@@ -12,7 +12,7 @@ Player desktop **multiplataforma** (Windows, macOS e Linux) para cursos em víde
 
 O código-fonte fica em repositório público no GitHub, mas o projeto **não é open source** e **não aceita contribuições externas**: a licença é proprietária (todos os direitos reservados), com permissão apenas para baixar e usar os binários publicados em Releases. Não sugira nem adicione licenças open source, `CONTRIBUTING.md` convidando PRs ou templates de contribuição.
 
-O projeto está no início: a arquitetura abaixo é a **planejada**. Ao criar ou mudar algo estrutural, atualize este arquivo.
+O esqueleto (solution, DI, logs, testes, CI) existe; as funcionalidades descritas abaixo (biblioteca, player, transcrição, LLM, persistência) ainda são **planejadas**. Ao criar ou mudar algo estrutural, atualize este arquivo.
 
 ## Fluxo de trabalho (SDD — obrigatório)
 
@@ -54,12 +54,15 @@ Detalhes em [specs/README.md](specs/README.md).
 - **Binários nativos por SO:** LibVLC (no Linux depende do `libvlc` instalado no sistema), ffmpeg e runtimes do Whisper.net precisam existir para cada RID publicado.
 - No macOS, binários sem assinatura e notarização são bloqueados pelo Gatekeeper; a distribuição para macOS precisa tratar isso.
 
-## Estrutura planejada
+## Estrutura
 
 ```
-VibePlayer.sln
+VibePlayer.slnx
+Directory.Build.props         net10.0, Nullable, warnings como erro, metadados do produto
+Directory.Packages.props      Versão de TODOS os pacotes NuGet (os .csproj não declaram versão)
+global.json                   SDK do .NET 10
 src/
-  VibePlayer.App/             Avalonia: Views, ViewModels, DI/bootstrap, configuração do Serilog
+  VibePlayer.App/             Avalonia: Views, ViewModels, Program (bootstrap), AppComposition (composition root), Serilog
   VibePlayer.Core/            Domínio e interfaces (sem dependência de UI, VLC, Whisper, SDKs ou EF)
   VibePlayer.Infrastructure/  Player VLC, ffmpeg, Whisper, provedores de LLM, DbContext/migrations
 tests/
@@ -70,15 +73,26 @@ docs/                           Documentação técnica versionada (arquitetura,
 DESIGN.md                       Design system da UI (criado na primeira spec de layout)
 ```
 
-`Core` não referencia `Infrastructure` nem `App`; tudo que toca bibliotecas externas fica atrás de interfaces em `Core` (`ITranscriptionService`, `ILlmProvider`, `ICourseLibrary` etc.).
+`Core` não referencia `Infrastructure` nem `App`; tudo que toca bibliotecas externas fica atrás de interfaces em `Core` (`ITranscriptionService`, `ILlmProvider`, `ICourseLibrary` etc.). Isso é verificado por `ArchitectureTests` nos testes unitários.
+
+Registro de serviços: implementações de `Infrastructure` entram por `AddInfrastructure()`; ViewModels e serviços de UI em `AppComposition.BuildServices`. Classes recebem `ILogger<T>` (Microsoft.Extensions.Logging), nunca o Serilog diretamente. A classe da aplicação Avalonia se chama `VibePlayerApp` (e não `App`) para não colidir com o namespace `VibePlayer.App`.
+
+## Exceções
+
+Uma exceção não pode derrubar o app. `GlobalExceptionHandler` registra e mantém o app aberto para exceções na thread de UI e em tasks não observadas; o .NET **não permite** recuperar exceções em threads próprias ou `async void` fora da UI. Por isso:
+
+- `async void` só em handlers de evento da UI; todo o resto retorna `Task`.
+- Nada de `new Thread`, `System.Threading.Timer` ou `Task.Run` solto: trabalho em segundo plano usa `task.FireAndForget(logger, "NomeDaOperacao")` (`VibePlayer.Core.Threading`) ou é aguardado.
+- Comandos tratam seus erros esperados; o handler global é rede de segurança para bugs, não fluxo normal.
 
 ## Comandos
 
 ```bash
-dotnet build
+dotnet build VibePlayer.slnx
 dotnet run --project src/VibePlayer.App
-dotnet test
+dotnet test VibePlayer.slnx
 dotnet test tests/VibePlayer.UnitTests
+dotnet test tests/VibePlayer.E2ETests
 dotnet test --filter "FullyQualifiedName~NomeDaClasseOuTeste"
 dotnet ef migrations add NomeDaMigration --project src/VibePlayer.Infrastructure --startup-project src/VibePlayer.App
 ```
@@ -86,7 +100,7 @@ dotnet ef migrations add NomeDaMigration --project src/VibePlayer.Infrastructure
 ## Testes
 
 - **Unitários:** cobrem `Core` e ViewModels, com dependências externas substituídas por fakes. Não tocam disco, rede, VLC, Whisper nem LLM.
-- **E2E:** sobem a UI real com `Avalonia.Headless`, SQLite real em arquivo temporário e uma biblioteca de cursos de exemplo gerada no próprio teste (vídeos curtos em `tests/fixtures`). O provedor de LLM é sempre um fake determinístico: nenhum teste chama Claude ou Ollama de verdade, nem localmente nem na CI.
+- **E2E:** sobem a UI real com `Avalonia.Headless` (via `TestAppBuilder`, que usa o mesmo `AppComposition` de produção e grava logs no `InMemorySink` para os testes verificarem). O Avalonia 12 recria o app e o dispatcher **a cada teste**; não guarde estado de UI em campos estáticos. Nas specs futuras: SQLite real em arquivo temporário e uma biblioteca de cursos de exemplo gerada no próprio teste (vídeos curtos em `tests/fixtures`). O provedor de LLM é sempre um fake determinístico: nenhum teste chama Claude ou Ollama de verdade, nem localmente nem na CI.
 - Toda spec lista em `tasks.md` quais testes unitários e E2E comprovam seus critérios de aceite.
 
 ## Comentários no código

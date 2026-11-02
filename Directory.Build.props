@@ -1,0 +1,24 @@
+<Project>
+  <!-- Configurações aplicadas a todos os projetos da solution (src e tests). -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Warnings viram erro para que problemas apareçam no build e na CI, não em produção. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!-- Builds reproduzíveis: o mesmo commit gera o mesmo binário em qualquer máquina. -->
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Product>VibePlayer</Product>
+    <Authors>Daniel Vieira Fernandes</Authors>
+    <Copyright>Copyright © 2026 Daniel Vieira Fernandes. Todos os direitos reservados.</Copyright>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+</Project>

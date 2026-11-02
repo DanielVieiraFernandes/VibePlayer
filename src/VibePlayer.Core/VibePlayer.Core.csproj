@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Domínio e abstrações. Não pode depender de UI, Serilog, banco ou SDKs externos:
+    a regra é verificada pelo teste de arquitetura em VibePlayer.UnitTests.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+</Project>
