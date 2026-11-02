@@ -80,7 +80,7 @@ tests/
   VibePlayer.E2ETests/
 specs/                          Specs do SDD (uma pasta por mudança)
 docs/                           Documentação técnica versionada (arquitetura, decisões)
-DESIGN.md                       Design system da UI (criado na primeira spec de layout)
+DESIGN.md                       Design system da UI (tokens em src/VibePlayer.App/Styles)
 ```
 
 `Core` não referencia `Infrastructure` nem `App`; tudo que toca bibliotecas externas fica atrás de interfaces em `Core` (`ITranscriptionService`, `ILlmProvider`, `ICourseLibrary` etc.). Isso é verificado por `ArchitectureTests` nos testes unitários.
@@ -160,4 +160,11 @@ Tudo fica na pasta de dados do usuário, `Environment.GetFolderPath(Environment.
 
 ## UI
 
-Antes da primeira spec de layout, crie `DESIGN.md` com o design system: escala tipográfica, paleta (tema claro e escuro, contraste WCAG AA), espaçamentos em grade de 4/8 px, raios, tamanhos de componentes e estados (hover, foco, desabilitado). Toda tela nova segue o `DESIGN.md`; cores e tamanhos vêm de recursos/estilos Avalonia centralizados, nunca valores soltos nas Views.
+Toda tela segue o [`DESIGN.md`](DESIGN.md) (paleta clara/escura, tipografia, espaçamento, componentes, estados, acessibilidade). Layout: player à esquerda; à direita, painel lateral recolhível com as abas *Aulas*, *Chat*, *Resumo* e *Pontos principais*.
+
+- **Tokens** em `src/VibePlayer.App/Styles/Tokens.axaml` (cores em `ThemeDictionaries` Light/Dark, sempre via `DynamicResource`; tamanhos, espaçamentos e raios via `StaticResource`) e **estilos por classe** em `Styles/Controls.axaml` (`TextBlock.title`, `Button.primary`, `Button.icon`, `StackPanel.emptyState`...). Views nunca têm cor, tamanho de fonte ou espaçamento literal — `ViewConventionsTests` falha se tiverem. Cor nova: nos dois temas e com par de contraste em `DESIGN.md` e `DesignTokenTests.Pairs`.
+- **Textos** em `src/VibePlayer.App/Resources/Strings.resx` (pt-BR; classe `Strings` gerada no build), usados com `{x:Static res:Strings.Area_Elemento}`. Nenhuma string visível solta em View ou ViewModel.
+- **Views** em `Views/<Área>/` (`Shell`, `Player`, `Library`, `Assistant`), uma `UserControl` por região, com `x:DataType` do ViewModel. Ícones: `FluentIcons.Avalonia` (`<ic:SymbolIcon Symbol="..." />`).
+- **Acessibilidade:** controle sem texto visível leva `AutomationProperties.Name` (`AccessibilityTests` verifica). Atalhos usam `PlatformSettings.HotkeyConfiguration.CommandModifiers` (Ctrl, ou ⌘ no macOS), nunca Ctrl fixo.
+- Função ainda não implementada: controle desabilitado com dica "Disponível em breve", não um botão que não faz nada.
+- Avisos ao usuário passam por `INotificationService` (canto inferior direito); o `GlobalExceptionHandler` já mostra um aviso de erro genérico, limitado a um a cada 5 s.

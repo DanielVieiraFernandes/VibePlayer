@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Textos da interface em pt-BR (idioma neutro do app). As Views usam {x:Static res:Strings.Chave};
+    para outro idioma, crie Strings.<cultura>.resx com as mesmas chaves.
+    Chaves no formato Area_Elemento para agrupar por tela.
+  -->
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AppName" xml:space="preserve">
+    <value>VibePlayer</value>
+    <comment>Nome do produto; não traduzir.</comment>
+  </data>
+  <data name="Common_ComingSoon" xml:space="preserve">
+    <value>Disponível em breve</value>
+    <comment>Dica de botões cuja função chega numa próxima versão.</comment>
+  </data>
+  <data name="TopBar_ToggleSidePanel" xml:space="preserve">
+    <value>Mostrar ou ocultar o painel lateral</value>
+  </data>
+  <data name="TopBar_Settings" xml:space="preserve">
+    <value>Configurações</value>
+  </data>
+  <data name="Player_EmptyTitle" xml:space="preserve">
+    <value>Selecione uma aula</value>
+  </data>
+  <data name="Player_EmptyDescription" xml:space="preserve">
+    <value>Escolha uma aula na aba Aulas para começar a assistir.</value>
+  </data>
+  <data name="Player_Play" xml:space="preserve">
+    <value>Reproduzir</value>
+  </data>
+  <data name="Player_Progress" xml:space="preserve">
+    <value>Progresso da aula</value>
+  </data>
+  <data name="Player_CurrentTime" xml:space="preserve">
+    <value>Tempo atual</value>
+  </data>
+  <data name="Player_Duration" xml:space="preserve">
+    <value>Duração</value>
+  </data>
+  <data name="Player_TimeZero" xml:space="preserve">
+    <value>00:00</value>
+  </data>
+  <data name="Player_Volume" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="Player_Speed" xml:space="preserve">
+    <value>Velocidade de reprodução</value>
+  </data>
+  <data name="Player_SpeedNormal" xml:space="preserve">
+    <value>1x</value>
+  </data>
+  <data name="Player_Fullscreen" xml:space="preserve">
+    <value>Tela cheia</value>
+  </data>
+  <data name="SidePanel_Name" xml:space="preserve">
+    <value>Painel lateral</value>
+  </data>
+  <data name="Tab_Lessons" xml:space="preserve">
+    <value>Aulas</value>
+  </data>
+  <data name="Tab_Chat" xml:space="preserve">
+    <value>Chat</value>
+  </data>
+  <data name="Tab_Summary" xml:space="preserve">
+    <value>Resumo</value>
+  </data>
+  <data name="Tab_KeyPoints" xml:space="preserve">
+    <value>Pontos principais</value>
+  </data>
+  <data name="Library_EmptyTitle" xml:space="preserve">
+    <value>Nenhum curso ainda</value>
+  </data>
+  <data name="Library_EmptyDescription" xml:space="preserve">
+    <value>Adicione a pasta onde ficam seus cursos em vídeo. Cada subpasta vira um curso e cada vídeo, uma aula.</value>
+  </data>
+  <data name="Library_AddFolder" xml:space="preserve">
+    <value>Adicionar pasta de cursos</value>
+  </data>
+  <data name="Chat_EmptyTitle" xml:space="preserve">
+    <value>Pergunte sobre a aula</value>
+  </data>
+  <data name="Chat_EmptyDescription" xml:space="preserve">
+    <value>Selecione uma aula para conversar com o assistente sobre o conteúdo dela.</value>
+  </data>
+  <data name="Chat_InputPlaceholder" xml:space="preserve">
+    <value>Pergunte algo sobre a aula…</value>
+  </data>
+  <data name="Chat_Send" xml:space="preserve">
+    <value>Enviar mensagem</value>
+  </data>
+  <data name="Summary_EmptyTitle" xml:space="preserve">
+    <value>Nenhum resumo ainda</value>
+  </data>
+  <data name="Summary_EmptyDescription" xml:space="preserve">
+    <value>Selecione uma aula para gerar um resumo do conteúdo.</value>
+  </data>
+  <data name="KeyPoints_EmptyTitle" xml:space="preserve">
+    <value>Nenhum ponto principal ainda</value>
+  </data>
+  <data name="KeyPoints_EmptyDescription" xml:space="preserve">
+    <value>Os principais pontos da aula aparecem aqui, cada um com o momento exato no vídeo.</value>
+  </data>
+  <data name="Error_Title" xml:space="preserve">
+    <value>Algo deu errado</value>
+    <comment>Notificação mostrada quando o handler global trata uma exceção.</comment>
+  </data>
+  <data name="Error_Message" xml:space="preserve">
+    <value>Os detalhes foram registrados no log.</value>
+  </data>
+</root>

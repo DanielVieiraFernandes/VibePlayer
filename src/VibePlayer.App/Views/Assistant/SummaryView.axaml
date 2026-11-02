@@ -1,0 +1,18 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ic="using:FluentIcons.Avalonia"
+             xmlns:res="using:VibePlayer.App.Resources"
+             xmlns:vm="using:VibePlayer.App.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="380" d:DesignHeight="600"
+             x:Class="VibePlayer.App.Views.Assistant.SummaryView"
+             x:DataType="vm:AssistantViewModel">
+
+    <StackPanel Classes="emptyState" Margin="{StaticResource PaddingEmptyState}">
+        <ic:SymbolIcon Symbol="DocumentText" />
+        <TextBlock Classes="subtitle" Text="{x:Static res:Strings.Summary_EmptyTitle}" />
+        <TextBlock Classes="body secondary" Text="{x:Static res:Strings.Summary_EmptyDescription}" />
+    </StackPanel>
+
+</UserControl>

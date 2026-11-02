@@ -9,6 +9,7 @@ O VibePlayer usa os componentes abaixo, cada um sob sua própria licença. Esses
 | Avalonia (Avalonia, Avalonia.Desktop, Avalonia.Themes.Fluent) | MIT | https://github.com/AvaloniaUI/Avalonia |
 | Avalonia.Fonts.Inter (inclui a fonte Inter) | MIT (Inter: SIL Open Font License 1.1) | https://github.com/AvaloniaUI/Avalonia · https://github.com/rsms/inter |
 | CommunityToolkit.Mvvm | MIT | https://github.com/CommunityToolkit/dotnet |
+| FluentIcons.Avalonia (inclui os ícones Fluent UI System Icons, da Microsoft) | MIT (ícones: MIT) | https://github.com/davidxuang/FluentIcons · https://github.com/microsoft/fluentui-system-icons |
 | Microsoft.Extensions.DependencyInjection | MIT | https://github.com/dotnet/runtime |
 | Microsoft.Extensions.Logging | MIT | https://github.com/dotnet/runtime |
 | Serilog | Apache 2.0 | https://github.com/serilog/serilog |

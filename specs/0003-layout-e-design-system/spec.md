@@ -1,6 +1,6 @@
 # 0003 — Layout principal e design system
 
-**Status:** Aprovada
+**Status:** Implementada
 **Branch:** `feature/0003-layout-e-design-system`
 
 ## Problema
@@ -37,16 +37,16 @@ Existe um `DESIGN.md` que define o padrão visual do app, implementado como recu
 
 ## Critérios de aceite
 
-- [ ] CA1 — `DESIGN.md` existe na raiz com todas as seções do escopo e exemplos de uso dos tokens.
-- [ ] CA2 — Nenhum arquivo `.axaml` em `Views/` contém cor literal (`#RRGGBB`, nomes de cor) nem tamanho de fonte numérico; tudo vem de tokens (verificado por teste).
-- [ ] CA3 — Cada token de cor existe nas variantes clara e escura (verificado por teste).
-- [ ] CA4 — Todos os pares de texto/fundo definidos no `DESIGN.md` têm contraste mínimo de 4,5:1 (texto normal) e 3:1 (texto grande e ícones) nos dois temas — WCAG AA (verificado por teste).
-- [ ] CA5 — Ao abrir, a janela mostra a barra superior, o player à esquerda e o painel lateral à direita na aba *Aulas*, com seus estados vazios; cada aba mostra seu estado vazio ao ser selecionada (E2E).
-- [ ] CA6 — O botão da barra superior e o atalho de teclado mostram e ocultam o painel lateral, e o player ocupa o espaço liberado; os atalhos de aba abrem o painel na aba pedida (E2E).
-- [ ] CA7 — No tamanho mínimo da janela (960 × 600), com o painel lateral aberto, nada fica cortado nem com rolagem horizontal e o player mantém sua largura mínima (E2E).
-- [ ] CA8 — Uma exceção tratada pelo `GlobalExceptionHandler` mostra a notificação de erro e continua registrada no log; o app segue funcionando (E2E).
-- [ ] CA9 — Todo elemento interativo é alcançável por Tab, com indicador de foco visível, e tem nome acessível (verificado por teste para o nome; manual para o foco).
-- [ ] CA10 — Capturas de tela da janela nos temas claro e escuro anexadas ao PR para revisão visual.
+- [x] CA1 — `DESIGN.md` existe na raiz com todas as seções do escopo e exemplos de uso dos tokens.
+- [x] CA2 — Nenhum arquivo `.axaml` em `Views/` contém cor literal (`#RRGGBB`, nomes de cor) nem tamanho de fonte numérico; tudo vem de tokens (verificado por teste).
+- [x] CA3 — Cada token de cor existe nas variantes clara e escura (verificado por teste).
+- [x] CA4 — Todos os pares de texto/fundo definidos no `DESIGN.md` têm contraste mínimo de 4,5:1 (texto normal) e 3:1 (texto grande e ícones) nos dois temas — WCAG AA (verificado por teste).
+- [x] CA5 — Ao abrir, a janela mostra a barra superior, o player à esquerda e o painel lateral à direita na aba *Aulas*, com seus estados vazios; cada aba mostra seu estado vazio ao ser selecionada (E2E).
+- [x] CA6 — O botão da barra superior e o atalho de teclado mostram e ocultam o painel lateral, e o player ocupa o espaço liberado; os atalhos de aba abrem o painel na aba pedida (E2E).
+- [x] CA7 — No tamanho mínimo da janela (960 × 600), com o painel lateral aberto, nada fica cortado nem com rolagem horizontal e o player mantém sua largura mínima (E2E).
+- [x] CA8 — Uma exceção tratada pelo `GlobalExceptionHandler` mostra a notificação de erro e continua registrada no log; o app segue funcionando (E2E).
+- [x] CA9 — Todo elemento interativo é alcançável por Tab, com indicador de foco visível, e tem nome acessível (verificado por teste para o nome; manual para o foco).
+- [x] CA10 — Capturas de tela da janela nos temas claro e escuro anexadas ao PR para revisão visual.
 
 ## Impacto para o usuário
 

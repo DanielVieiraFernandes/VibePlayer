@@ -4,6 +4,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using VibePlayer.App.Diagnostics;
+using VibePlayer.App.Services;
 using VibePlayer.App.ViewModels;
 using VibePlayer.App.Views;
 
@@ -57,9 +58,13 @@ public partial class VibePlayerApp : Application
             throw new InvalidOperationException("O app foi criado sem serviços (modo previewer).");
         }
 
-        return new MainWindow
+        var window = new MainWindow
         {
             DataContext = _services.GetRequiredService<MainWindowViewModel>(),
         };
+
+        // As notificações (inclusive as de erro do GlobalExceptionHandler) aparecem nesta janela.
+        _services.GetRequiredService<NotificationService>().AttachTo(window);
+        return window;
     }
 }

@@ -1,0 +1,35 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ic="using:FluentIcons.Avalonia"
+             xmlns:res="using:VibePlayer.App.Resources"
+             xmlns:lib="using:VibePlayer.App.Views.Library"
+             xmlns:assistant="using:VibePlayer.App.Views.Assistant"
+             xmlns:vm="using:VibePlayer.App.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="380" d:DesignHeight="700"
+             x:Class="VibePlayer.App.Views.Shell.SidePanel"
+             x:DataType="vm:MainWindowViewModel">
+
+    <!-- Sem borda própria: a divisória arrastável já separa o painel do player. -->
+    <Border Classes="surface">
+        <TabControl x:Name="Tabs"
+                    SelectedIndex="{Binding SelectedTabIndex}"
+                    Padding="0"
+                    AutomationProperties.Name="{x:Static res:Strings.SidePanel_Name}">
+            <TabItem Header="{x:Static res:Strings.Tab_Lessons}">
+                <lib:LibraryView DataContext="{Binding Library}" />
+            </TabItem>
+            <TabItem Header="{x:Static res:Strings.Tab_Chat}">
+                <assistant:ChatView DataContext="{Binding Assistant}" />
+            </TabItem>
+            <TabItem Header="{x:Static res:Strings.Tab_Summary}">
+                <assistant:SummaryView DataContext="{Binding Assistant}" />
+            </TabItem>
+            <TabItem Header="{x:Static res:Strings.Tab_KeyPoints}">
+                <assistant:KeyPointsView DataContext="{Binding Assistant}" />
+            </TabItem>
+        </TabControl>
+    </Border>
+
+</UserControl>
