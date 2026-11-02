@@ -1,0 +1,50 @@
+VibePlayer — Licença de Uso
+
+Copyright © 2026 Daniel Vieira Fernandes. Todos os direitos reservados.
+
+1. TITULARIDADE
+O VibePlayer, incluindo seu código-fonte, binários, documentação e demais materiais
+deste repositório (o "Software"), é de propriedade exclusiva de Daniel Vieira Fernandes
+(o "Titular"). O código-fonte está publicamente visível apenas para consulta; isso não
+concede nenhuma licença sobre ele além do previsto expressamente neste documento.
+
+2. O QUE É PERMITIDO
+O Titular concede a você uma licença gratuita, pessoal, não exclusiva, intransferível e
+revogável para baixar, instalar e usar os binários oficiais do Software publicados na
+página de Releases do repositório oficial.
+
+3. O QUE NÃO É PERMITIDO
+Salvo autorização prévia e por escrito do Titular, você não pode:
+  a) copiar, modificar, adaptar ou criar obras derivadas do código-fonte ou dos binários;
+  b) distribuir, publicar, sublicenciar, vender, alugar ou disponibilizar o Software, no
+     todo ou em parte, a terceiros, incluindo a redistribuição dos binários oficiais;
+  c) usar o código-fonte, no todo ou em parte, em outros projetos;
+  d) remover ou alterar avisos de direitos autorais ou de licença.
+
+4. COMPONENTES DE TERCEIROS
+O Software inclui componentes de terceiros que permanecem sob suas próprias licenças,
+listadas em THIRD-PARTY-NOTICES.md. Nada nesta licença restringe os direitos que essas
+licenças garantem a você. Em especial, para componentes licenciados sob a GNU LGPL, você
+pode substituí-los por versões modificadas e realizar a engenharia reversa estritamente
+necessária para depurar essas modificações, conforme os termos da LGPL.
+
+5. CONTRIBUIÇÕES
+O projeto não aceita contribuições externas. Pull requests, patches ou sugestões de
+código enviados não serão incorporados e não geram nenhum direito ao remetente.
+
+6. AUSÊNCIA DE GARANTIA
+O SOFTWARE É FORNECIDO "NO ESTADO EM QUE SE ENCONTRA", SEM GARANTIAS DE QUALQUER TIPO,
+EXPRESSAS OU IMPLÍCITAS, INCLUINDO, SEM LIMITAÇÃO, GARANTIAS DE COMERCIALIZAÇÃO,
+ADEQUAÇÃO A UMA FINALIDADE ESPECÍFICA E NÃO VIOLAÇÃO.
+
+7. LIMITAÇÃO DE RESPONSABILIDADE
+EM NENHUMA HIPÓTESE O TITULAR SERÁ RESPONSÁVEL POR QUAISQUER DANOS, PERDAS DE DADOS,
+CUSTOS COM SERVIÇOS DE TERCEIROS (INCLUSIVE COBRANÇAS DE PROVEDORES DE IA) OU OUTRAS
+RESPONSABILIDADES DECORRENTES DO USO OU DA IMPOSSIBILIDADE DE USO DO SOFTWARE.
+
+8. RESCISÃO
+Esta licença termina automaticamente se você descumprir qualquer de seus termos. Ao
+término, você deve deixar de usar o Software e apagar todas as cópias.
+
+9. LEI APLICÁVEL
+Esta licença é regida pelas leis da República Federativa do Brasil.

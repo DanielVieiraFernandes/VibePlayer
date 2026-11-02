@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancela execuções antigas da mesma branch quando um novo push chega.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build e testes (${{ matrix.os }})
+    strategy:
+      # Roda os três SOs até o fim mesmo se um falhar, para ver todas as falhas de uma vez.
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore VibePlayer.slnx
+
+      - name: Build
+        run: dotnet build VibePlayer.slnx --configuration Release --no-restore
+
+      - name: Testes unitários
+        run: dotnet test tests/VibePlayer.UnitTests --configuration Release --no-build
+
+      - name: Testes E2E
+        run: dotnet test tests/VibePlayer.E2ETests --configuration Release --no-build
