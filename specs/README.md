@@ -13,7 +13,7 @@ specs/
     tasks.md           Passo a passo da implementação e testes que comprovam a spec
 ```
 
-Numeração sequencial com 4 dígitos; nome curto em kebab-case (`0003-transcricao-whisper`).
+Numeração sequencial com 4 dígitos; nome curto em kebab-case (`0003-transcricao-whisper`). A spec vive na branch da própria mudança (`feature/0003-transcricao-whisper` ou `bugfix/...`, a partir de `develop`) e entra em `develop` junto com o código, pelo mesmo PR.
 
 ## Ciclo de vida
 

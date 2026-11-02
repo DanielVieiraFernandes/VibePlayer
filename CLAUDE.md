@@ -18,7 +18,7 @@ O esqueleto (solution, DI, logs, testes, CI) existe; as funcionalidades descrita
 
 O desenvolvimento é **Spec-Driven**: nenhuma mudança de código começa sem uma spec aprovada pelo mantenedor.
 
-1. Para cada mudança, crie `specs/NNNN-nome-curto/` a partir de `specs/_template/` (`spec.md`, `design.md`, `tasks.md`), com status **Rascunho**.
+1. Para cada mudança, crie a branch `feature/NNNN-nome-curto` (ou `bugfix/`) a partir de `develop` e a pasta `specs/NNNN-nome-curto/` a partir de `specs/_template/` (`spec.md`, `design.md`, `tasks.md`), com status **Rascunho**.
 2. **Pare e peça aprovação.** Não escreva código de produção nem testes até o mantenedor aprovar ou pedir ajustes. Ajustes pedidos → revise a spec e peça aprovação de novo.
 3. Aprovada → status **Aprovada**, implemente seguindo `tasks.md`, marcando cada tarefa ao concluir. Os testes descritos na spec fazem parte da entrega.
 4. Se durante a implementação surgir algo que muda o que foi aprovado (escopo, decisão técnica, dependência nova), pare e atualize a spec para nova aprovação em vez de decidir sozinho.
@@ -26,12 +26,22 @@ O desenvolvimento é **Spec-Driven**: nenhuma mudança de código começa sem um
 
 Detalhes em [specs/README.md](specs/README.md).
 
-### Git e GitHub
+### Git e GitHub (GitFlow)
 
-- `main` sempre compilando e com testes passando; uma branch por spec: `feat/NNNN-nome`, `fix/NNNN-nome`.
-- Commits no padrão Conventional Commits, em português: `feat(chat): adiciona streaming de respostas`.
-- CI (GitHub Actions) roda build + testes unitários + E2E em todo PR, numa matriz Windows / macOS / Linux.
-- Releases pelo GitHub Releases, com `dotnet publish` self-contained por RID: `win-x64`, `osx-arm64`, `osx-x64`, `linux-x64`.
+| Branch | Sai de | Entra em | Merge |
+|---|---|---|---|
+| `feature/NNNN-nome` (uma por spec) | `develop` | `develop` por PR | squash |
+| `bugfix/NNNN-nome` (spec de correção) | `develop` | `develop` por PR | squash |
+| `release/X.Y.Z` | `develop` | `main` por PR | merge commit |
+| `hotfix/X.Y.Z` | `main` | `main` por PR | merge commit |
+
+- `develop` é a branch padrão. `main` só recebe releases e hotfixes; cada merge em `main` é uma versão publicada.
+- `main` e `develop` são protegidas: só entram por PR com a CI verde nos três SOs (rulesets do repositório). Nunca faça push direto nelas.
+- **Releases e hotfixes não são criados à mão.** O mantenedor roda as pipelines *Iniciar release* / *Iniciar hotfix* (Actions → workflow → Run workflow) com a versão. O merge do PR em `main` é sempre do mantenedor; ao mesclar, *Publicar release* cria a tag `vX.Y.Z`, publica os pacotes no GitHub Releases e abre o PR de volta para `develop` (mescla sozinho se não houver conflito).
+- **Versão:** calculada pelo MinVer a partir das tags `vX.Y.Z`. Nunca edite número de versão em arquivo nem crie tags manualmente.
+- As pipelines usam o secret `RELEASE_TOKEN` (fine-grained PAT do mantenedor, só deste repositório, com Contents, Pull requests e Workflows em leitura e escrita), porque PRs abertos com o `GITHUB_TOKEN` não disparam a CI. Quando vencer, as pipelines de release falham com aviso explícito.
+- Commits no padrão Conventional Commits, em português: `feat(chat): adiciona streaming de respostas`. O título do PR segue o mesmo padrão, porque vira o commit do squash e as notas da release.
+- Pacotes publicados: self-contained, sem assinatura, um por RID (`win-x64`, `osx-arm64`, `osx-x64`, `linux-x64`), cada um com `LICENSE` e `THIRD-PARTY-NOTICES.md`.
 
 ## Stack
 
