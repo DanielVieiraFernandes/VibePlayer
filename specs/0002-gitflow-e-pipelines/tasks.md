@@ -8,7 +8,7 @@
 - [x] T4 — `ci.yml`: novos gatilhos e `fetch-depth: 0`.
 - [x] T5 — `start-release.yml` e `start-hotfix.yml`, com validação de versão e verificação do `RELEASE_TOKEN`.
 - [x] T6 — `release.yml`: tag, publish por RID nos runners de cada SO, pacotes com licenças, GitHub Release com notas, PR `main → develop` com auto-merge.
-- [ ] T7 — Rulesets de `main` e `develop` (depois que os nomes dos checks da CI existirem).
+- [x] T7 — Rulesets de `main` e `develop` (depois que os nomes dos checks da CI existirem).
 - [x] T8 — Atualizar CLAUDE.md (seção Git e GitHub) e `specs/README.md` (nome das branches por spec).
 - [ ] T9 — Validar o fluxo de ponta a ponta publicando a `v0.1.0`.
 
@@ -17,7 +17,7 @@
 | Critério | Tipo | Verificação |
 |---|---|---|
 | CA1 | Manual | `gh repo view` mostra `develop` como padrão; PR #1 com base `develop` |
-| CA2 | Manual | Push direto em `develop` é recusado; PR sem CI verde não pode ser mesclado |
+| CA2 | Manual | Push direto em `develop` é recusado (conferido: GH013, ruleset ativo); PR sem CI verde não pode ser mesclado |
 | CA3 | CI | Execuções da CI aparecem para PR em `develop` e na branch `release/0.1.0` |
 | CA4 | Unitário | `AppVersionTests.VersaoDoAssembly_VemDoMinVer_SegueSemVer`; build local conferido: sem tag → `0.0.0-alpha.0.1`, tag temporária `v9.9.9` → `9.9.9` |
 | CA5 | Manual | Executar *Iniciar release* com `0.1.0`, e com `abc` e `0.1.0` repetido (devem falhar) |
