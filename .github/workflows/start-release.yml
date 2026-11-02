@@ -1,0 +1,61 @@
+name: Iniciar release
+
+# Cria release/X.Y.Z a partir de develop e abre o PR para main.
+# O merge do PR é feito pelo mantenedor; ao mesclar, release.yml publica a versão.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versão da release no formato X.Y.Z (ex.: 0.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: start-release
+  cancel-in-progress: false
+
+jobs:
+  start:
+    name: Criar release/${{ inputs.version }}
+    runs-on: ubuntu-latest
+    env:
+      # A entrada vai por variável de ambiente, nunca interpolada direto no script,
+      # para que um valor malicioso não vire comando de shell.
+      VERSION: ${{ inputs.version }}
+      # Token pessoal (e não o GITHUB_TOKEN): branches e PRs criados com o token padrão
+      # não disparam a CI, e o PR ficaria travado esperando checks que nunca rodam.
+      GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+    steps:
+      - name: Verificar RELEASE_TOKEN
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Secret RELEASE_TOKEN não configurado. Veja a seção Git e GitHub do CLAUDE.md."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Validar versão
+        run: bash .github/scripts/validate-version.sh "$VERSION" release
+
+      - name: Criar branch
+        run: git push origin "HEAD:refs/heads/release/$VERSION"
+
+      - name: Abrir PR para main
+        run: |
+          gh pr create \
+            --base main \
+            --head "release/$VERSION" \
+            --title "release: v$VERSION" \
+            --body "Release **v$VERSION**, criada a partir de \`develop\`.
+
+          - Correções desta release entram por PR nesta branch.
+          - Ao mesclar (merge commit), a pipeline *Publicar release* cria a tag \`v$VERSION\`, publica os binários e leva as mudanças de volta para \`develop\`."

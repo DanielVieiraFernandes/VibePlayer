@@ -1,0 +1,188 @@
+name: Publicar release
+
+# Dispara quando o PR de uma release/* ou hotfix/* é mesclado em main e faz, em ordem:
+# tag vX.Y.Z → binários por sistema → GitHub Release → PR de volta para develop.
+#
+# Tudo fica num workflow só porque uma tag criada dentro do Actions não dispara outros
+# workflows; separar em "on: push tags" exigiria um token extra só para isso.
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Criar tag
+    if: >-
+      github.event.pull_request.merged == true &&
+      (startsWith(github.head_ref, 'release/') || startsWith(github.head_ref, 'hotfix/'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    env:
+      HEAD_REF: ${{ github.head_ref }}
+      MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+
+    steps:
+      - name: Extrair versão da branch
+        id: version
+        run: |
+          version="${HEAD_REF#*/}"
+          if ! [[ "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "::error::Branch '$HEAD_REF' não termina numa versão X.Y.Z."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 0
+
+      - name: Criar e enviar a tag
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "v$VERSION" "$MERGE_SHA" -m "VibePlayer v$VERSION"
+          git push origin "refs/tags/v$VERSION"
+
+  build:
+    name: Pacote ${{ matrix.rid }}
+    needs: prepare
+    strategy:
+      fail-fast: true
+      matrix:
+        # Cada pacote é gerado num runner do próprio sistema: hoje daria para gerar todos a
+        # partir do Linux, mas LibVLC e Whisper trarão bibliotecas nativas por plataforma.
+        include:
+          - { os: windows-latest, rid: win-x64 }
+          - { os: macos-latest, rid: osx-arm64 }
+          - { os: macos-latest, rid: osx-x64 }
+          - { os: ubuntu-latest, rid: linux-x64 }
+    runs-on: ${{ matrix.os }}
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      VERSION: ${{ needs.prepare.outputs.version }}
+      RID: ${{ matrix.rid }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.prepare.outputs.version }}
+          # O MinVer lê a tag para gravar a versão real nos binários.
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Publicar
+        shell: bash
+        run: |
+          # Self-contained: o usuário não precisa ter o .NET instalado.
+          dotnet publish src/VibePlayer.App/VibePlayer.App.csproj \
+            --configuration Release \
+            --runtime "$RID" \
+            --self-contained true \
+            --output publish/VibePlayer
+          cp LICENSE THIRD-PARTY-NOTICES.md publish/VibePlayer/
+
+      - name: Empacotar (zip)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Compress-Archive -Path publish/VibePlayer -DestinationPath "dist/VibePlayer-$env:VERSION-$env:RID.zip"
+
+      - name: Empacotar (tar.gz)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          # tar, e não zip, porque preserva a permissão de execução do binário no macOS e no Linux.
+          mkdir -p dist
+          tar -czf "dist/VibePlayer-$VERSION-$RID.tar.gz" -C publish VibePlayer
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pacote-${{ matrix.rid }}
+          path: dist/*
+          if-no-files-found: error
+
+  publish:
+    name: Publicar GitHub Release
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Criar release
+        run: |
+          gh release create "v$VERSION" dist/* \
+            --verify-tag \
+            --title "VibePlayer v$VERSION" \
+            --generate-notes \
+            --notes "Baixe o pacote do seu sistema abaixo, extraia e execute \`VibePlayer\`.
+
+          > Os binários ainda não são assinados. Na primeira abertura, o Windows mostra \"O Windows protegeu o computador\" (clique em **Mais informações → Executar assim mesmo**) e o macOS pede liberação em **Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim**."
+
+  back-merge:
+    name: Levar a release de volta para develop
+    needs: [prepare, publish]
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      # Token pessoal para que o PR criado aqui dispare a CI exigida em develop.
+      GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+    steps:
+      - name: Verificar RELEASE_TOKEN
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Secret RELEASE_TOKEN não configurado; abra manualmente o PR de main para develop."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Abrir PR main → develop com auto-merge
+        run: |
+          # O PR sai de uma branch temporária, e não de main direto: com "apagar branch após o
+          # merge" ligado, usar main como origem do PR arriscaria o GitHub tentar apagá-la.
+          branch="merge/v$VERSION-para-develop"
+          git push origin "HEAD:refs/heads/$branch"
+
+          url="$(gh pr create \
+            --base develop \
+            --head "$branch" \
+            --title "chore: leva v$VERSION de volta para develop" \
+            --body "Retorno automático da release **v$VERSION** de \`main\` para \`develop\` (GitFlow). Mescla sozinho quando a CI passar; se houver conflito, resolva nesta branch.")"
+
+          # Merge commit (não squash) para develop continuar ligada ao histórico de main;
+          # com squash, o próximo retorno mostraria conflitos falsos.
+          gh pr merge "$url" --auto --merge

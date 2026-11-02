@@ -1,6 +1,6 @@
 # 0001 — Esqueleto da solution
 
-**Status:** Aprovada
+**Status:** Implementada
 **Branch:** `feat/0001-esqueleto-da-solution`
 
 ## Problema

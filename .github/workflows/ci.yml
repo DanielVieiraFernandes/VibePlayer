@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [develop, main, 'release/**', 'hotfix/**']
   pull_request:
-    branches: [main]
+    branches: [develop, main, 'release/**', 'hotfix/**']
 
 # Cancela execuções antigas da mesma branch quando um novo push chega.
 concurrency:
@@ -16,6 +16,8 @@ permissions:
 
 jobs:
   build-and-test:
+    # O nome deste job (com o SO) é o check exigido pelas regras de proteção de main e develop.
+    # Renomear aqui exige atualizar os rulesets do repositório.
     name: Build e testes (${{ matrix.os }})
     strategy:
       # Roda os três SOs até o fim mesmo se um falhar, para ver todas as falhas de uma vez.
@@ -30,6 +32,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Histórico completo e tags: o MinVer calcula a versão a partir da tag mais próxima.
+          fetch-depth: 0
 
       - uses: actions/setup-dotnet@v4
         with:

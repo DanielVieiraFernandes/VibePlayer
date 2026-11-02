@@ -1,7 +1,7 @@
 # NNNN — Título da mudança
 
 **Status:** Rascunho
-**Branch:** `feat/NNNN-nome-curto`
+**Branch:** `feature/NNNN-nome-curto` (ou `bugfix/NNNN-nome-curto`)
 
 ## Problema
 

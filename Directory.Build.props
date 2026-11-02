@@ -19,6 +19,19 @@
     <Product>VibePlayer</Product>
     <Authors>Daniel Vieira Fernandes</Authors>
     <Copyright>Copyright © 2026 Daniel Vieira Fernandes. Todos os direitos reservados.</Copyright>
-    <Version>0.1.0</Version>
   </PropertyGroup>
+
+  <!--
+    Versão calculada pelo MinVer a partir da tag git mais próxima (vX.Y.Z), não editada à mão.
+    Commit com a tag v0.1.0 → 0.1.0; commits depois dela → 0.1.1-alpha.0.N; sem tag → 0.0.0-alpha.0.N.
+    As tags são criadas só pela pipeline de publicação (release.yml), então a versão de cada
+    binário sempre corresponde a uma release real ou fica claramente marcada como pré-lançamento.
+  -->
+  <PropertyGroup>
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MinVer" PrivateAssets="all" />
+  </ItemGroup>
 </Project>
