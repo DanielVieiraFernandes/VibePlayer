@@ -1,6 +1,6 @@
 # 0002 — GitFlow e pipelines de release
 
-**Status:** Aprovada
+**Status:** Implementada
 **Branch:** `feature/0002-gitflow-e-pipelines`
 
 ## Problema

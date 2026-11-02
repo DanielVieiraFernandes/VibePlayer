@@ -38,7 +38,7 @@ Exige histórico completo no checkout da CI (`fetch-depth: 0`); sem isso o MinVe
 | `ci.yml` | push e PR em `develop`, `main`, `release/**`, `hotfix/**` | Build + testes unitários + E2E na matriz Windows/macOS/Linux (já existe; ganha os gatilhos e `fetch-depth: 0`) |
 | `start-release.yml` | manual (`workflow_dispatch`, entrada `version`) | Valida SemVer e se a tag/branch já existe; cria `release/X.Y.Z` de `develop`; abre PR para `main` |
 | `start-hotfix.yml` | manual (entrada `version`) | Idem, a partir de `main`, PR em rascunho até o conserto ser enviado |
-| `release.yml` | PR fechado com merge em `main` vindo de `release/*` ou `hotfix/*` | Cria tag `vX.Y.Z` → publica binários (matriz) → cria GitHub Release → abre PR `main → develop` com auto-merge |
+| `release.yml` | PR fechado com merge em `main` vindo de `release/*` ou `hotfix/*` | Cria tag `vX.Y.Z` → publica binários (matriz) → cria GitHub Release → abre PR `main → develop`, espera a CI exigida e mescla |
 
 `release.yml` faz tudo num workflow só porque uma tag criada pelo próprio Actions não dispara outro workflow.
 
