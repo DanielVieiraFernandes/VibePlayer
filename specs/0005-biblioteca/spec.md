@@ -1,6 +1,6 @@
 # 0005 — Biblioteca de cursos
 
-**Status:** Aprovada
+**Status:** Implementada
 **Branch:** `feature/0005-biblioteca`
 
 ## Problema
@@ -69,19 +69,19 @@ O usuário adiciona pastas de cursos ou vídeos avulsos e vê, na aba *Aulas*, s
 
 ## Critérios de aceite
 
-- [ ] CA1 — Ao adicionar uma pasta, o app sempre pergunta a interpretação, com a sugestão pré-selecionada: com 3 subpastas de curso a sugestão é "3 cursos", com módulos e vídeos é "1 curso"; a prévia muda ao trocar a opção, e só a confirmação grava (unitário + E2E).
-- [ ] CA12 — Adicionar vídeos avulsos: a prévia pergunta "curso novo" (com nome editável) ou "Vídeos avulsos"; os vídeos entram em ordem natural; repetir um vídeo já presente é recusado; uma aula avulsa pode ser removida sozinha (unitário + E2E).
-- [ ] CA13 — Localizar pasta: depois de mover a pasta de um curso, apontar o novo lugar reconecta as aulas com os mesmos Ids e elas voltam a ficar disponíveis; um lugar sem nenhuma aula conhecida pede confirmação antes de trocar (E2E).
-- [ ] CA2 — "2 - b.mp4", "10 - a.mp4" e "1.1 - c.mp4" ficam na ordem 1.1, 2, 10; maiúsculas e acentos não alteram a ordem (unitário).
-- [ ] CA3 — Arquivos que não são vídeo, ocultos, de sistema e links simbólicos não entram na biblioteca (unitário).
-- [ ] CA4 — Pasta inexistente, já adicionada, dentro ou acima de outra já adicionada, a pasta de dados do app ou sem vídeos é recusada com mensagem clara, sem criar registros (unitário).
-- [ ] CA5 — A biblioteca aparece igual depois de fechar e reabrir o app (E2E).
-- [ ] CA6 — Ao atualizar: vídeo novo aparece; vídeo removido fica indisponível com o mesmo registro (mesmo Id); se o vídeo volta, fica disponível de novo com o mesmo Id (E2E).
-- [ ] CA7 — Com a pasta raiz inacessível, os cursos dela aparecem como indisponíveis e o resto da biblioteca funciona (E2E).
-- [ ] CA8 — Remover um curso apaga seus registros e não toca em nenhum arquivo da pasta (E2E).
-- [ ] CA9 — A atualização roda em segundo plano: a UI segue respondendo durante a leitura de uma pasta grande (ex.: 2.000 vídeos gerados no teste) e mostra o progresso; erros de leitura de uma subpasta (sem permissão) são registrados e não interrompem o resto (E2E).
-- [ ] CA10 — Selecionar uma aula mostra o título dela e o nome do curso na área do vídeo; aula indisponível não pode ser selecionada (E2E).
-- [ ] CA11 — Todos os controles novos têm nome acessível e são navegáveis por teclado (setas na lista, Enter para selecionar) (E2E).
+- [x] CA1 — Ao adicionar uma pasta, o app sempre pergunta a interpretação, com a sugestão pré-selecionada: com 3 subpastas de curso a sugestão é "3 cursos", com módulos e vídeos é "1 curso"; a prévia muda ao trocar a opção, e só a confirmação grava (unitário + E2E).
+- [x] CA12 — Adicionar vídeos avulsos: a prévia pergunta "curso novo" (com nome editável) ou "Vídeos avulsos"; os vídeos entram em ordem natural; repetir um vídeo já presente é recusado; uma aula avulsa pode ser removida sozinha (unitário + E2E).
+- [x] CA13 — Localizar pasta: depois de mover a pasta de um curso, apontar o novo lugar reconecta as aulas com os mesmos Ids e elas voltam a ficar disponíveis; um lugar sem nenhuma aula conhecida pede confirmação antes de trocar (E2E).
+- [x] CA2 — "2 - b.mp4", "10 - a.mp4" e "1.1 - c.mp4" ficam na ordem 1.1, 2, 10; maiúsculas e acentos não alteram a ordem (unitário).
+- [x] CA3 — Arquivos que não são vídeo, ocultos, de sistema e links simbólicos não entram na biblioteca (unitário).
+- [x] CA4 — Pasta inexistente, já adicionada, dentro ou acima de outra já adicionada, a pasta de dados do app ou sem vídeos é recusada com mensagem clara, sem criar registros (unitário).
+- [x] CA5 — A biblioteca aparece igual depois de fechar e reabrir o app (E2E).
+- [x] CA6 — Ao atualizar: vídeo novo aparece; vídeo removido fica indisponível com o mesmo registro (mesmo Id); se o vídeo volta, fica disponível de novo com o mesmo Id (E2E).
+- [x] CA7 — Com a pasta raiz inacessível, os cursos dela aparecem como indisponíveis e o resto da biblioteca funciona (E2E).
+- [x] CA8 — Remover um curso apaga seus registros e não toca em nenhum arquivo da pasta (E2E).
+- [x] CA9 — A atualização roda em segundo plano: a UI segue respondendo durante a leitura de uma pasta grande (ex.: 2.000 vídeos gerados no teste) e mostra o progresso; erros de leitura de uma subpasta (sem permissão) são registrados e não interrompem o resto (E2E).
+- [x] CA10 — Selecionar uma aula mostra o título dela e o nome do curso na área do vídeo; aula indisponível não pode ser selecionada (E2E).
+- [x] CA11 — Todos os controles novos têm nome acessível e são navegáveis por teclado (setas na lista, Enter para selecionar) (E2E).
 
 ## Impacto para o usuário
 

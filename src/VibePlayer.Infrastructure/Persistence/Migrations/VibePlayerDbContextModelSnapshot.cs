@@ -17,6 +17,164 @@ namespace VibePlayer.Infrastructure.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.14");
 
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.CourseEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("AddedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsLooseVideos")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("RelativePath")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("RootId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RootId", "RelativePath")
+                        .IsUnique();
+
+                    b.ToTable("Courses", (string)null);
+                });
+
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.LessonEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("FirstSeenAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("LastWriteUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ModuleId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ModuleId");
+
+                    b.HasIndex("CourseId", "Path")
+                        .IsUnique();
+
+                    b.ToTable("Lessons", (string)null);
+                });
+
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.LibraryRootEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("AddedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("LastScanAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Path")
+                        .IsUnique();
+
+                    b.ToTable("LibraryRoots", (string)null);
+                });
+
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.ModuleEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("RelativePath")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId", "RelativePath")
+                        .IsUnique();
+
+                    b.ToTable("Modules", (string)null);
+                });
+
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.RemovedCourseEntity", b =>
+                {
+                    b.Property<Guid>("RootId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RelativePath")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("RootId", "RelativePath");
+
+                    b.ToTable("RemovedCourses", (string)null);
+                });
+
             modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.SettingEntry", b =>
                 {
                     b.Property<string>("Key")
@@ -33,6 +191,62 @@ namespace VibePlayer.Infrastructure.Persistence.Migrations
                     b.HasKey("Key");
 
                     b.ToTable("Settings", (string)null);
+                });
+
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.CourseEntity", b =>
+                {
+                    b.HasOne("VibePlayer.Infrastructure.Persistence.LibraryRootEntity", "Root")
+                        .WithMany("Courses")
+                        .HasForeignKey("RootId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Root");
+                });
+
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.LessonEntity", b =>
+                {
+                    b.HasOne("VibePlayer.Infrastructure.Persistence.CourseEntity", null)
+                        .WithMany("Lessons")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VibePlayer.Infrastructure.Persistence.ModuleEntity", null)
+                        .WithMany()
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.ModuleEntity", b =>
+                {
+                    b.HasOne("VibePlayer.Infrastructure.Persistence.CourseEntity", null)
+                        .WithMany("Modules")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.RemovedCourseEntity", b =>
+                {
+                    b.HasOne("VibePlayer.Infrastructure.Persistence.LibraryRootEntity", null)
+                        .WithMany("RemovedCourses")
+                        .HasForeignKey("RootId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.CourseEntity", b =>
+                {
+                    b.Navigation("Lessons");
+
+                    b.Navigation("Modules");
+                });
+
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.LibraryRootEntity", b =>
+                {
+                    b.Navigation("Courses");
+
+                    b.Navigation("RemovedCourses");
                 });
 #pragma warning restore 612, 618
         }

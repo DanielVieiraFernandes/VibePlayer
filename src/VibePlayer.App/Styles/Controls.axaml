@@ -166,4 +166,44 @@
     <Style Selector="Thumb.splitter:pointerover">
         <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
     </Style>
+
+    <!-- Biblioteca -->
+    <Style Selector="Border.toolbar">
+        <Setter Property="Padding" Value="{StaticResource PaddingToolbar}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderBottom}" />
+    </Style>
+    <Style Selector="StackPanel.libraryItem">
+        <Setter Property="Margin" Value="{StaticResource PaddingTreeItem}" />
+    </Style>
+    <Style Selector="TextBlock.unavailable">
+        <Setter Property="Foreground" Value="{DynamicResource TextDisabledBrush}" />
+    </Style>
+
+    <!-- Faixa de erro: fundo ErrorSubtle com texto primário (par verificado em DesignTokenTests). -->
+    <Style Selector="Border.errorBanner">
+        <Setter Property="Background" Value="{DynamicResource ErrorSubtleBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderLeftAccent}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSm}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingBanner}" />
+        <Setter Property="Margin" Value="{StaticResource PaddingBar}" />
+    </Style>
+
+    <!-- Selo pequeno ao lado de um texto (ex.: "sugerido"). -->
+    <Style Selector="Border.badge">
+        <Setter Property="Background" Value="{DynamicResource AccentSubtleBrush}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSm}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingBadge}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- Caixa de prévia nos diálogos de adicionar. -->
+    <Style Selector="Border.previewBox">
+        <Setter Property="Background" Value="{DynamicResource AppBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusMd}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingPanel}" />
+    </Style>
 </Styles>

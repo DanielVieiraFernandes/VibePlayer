@@ -145,7 +145,12 @@ Tudo fica na pasta de dados do usuário, `Environment.GetFolderPath(Environment.
 
 ## Fluxo de dados
 
-1. **Biblioteca:** o usuário aponta uma pasta; cada subpasta é um curso/módulo e cada vídeo uma aula, em ordem natural de nome de arquivo (`2 - y.mp4` antes de `10 - z.mp4`).
+1. **Biblioteca** (spec 0005):
+   - **Entrada:** o usuário adiciona uma pasta, e o app sempre pergunta "Um curso" ou "Vários cursos", com prévia. Também pode adicionar vídeos avulsos, que viram um curso novo ou vão para "Vídeos avulsos".
+   - **Estrutura:** curso → módulos (subpastas; aninhadas viram "Módulo 1 / Parte A") → aulas (vídeos), em ordem natural (`NaturalStringComparer`: `2 - y.mp4` antes de `10 - z.mp4`).
+   - **Leitura das pastas:** `LibraryScanner` e a detecção ficam no `Core`, sobre `IFileSystemReader`, e são testados com `FakeFileSystem`. `CourseLibrary` (Infrastructure) sincroniza com o banco pelo **caminho relativo** (com "/", NFC e caixa conforme o SO; ver `LibraryPaths`).
+   - **Identidade:** aula que some fica `IsAvailable = false` com o **mesmo Id**. Dados futuros (progresso, transcrição, chat) devem apontar para `LessonEntity.Id`. Nunca apague aulas na sincronização.
+   - **Atualização:** ao abrir o app e pelo botão "Atualizar", sem `FileSystemWatcher`. "Localizar pasta" reconecta uma raiz movida.
 2. **Transcrição:** em segundo plano, com progresso e cancelamento. Cache chaveado por hash do arquivo de vídeo (não pelo caminho), para não transcrever de novo se a pasta for movida. Legendas `.srt`/`.vtt` ao lado do vídeo podem substituir o Whisper.
 3. **Chat:** a transcrição da aula atual (com timestamps) vai no início do contexto. Com Claude, transcrição + system prompt formam um prefixo estável com prompt caching.
 4. **Resumo e pontos principais:** gerados uma vez por aula e salvos. Os pontos usam saída estruturada (JSON com `timestamp` + `texto`) para virarem links de seek no player.

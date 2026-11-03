@@ -15,6 +15,7 @@ O VibePlayer usa os componentes abaixo, cada um sob sua própria licença. Esses
 | Microsoft.EntityFrameworkCore.Sqlite (inclui Microsoft.Data.Sqlite) | MIT | https://github.com/dotnet/efcore |
 | SQLitePCLRaw (bundle_e_sqlite3) | Apache 2.0 | https://github.com/ericsink/SQLitePCL.raw |
 | SQLite (biblioteca nativa e_sqlite3) | Domínio público | https://www.sqlite.org/copyright.html |
+| FluentValidation | Apache 2.0 | https://github.com/FluentValidation/FluentValidation |
 | Serilog | Apache 2.0 | https://github.com/serilog/serilog |
 | Serilog.Sinks.File | Apache 2.0 | https://github.com/serilog/serilog-sinks-file |
 | Serilog.Extensions.Logging | Apache 2.0 | https://github.com/serilog/serilog-extensions-logging |

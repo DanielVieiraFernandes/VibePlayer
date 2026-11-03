@@ -46,7 +46,8 @@ public sealed class DatabaseTests : IDisposable
         result.BackupPath.ShouldNotBeNull();
         Path.GetFileName(result.BackupPath).ShouldStartWith("vibePlayer-atualizacao-");
         ExecuteScalar("SELECT Valor FROM DadosAntigos").ShouldBe("progresso do usuário");
-        ExecuteScalar("SELECT count(*) FROM __EFMigrationsHistory").ShouldBe(1L);
+        using var db = services.GetRequiredService<IDbContextFactory<VibePlayerDbContext>>().CreateDbContext();
+        ExecuteScalar("SELECT count(*) FROM __EFMigrationsHistory").ShouldBe((long)db.Database.GetMigrations().Count());
     }
 
     [Fact]

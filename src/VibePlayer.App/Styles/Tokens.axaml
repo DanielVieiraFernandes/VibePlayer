@@ -110,6 +110,11 @@
     <Thickness x:Key="PaddingTab">12,0</Thickness>
     <Thickness x:Key="BorderBottom">0,0,0,1</Thickness>
     <Thickness x:Key="BorderTop">0,1,0,0</Thickness>
+    <Thickness x:Key="BorderLeftAccent">3,0,0,0</Thickness>
+    <Thickness x:Key="PaddingToolbar">8,4</Thickness>
+    <Thickness x:Key="PaddingTreeItem">0,4</Thickness>
+    <Thickness x:Key="PaddingBanner">12,8</Thickness>
+    <Thickness x:Key="PaddingBadge">6,1</Thickness>
 
     <!-- Raios: 4 controles pequenos, 8 campos e cartões, 12 painéis e diálogos. -->
     <CornerRadius x:Key="RadiusSm">4</CornerRadius>

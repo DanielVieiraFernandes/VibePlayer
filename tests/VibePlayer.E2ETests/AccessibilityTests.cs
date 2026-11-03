@@ -3,7 +3,11 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Headless.XUnit;
 using Avalonia.VisualTree;
+using Microsoft.Extensions.DependencyInjection;
+using VibePlayer.App;
+using VibePlayer.App.Services;
 using VibePlayer.App.ViewModels;
+using VibePlayer.App.Views;
 
 namespace VibePlayer.E2ETests;
 
@@ -13,6 +17,44 @@ public sealed class AccessibilityTests
     public void ElementosInterativos_TemNomeAcessivel()
     {
         var window = WindowTestExtensions.OpenMainWindow();
+
+        UnnamedControlsInAllTabs(window).ShouldBeEmpty();
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public async Task ElementosInterativos_ComBibliotecaPreenchida_TemNomeAcessivel()
+    {
+        using var data = new TemporaryAppData();
+        using var sample = new SampleLibrary();
+        sample.AddVideo("Curso/Módulo 1/a.mp4");
+        sample.AddVideo("Curso/b.mp4");
+        var picker = new FakeFilePicker();
+        picker.Folders.Enqueue(sample.PathOf("Curso"));
+        using var services = data.BuildServices(overrides =>
+        {
+            overrides.AddSingleton<IFilePicker>(picker);
+            overrides.AddSingleton<IDialogService>(new ScriptedDialogs());
+        });
+        AppStartup.Prepare(services);
+        var window = new VibePlayerApp(services).CreateMainWindow();
+        window.Show();
+        await window.ViewModel().Library.AddFolderCommand.ExecuteAsync(null);
+        WindowTestExtensions.Settle();
+
+        foreach (var item in window.GetVisualDescendants().OfType<TreeViewItem>().ToList())
+        {
+            item.IsExpanded = true;
+        }
+
+        WindowTestExtensions.Settle();
+        window.GetVisualDescendants().OfType<TreeViewItem>().Count().ShouldBeGreaterThan(2);
+        UnnamedControlsInAllTabs(window).ShouldBeEmpty();
+        window.Close();
+    }
+
+    private static List<string> UnnamedControlsInAllTabs(MainWindow window)
+    {
         var unnamed = new List<string>();
 
         // O TabControl só cria o conteúdo da aba selecionada; passa por todas.
@@ -24,7 +66,7 @@ public sealed class AccessibilityTests
             // Só os controles declarados nas Views: partes internas de templates (ex.: os RepeatButtons
             // do trilho do Slider) não recebem foco nem são anunciadas como controles próprios.
             var interactive = window.GetVisualDescendants().OfType<Control>()
-                .Where(c => c is Button or ToggleButton or TextBox or Slider or TabItem
+                .Where(c => c is Button or ToggleButton or TextBox or Slider or TabItem or TreeViewItem
                     && c.TemplatedParent is null
                     && c.IsEffectivelyVisible);
 
@@ -34,8 +76,7 @@ public sealed class AccessibilityTests
                 select $"{control.GetType().Name} (aba {tab})");
         }
 
-        unnamed.Distinct().ShouldBeEmpty();
-        window.Close();
+        return unnamed.Distinct().ToList();
     }
 
     // Leitores de tela usam o AutomationProperties.Name ou, na falta dele, o texto do conteúdo.

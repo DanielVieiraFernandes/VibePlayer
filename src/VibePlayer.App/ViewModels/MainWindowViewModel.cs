@@ -43,6 +43,15 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         IsSidePanelOpen = true;
         SidePanelWidth = DefaultSidePanelWidth;
         SelectedTab = SidePanelTab.Lessons;
+
+        // A aula escolhida na biblioteca é a aula do player.
+        library.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(LibraryViewModel.CurrentLesson))
+            {
+                player.CurrentLesson = library.CurrentLesson;
+            }
+        };
     }
 
     public string Title => Resources.Strings.AppName;
