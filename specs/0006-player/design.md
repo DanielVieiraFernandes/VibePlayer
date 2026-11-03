@@ -18,27 +18,31 @@ Infrastructure/Playback/
   ThumbnailService        Cache em <dados>/thumbnails, fila com prioridade, uma geração por vez
   LessonProgressStore     Tabela LessonProgress + preferências player.*
 App/
-  Controls/VideoView      NativeControlHost próprio que entrega a janela nativa ao VLC
+  Controls/VideoView      Controle do Avalonia que desenha os quadros entregues pelo VLC (WriteableBitmap)
   ViewModels/PlayerViewModel   Estado da barra, comandos, atalhos, salvamento periódico, contagem da próxima aula
   Views/Player/PlayerPanel     Vídeo + barra; estados vazio, carregando, erro, VLC ausente
-  Views/Player/FullscreenWindow  Janela sem bordas em tela cheia com o mesmo VideoView
+  (tela cheia)            A própria MainWindow em WindowState.FullScreen, mostrando só o player
 ```
 
 `PlayerViewModel` só conhece `IMediaPlayer`. Os testes unitários e os E2E usam um `FakeMediaPlayer`: o modo headless não tem janela nativa para o VLC desenhar, e a CI não precisa tocar vídeo para verificar regras, controles e atalhos. O VLC de verdade é coberto por um teste de integração separado (`VlcIntegrationTests`) com um vídeo curto em `tests/fixtures` e pela verificação manual nos três SOs.
 
 ### Renderização do vídeo
 
-O `LibVLCSharp.Avalonia` (o `VideoView` oficial) ainda depende do Avalonia 11 e não funciona no 12. O app terá um `VideoView` próprio, pequeno:
-- é um `NativeControlHost` que cria a janela nativa e entrega o identificador ao `MediaPlayer` do VLC;
-- no Windows, pelo `Hwnd`; no Linux (X11), pelo `XWindow`; no macOS, pelo `NsObject`.
+> **Revisado durante a implementação** (aprovado pelo mantenedor). A primeira versão deste design usava um `NativeControlHost`, com o VLC desenhando numa janela nativa. Isso tem dois problemas:
+> - o app não recebe clique nem movimento do mouse sobre essa janela;
+> - o VLC 3 não troca de janela no meio do vídeo.
+>
+> Com isso, perderíamos o duplo clique para tela cheia, os controles que aparecem ao mexer o mouse em tela cheia, o pôster e o menu sobre o vídeo.
 
-Assim o VLC desenha direto na GPU, com decodificação por hardware: é o caminho mais leve para aulas longas em notebook na bateria.
+O VLC **decodifica** (com hardware, quando disponível) e entrega cada quadro ao app pelas *callbacks* de vídeo (`SetVideoFormatCallbacks` e `SetVideoCallbacks`). O `VideoView` do app desenha os quadros.
 
-**Consequência (airspace):** nenhum controle do Avalonia pode ficar *por cima* da janela nativa do vídeo.
-- Na janela normal isso não importa, porque a barra fica abaixo do vídeo.
-- Em tela cheia, os controles ficam num `Popup`. No desktop, o `Popup` do Avalonia é uma janela própria e aparece acima do vídeo.
+- **Formato:** RV32 (BGRA, 4 bytes por pixel), o mesmo do `WriteableBitmap` do Avalonia em `Bgra8888`.
+- **Tamanho:** o tamanho original do vídeo, limitado a 1920 de largura (mantendo a proporção). Um vídeo 4K não custa 4 vezes a cópia; o Avalonia ainda escala para o tamanho da tela.
+- **Dois buffers:** o VLC decodifica no de trás, e a troca acontece sob lock quando um quadro fica pronto. O `VideoView` copia o da frente para o `WriteableBitmap` na thread de UI. Avisos de quadro novo são agrupados: no máximo uma cópia por passada da UI.
+- **Ganho:** o vídeo vira um controle comum do Avalonia. Tudo pode ficar por cima (controles, contagem, pôster, menu), ele recebe mouse e teclado, e funciona no modo headless (os E2E desenham quadros de um player falso).
+- **Custo:** uma cópia de memória por quadro (cerca de 250 MB/s em 1080p a 30 fps) e o envio da imagem para a GPU. Estimativa: de 3% a 8% de CPU a mais que o desenho nativo num notebook comum, medida no PR.
 
-**Alternativa descartada:** callbacks de vídeo do VLC copiando cada quadro para um `WriteableBitmap`. Permitiria sobrepor controles, mas custa uma cópia de memória por quadro (cerca de 240 MB/s em 1080p a 30 fps), mais CPU e bateria, e não usa a GPU para exibir.
+O `LibVLCSharp.Avalonia` (o `VideoView` oficial, por janela nativa) não é usado: além do problema acima, ainda depende do Avalonia 11.
 
 ### Fluxo de reprodução
 
@@ -98,18 +102,19 @@ Durante a reprodução:
 - **UI:**
   - **Linha da aula:** miniatura de 64 × 36 com raio 4, à esquerda do título; enquanto não existe, o ícone `Video` em `TextSecondary`.
   - **Linha do curso:** a capa no mesmo tamanho.
-  - **Player:** com a aula selecionada e ainda sem tocar, a miniatura aparece grande, centralizada, com o título e o botão de reproduzir por cima. É controle do Avalonia, então o `VideoView` fica oculto até a reprodução começar (airspace).
+  - **Player:** com a aula selecionada e ainda sem tocar, a miniatura aparece grande, centralizada, com o título e o botão de reproduzir por cima, no lugar do vídeo.
 - **Carregar as imagens na UI:** decodificar o JPEG em `Bitmap` com largura de 128 px (2× para telas de alta densidade) fora da thread de UI. Há um cache em memória das últimas 300, para a árvore rolar sem reler o disco.
 
 ### Tela cheia
 
-- Uma `FullscreenWindow` sem bordas, em `WindowState.FullScreen`, recebe o mesmo `MediaPlayer`. Trocar o identificador da janela nativa não recarrega o vídeo.
-- Os controles ficam num `Popup` preso à parte de baixo da janela, que aparece com o movimento do ponteiro e some depois de 3 s parado (`DispatcherTimer`). O cursor some junto.
+- A própria `MainWindow` vai para `WindowState.FullScreen` e esconde a barra superior, o painel lateral e a divisória. Nada é recriado, e o vídeo segue tocando sem interrupção.
+- A barra de controles fica **por cima** da parte de baixo do vídeo. Ela aparece com o movimento do ponteiro e some depois de 3 s parado (`DispatcherTimer`). O cursor some junto.
+- Duplo clique no vídeo entra e sai da tela cheia (vale também na janela normal).
 - Os atalhos de teclado valem igual. Esc sai da tela cheia.
 
 ### Atalhos
 
-- Os atalhos ficam na `MainWindow` e na `FullscreenWindow`, com o mesmo modificador do sistema da spec 0003 para os combinados (Ctrl/⌘).
+- Os atalhos ficam na `MainWindow`, com o mesmo modificador do sistema da spec 0003 para os combinados (Ctrl/⌘).
 - Teclas simples (Espaço, setas, letras) são ignoradas quando o foco está num `TextBox`, para não atrapalhar a digitação no chat.
 - Teclas simples também não valem quando o foco está na árvore da biblioteca, porque lá as setas navegam.
   - Para isso, os atalhos simples só agem com o foco no player ou em lugar nenhum. Clicar no vídeo põe o foco no player.
@@ -131,7 +136,7 @@ Durante a reprodução:
 
 | Decisão | Motivo | Alternativas descartadas |
 |---|---|---|
-| `VideoView` próprio sobre `NativeControlHost` | `LibVLCSharp.Avalonia` ainda é Avalonia 11; desenho nativo com GPU | Callbacks de quadro em `WriteableBitmap` (CPU e bateria); esperar o pacote oficial (bloqueia a spec) |
+| Quadros do VLC desenhados pelo app (`WriteableBitmap`) | Mouse, sobreposições, tela cheia sem trocar janela e testes headless; custo de CPU aceitável com limite de 1920 px | Janela nativa (`NativeControlHost`): sem mouse sobre o vídeo e sem troca de janela no VLC 3; `LibVLCSharp.Avalonia` (Avalonia 11) |
 | `IMediaPlayer` no Core e player falso nos testes | Headless não tem janela nativa; CI não precisa tocar vídeo para testar regras | Testar só manualmente |
 | Plugins por lista de permissão | Tira GPL e reduz o pacote (os plugins do Windows somam cerca de 107 MB) | Lista de exclusão (um plugin GPL novo numa atualização do VLC entraria sem ninguém notar) |
 | VLC do sistema no Linux | Bibliotecas de sistema variam por distribuição; o pacote `vlc` existe em todas | Embutir no tar.gz (frágil); Flatpak (spec própria) |
@@ -157,7 +162,7 @@ Preferências (tabela `Settings`, spec 0004): `player.volume`, `player.muted`, `
 
 | Pacote | Projeto | Licença | Observação |
 |---|---|---|---|
-| LibVLCSharp 3.10.2 | Infrastructure (e App, pelo `VideoView`) | LGPL-2.1+ | DLL separada, linkagem dinâmica |
+| LibVLCSharp 3.10.2 | Infrastructure | LGPL-2.1+ | DLL separada, linkagem dinâmica |
 | VideoLAN.LibVLC.Windows 3.0.24 | App (só RID `win-*`) | LGPL-2.1+ (plugins filtrados) | Binários nativos |
 | VideoLAN.LibVLC.Mac 3.1.3.2 | App (só RID `osx-*`) | LGPL-2.1+ (plugins filtrados) | Binários nativos arm64 e x64 |
 | SkiaSharp 3.119.4 | Infrastructure | MIT | Já vem com o Avalonia; referência explícita na mesma versão para codificar as miniaturas |
@@ -173,7 +178,7 @@ Preferências (tabela `Settings`, spec 0004): `player.volume`, `player.muted`, `
 
 ## Riscos
 
-- **Linux/Wayland:** o `NativeControlHost` do Avalonia usa X11 (XWayland em sessões Wayland). A verificação manual no Linux cobre isso; se falhar, o plano B é renderização por callbacks só no Linux.
+- **CPU com vídeos de alta resolução:** limitar a 1920 px resolve o 4K; se aparecer problema em máquinas fracas, o próximo passo é negociar com o VLC um tamanho igual ao da área do vídeo na tela.
 - **Assinatura no macOS:** dylibs do VLC sem assinatura agravam o aviso do Gatekeeper. Fica documentado; resolve com a spec de assinatura.
 - **Tamanho dos pacotes:** mesmo filtrados, os plugins pesam. A meta é ficar abaixo de 80 MB a mais, medida no PR.
 - **Plugins que faltam:** a lista de permissão pode cortar algo necessário a um formato. Mitigação: o teste de integração toca as amostras de cada formato do CA12, e o log do VLC acusa módulo ausente.

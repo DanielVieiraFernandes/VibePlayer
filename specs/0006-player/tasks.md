@@ -8,10 +8,10 @@ Marque cada tarefa ao concluir.
 - [ ] T2 — `IMediaPlayer`, `IMediaInfoReader`, `ILessonProgressStore` e `PlaybackRules` (Core).
 - [ ] T3 — `VlcRuntime`, `VlcMediaPlayer` e `VlcMediaInfoReader` (Infrastructure), com repasse de eventos sem reentrância e logs filtrados.
 - [ ] T4 — Migration `ProgressoDasAulas` e `LessonProgressStore`.
-- [ ] T5 — `VideoView` (`NativeControlHost`) para Windows, Linux (X11) e macOS.
+- [ ] T5 — Quadros do VLC por callbacks (RV32, dois buffers, limite de 1920 px) e `VideoView` que desenha num `WriteableBitmap`.
 - [ ] T6 — `PlayerViewModel`: carregar aula, controles, salvamento periódico, concluída, próxima aula com contagem, preferências, última aula.
 - [ ] T7 — `PlayerPanel`: barra funcional, estados (vazio, carregando, erro, VLC ausente), contagem da próxima aula.
-- [ ] T8 — Tela cheia (`FullscreenWindow`, controles em `Popup` com ocultação automática).
+- [ ] T8 — Tela cheia na própria `MainWindow` (só o player), controles sobrepostos com ocultação automática, duplo clique.
 - [ ] T9 — Atalhos de teclado, com as regras de foco.
 - [ ] T10 — Biblioteca: durações em segundo plano, ícones de progresso, andamento do curso, marcar/desmarcar concluída.
 - [ ] T11 — Reabrir na última aula assistida.
