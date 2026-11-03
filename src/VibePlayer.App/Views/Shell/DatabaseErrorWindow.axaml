@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ic="using:FluentIcons.Avalonia"
+        xmlns:res="using:VibePlayer.App.Resources"
+        mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="260"
+        x:Class="VibePlayer.App.Views.Shell.DatabaseErrorWindow"
+        Title="{x:Static res:Strings.AppName}"
+        Width="480" SizeToContent="Height"
+        CanResize="False"
+        WindowStartupLocation="CenterScreen">
+
+    <!-- Única janela quando a atualização do banco falha: o app não abre a janela principal
+         sobre um banco que não está pronto (ver DatabaseInitializer). -->
+    <StackPanel Margin="{StaticResource PaddingEmptyState}" Spacing="{StaticResource SpaceLg}">
+        <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpaceMd}">
+            <ic:SymbolIcon Symbol="ErrorCircle" Foreground="{DynamicResource ErrorBrush}" VerticalAlignment="Center" />
+            <TextBlock Classes="subtitle" Text="{x:Static res:Strings.DatabaseError_Title}" TextWrapping="Wrap" VerticalAlignment="Center" />
+        </StackPanel>
+
+        <SelectableTextBlock x:Name="MessageText" Classes="body" TextWrapping="Wrap" />
+        <TextBlock Classes="body secondary" Text="{x:Static res:Strings.DatabaseError_Hint}" TextWrapping="Wrap" />
+
+        <Button x:Name="CloseButton"
+                Classes="primary"
+                HorizontalAlignment="Right"
+                Content="{x:Static res:Strings.Common_Close}"
+                IsDefault="True"
+                Click="OnCloseClick" />
+    </StackPanel>
+
+</Window>

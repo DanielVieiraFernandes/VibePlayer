@@ -1,5 +1,10 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using VibePlayer.Core;
+using VibePlayer.Core.Persistence;
+using VibePlayer.Core.Settings;
+using VibePlayer.Infrastructure.Persistence;
+using VibePlayer.Infrastructure.Settings;
 
 namespace VibePlayer.Infrastructure;
 
@@ -12,6 +17,15 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IAppPaths paths)
     {
         services.AddSingleton(paths);
+        services.AddSingleton(TimeProvider.System);
+
+        // Factory (singleton) e não contexto registrado direto: ver VibePlayerDbContext.
+        services.AddDbContextFactory<VibePlayerDbContext>(options =>
+            options.UseSqlite(VibePlayerDbContext.CreateConnectionString(paths.DatabasePath)));
+
+        services.AddSingleton<IBackupService, SqliteBackupService>();
+        services.AddSingleton<IDatabaseInitializer, DatabaseInitializer>();
+        services.AddSingleton<ISettingsStore, SqliteSettingsStore>();
         return services;
     }
 }

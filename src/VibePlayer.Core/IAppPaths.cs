@@ -11,6 +11,12 @@ public interface IAppPaths
 
     string LogsDirectory { get; }
 
+    /// <summary>Banco SQLite (<c>vibePlayer.db</c>).</summary>
+    string DatabasePath { get; }
+
+    /// <summary>Backups automáticos do banco.</summary>
+    string BackupsDirectory { get; }
+
     /// <summary>Modelos do Whisper, baixados na primeira transcrição.</summary>
     string ModelsDirectory { get; }
 }

@@ -80,6 +80,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         IsSidePanelOpen = true;
     }
 
+    /// <summary>Restaura o estado salvo da última abertura; a largura volta aos limites atuais.</summary>
+    public void RestoreSidePanel(bool isOpen, double width, SidePanelTab tab)
+    {
+        IsSidePanelOpen = isOpen;
+        SidePanelWidth = ClampWidth(width);
+        SelectedTab = tab;
+    }
+
     /// <summary>Aplica o arraste da divisória; positivo alarga o painel.</summary>
     public void ResizeSidePanel(double delta) => SidePanelWidth = ClampWidth(SidePanelWidth + delta);
 

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using VibePlayer.App.Diagnostics;
 using VibePlayer.App.Services;
+using VibePlayer.App.State;
 using VibePlayer.App.ViewModels;
 using VibePlayer.Core;
 using VibePlayer.Infrastructure;
@@ -34,10 +35,10 @@ public static class AppComposition
         services.AddLogging(builder => builder.ClearProviders().AddSerilog(logger, dispose: false));
 
         services.AddInfrastructure(paths);
-        services.AddSingleton(TimeProvider.System);
         services.AddSingleton<NotificationService>();
         services.AddSingleton<INotificationService>(sp => sp.GetRequiredService<NotificationService>());
         services.AddSingleton<GlobalExceptionHandler>();
+        services.AddSingleton<WindowStateTracker>();
 
         services.AddTransient<MainWindowViewModel>();
         services.AddTransient<LibraryViewModel>();

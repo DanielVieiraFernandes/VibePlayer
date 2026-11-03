@@ -12,7 +12,7 @@ Player desktop **multiplataforma** (Windows, macOS e Linux) para cursos em víde
 
 O código-fonte fica em repositório público no GitHub, mas o projeto **não é open source** e **não aceita contribuições externas**: a licença é proprietária (todos os direitos reservados), com permissão apenas para baixar e usar os binários publicados em Releases. Não sugira nem adicione licenças open source, `CONTRIBUTING.md` convidando PRs ou templates de contribuição.
 
-O esqueleto (solution, DI, logs, testes, CI) existe; as funcionalidades descritas abaixo (biblioteca, player, transcrição, LLM, persistência) ainda são **planejadas**. Ao criar ou mudar algo estrutural, atualize este arquivo.
+O esqueleto (solution, DI, logs, testes, CI), o layout (DESIGN.md) e a persistência (SQLite, backups, preferências) existem; biblioteca, player, transcrição e LLM ainda são **planejados**. Ao criar ou mudar algo estrutural, atualize este arquivo.
 
 ## Fluxo de trabalho (SDD — obrigatório)
 
@@ -104,7 +104,8 @@ dotnet test VibePlayer.slnx
 dotnet test tests/VibePlayer.UnitTests
 dotnet test tests/VibePlayer.E2ETests
 dotnet test --filter "FullyQualifiedName~NomeDaClasseOuTeste"
-dotnet ef migrations add NomeDaMigration --project src/VibePlayer.Infrastructure --startup-project src/VibePlayer.App
+dotnet tool restore                      # instala o dotnet-ef na versão fixada em dotnet-tools.json
+dotnet ef migrations add NomeDaMigration --project src/VibePlayer.Infrastructure --startup-project src/VibePlayer.Infrastructure --output-dir Persistence/Migrations
 ```
 
 ## Testes
@@ -134,7 +135,11 @@ Comentários, nomes de testes e mensagens de commit em português; identificador
 Tudo fica na pasta de dados do usuário, `Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)/VibePlayer` (resolve para `%APPDATA%` no Windows e `~/.config` no Linux/macOS), nunca dentro da pasta do curso:
 
 - `vibePlayer.db` — SQLite: cursos, aulas, progresso, transcrições (segmentos com timestamps), resumos, pontos principais, histórico de chat, configurações.
+- `backups/` — backups do banco: um diário na primeira abertura do dia (mantém 7) e um antes de cada atualização do banco (mantém 3), sempre verificados com `integrity_check`. Restaurar é manual por enquanto (fechar o app e copiar o backup sobre `vibePlayer.db`).
 - `models/` — modelos do Whisper; `logs/` — Serilog.
+- **Banco:** `VibePlayerDbContext` (Infrastructure), sempre via `IDbContextFactory` com contextos curtos e acesso `async`; WAL ligado. Cada spec cria suas tabelas com uma migration própria; migrations publicadas nunca são editadas. `MigrationTests` falha se o modelo mudar sem migration.
+- **Inicialização:** `AppStartup.Prepare` (usado pelo `Program` e pelos E2E) roda o `DatabaseInitializer` antes da UI: backup → migrate → em falha, restaura o backup, mostra `DatabaseErrorWindow` e sai com código 2. Nunca abra a janela principal sobre um banco que não ficou pronto.
+- **Preferências:** `ISettingsStore` (Core) com chaves `SettingKey<T>` (nome permanente com prefixo por área, padrão, validação), gravadas como JSON na tabela `Settings`. Valor inválido volta ao padrão com aviso no log (só a chave). Layout da janela: `UiSettings` + `WindowStateTracker` (grava 500 ms depois da última mudança e ao fechar).
 - Chaves de API ficam no cofre do SO via `ISecretStore` (ver Multiplataforma), nunca no banco.
 - **Sem criptografia do banco (decisão do mantenedor):** o SQLite fica em texto normal, protegido pelas permissões da pasta de dados do usuário. Não adicione criptografia de colunas, SQLCipher, chaves embutidas no código nem senha mestra sem uma spec aprovada.
 
