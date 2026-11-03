@@ -26,6 +26,8 @@ public sealed class VibePlayerDbContext(DbContextOptions<VibePlayerDbContext> op
 
     public DbSet<LessonEntity> Lessons => Set<LessonEntity>();
 
+    public DbSet<LessonProgressEntity> LessonProgress => Set<LessonProgressEntity>();
+
     /// <summary>
     /// Connection string do banco do app.
     /// </summary>

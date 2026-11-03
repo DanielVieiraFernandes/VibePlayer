@@ -90,7 +90,11 @@ public partial class VibePlayerApp : Application
         _services.GetRequiredService<NotificationService>().AttachTo(window);
         _services.GetRequiredService<StorageFilePicker>().AttachTo(window);
         _services.GetRequiredService<WindowDialogService>().AttachTo(window);
-        window.Closing += (_, _) => viewModel.Library.Shutdown();
+        window.Closing += (_, _) =>
+        {
+            viewModel.Player.SaveBeforeClose();
+            viewModel.Library.Shutdown();
+        };
         return window;
     }
 
@@ -103,6 +107,6 @@ public partial class VibePlayerApp : Application
     {
         var logger = _services!.GetRequiredService<ILogger<VibePlayerApp>>();
         _services!.GetRequiredService<IBackupService>().RunDailyIfDueAsync().FireAndForget(logger, "BackupDiario");
-        viewModel.Library.InitializeAsync().FireAndForget(logger, "CarregarBiblioteca");
+        viewModel.InitializeAsync().FireAndForget(logger, "CarregarBibliotecaEPlayer");
     }
 }

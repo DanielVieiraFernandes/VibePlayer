@@ -23,7 +23,7 @@
         do ViewModel e a divisória é um Thumb, não um GridSplitter: ver MainWindowViewModel.
     -->
     <DockPanel>
-        <shell:TopBar DockPanel.Dock="Top" />
+        <shell:TopBar DockPanel.Dock="Top" IsVisible="{Binding !IsFullscreen}" />
 
         <Grid x:Name="ContentGrid" ColumnDefinitions="*,Auto,Auto">
             <player:PlayerPanel x:Name="PlayerPanel" DataContext="{Binding Player}" />
@@ -31,13 +31,13 @@
             <Thumb x:Name="SidePanelSplitter"
                    Grid.Column="1"
                    Classes="splitter"
-                   IsVisible="{Binding IsSidePanelOpen}"
+                   IsVisible="{Binding ShowSidePanel}"
                    DragDelta="OnSplitterDragDelta" />
 
             <shell:SidePanel x:Name="SidePanel"
                              Grid.Column="2"
                              Width="{Binding SidePanelWidth}"
-                             IsVisible="{Binding IsSidePanelOpen}" />
+                             IsVisible="{Binding ShowSidePanel}" />
         </Grid>
     </DockPanel>
 

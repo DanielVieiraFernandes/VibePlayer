@@ -66,6 +66,13 @@ public partial class LibraryView : UserControl
             menu.Items.Add(MenuItem(Strings.Library_Locate, Symbol.FolderSearch, library.LocateCommand, item));
         }
 
+        if (item is LessonItemViewModel lesson)
+        {
+            menu.Items.Add(lesson.IsCompleted
+                ? MenuItem(Strings.Library_MarkNotCompleted, Symbol.ArrowUndo, library.ToggleCompletedCommand, item)
+                : MenuItem(Strings.Library_MarkCompleted, Symbol.CheckmarkCircle, library.ToggleCompletedCommand, item));
+        }
+
         if (item.CanRemove)
         {
             menu.Items.Add(MenuItem(Strings.Library_Remove, Symbol.Delete, library.RemoveCommand, item));

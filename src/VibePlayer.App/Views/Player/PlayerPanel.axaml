@@ -5,58 +5,141 @@
              xmlns:ic="using:FluentIcons.Avalonia"
              xmlns:res="using:VibePlayer.App.Resources"
              xmlns:vm="using:VibePlayer.App.ViewModels"
+             xmlns:controls="using:VibePlayer.App.Controls"
              mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="700"
              x:Class="VibePlayer.App.Views.Player.PlayerPanel"
              x:DataType="vm:PlayerViewModel">
 
-    <Grid RowDefinitions="*,Auto">
+    <!-- Em tela cheia a barra passa da linha de baixo para cima do vídeo (classe "fullscreen";
+         ver Controls.axaml) e some sozinha com o ponteiro parado (code-behind). -->
+    <Grid x:Name="Root" Classes="playerRoot" Classes.fullscreen="{Binding IsFullscreen}" RowDefinitions="*,Auto">
         <!-- Fundo do vídeo sempre escuro, nos dois temas (DESIGN.md, "Vídeo sempre escuro"). -->
-        <Border x:Name="VideoArea" Background="{DynamicResource VideoBackgroundBrush}">
+        <Border x:Name="VideoArea"
+                Background="{DynamicResource VideoBackgroundBrush}"
+                Focusable="True"
+                AutomationProperties.Name="{x:Static res:Strings.Player_VideoArea}">
             <Panel>
-                <StackPanel Classes="emptyState" Margin="{StaticResource PaddingEmptyState}" IsVisible="{Binding !HasSelectedLesson}">
+                <controls:VideoView x:Name="Video" Source="{Binding Video}" IsVisible="{Binding ShowVideo}" />
+
+                <!-- Pôster: aula escolhida que ainda não começou a tocar. -->
+                <Panel IsVisible="{Binding ShowPoster}">
+                    <Image x:Name="PosterImage" Source="{Binding Poster}" Stretch="Uniform" Classes="poster" />
+                    <StackPanel Classes="emptyState posterOverlay">
+                        <TextBlock x:Name="LessonTitle" Classes="title" Foreground="{DynamicResource VideoTextBrush}" Text="{Binding CurrentLesson.Title, FallbackValue={x:Null}}" />
+                        <TextBlock x:Name="LessonCourse" Classes="body" Foreground="{DynamicResource VideoTextSecondaryBrush}" Text="{Binding CurrentLesson.CourseTitle, FallbackValue={x:Null}}" />
+                        <Button x:Name="PosterPlayButton" Classes="primary bigPlay" HorizontalAlignment="Center"
+                                Command="{Binding PlayPauseCommand}" IsEnabled="{Binding HasLesson}"
+                                AutomationProperties.Name="{x:Static res:Strings.Player_Play}">
+                            <ic:SymbolIcon Symbol="Play" />
+                        </Button>
+                    </StackPanel>
+                </Panel>
+
+                <!-- Nenhuma aula escolhida. -->
+                <StackPanel Classes="emptyState" Margin="{StaticResource PaddingEmptyState}" IsVisible="{Binding ShowEmptyState}">
                     <ic:SymbolIcon Symbol="Video" Foreground="{DynamicResource VideoTextSecondaryBrush}" />
                     <TextBlock Classes="title" Foreground="{DynamicResource VideoTextBrush}" Text="{x:Static res:Strings.Player_EmptyTitle}" />
                     <TextBlock Foreground="{DynamicResource VideoTextSecondaryBrush}" Text="{x:Static res:Strings.Player_EmptyDescription}" />
                 </StackPanel>
 
-                <!-- Aula escolhida na biblioteca; a reprodução chega na spec do player. -->
-                <StackPanel Classes="emptyState" Margin="{StaticResource PaddingEmptyState}" IsVisible="{Binding HasSelectedLesson}">
-                    <TextBlock x:Name="LessonTitle" Classes="title" Foreground="{DynamicResource VideoTextBrush}" Text="{Binding CurrentLesson.Title, FallbackValue={x:Null}}" />
-                    <TextBlock x:Name="LessonCourse" Classes="body" Foreground="{DynamicResource VideoTextSecondaryBrush}" Text="{Binding CurrentLesson.CourseTitle, FallbackValue={x:Null}}" />
-                    <TextBlock Classes="caption" Foreground="{DynamicResource VideoTextSecondaryBrush}" Text="{x:Static res:Strings.Player_SelectedHint}" />
+                <!-- VLC ausente (Linux). -->
+                <StackPanel Classes="emptyState" Margin="{StaticResource PaddingEmptyState}" IsVisible="{Binding IsUnavailable}">
+                    <ic:SymbolIcon Symbol="Warning" Foreground="{DynamicResource WarningBrush}" />
+                    <TextBlock x:Name="UnavailableTitle" Classes="title" Foreground="{DynamicResource VideoTextBrush}" Text="{x:Static res:Strings.Player_UnavailableTitle}" />
+                    <SelectableTextBlock Foreground="{DynamicResource VideoTextSecondaryBrush}" TextAlignment="Center" TextWrapping="Wrap" Text="{x:Static res:Strings.Player_UnavailableDescription}" />
                 </StackPanel>
+
+                <!-- Erro ao abrir ou tocar. -->
+                <StackPanel Classes="emptyState" Margin="{StaticResource PaddingEmptyState}" IsVisible="{Binding HasError}">
+                    <ic:SymbolIcon Symbol="ErrorCircle" Foreground="{DynamicResource VideoTextSecondaryBrush}" />
+                    <TextBlock Classes="title" Foreground="{DynamicResource VideoTextBrush}" Text="{x:Static res:Strings.Player_ErrorTitle}" />
+                    <TextBlock x:Name="ErrorText" Foreground="{DynamicResource VideoTextSecondaryBrush}" Text="{Binding ErrorText}" />
+                </StackPanel>
+
+                <ProgressBar IsIndeterminate="True" VerticalAlignment="Top" IsVisible="{Binding IsLoading}" />
+
+                <!-- Fim da aula: contagem para a próxima. -->
+                <Border x:Name="Countdown" Classes="countdown" IsVisible="{Binding IsCountingDown}">
+                    <StackPanel Spacing="{StaticResource SpaceSm}">
+                        <TextBlock x:Name="CountdownText" Classes="subtitle" Text="{Binding CountdownText}" />
+                        <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpaceSm}">
+                            <Button x:Name="PlayNextNowButton" Classes="primary" Content="{x:Static res:Strings.Player_PlayNextNow}" Command="{Binding NextLessonCommand}" />
+                            <Button x:Name="CancelNextButton" Content="{x:Static res:Strings.Player_CancelNext}" Command="{Binding CancelCountdownCommand}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Anunciado aos leitores de tela quando muda (tocando, pausado, erro); invisível. -->
+                <TextBlock x:Name="LiveStatus" Classes="srOnly" Text="{Binding StatusText}" AutomationProperties.LiveSetting="Polite" />
             </Panel>
         </Border>
 
-        <!-- Controles existem para o layout e ficam desabilitados até haver aula (spec do player). -->
-        <Border Grid.Row="1"
-                Classes="surface"
+        <Border x:Name="ControlsBar"
+                Grid.Row="1"
+                Classes="surface playerControls"
                 Height="{StaticResource PlayerControlsHeight}"
                 Padding="{StaticResource PaddingBar}"
                 BorderBrush="{DynamicResource BorderSubtleBrush}"
                 BorderThickness="{StaticResource BorderTop}"
                 IsEnabled="{Binding HasLesson}">
-            <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto,Auto" VerticalAlignment="Center">
-                <Button Grid.Column="0" Classes="icon" AutomationProperties.Name="{x:Static res:Strings.Player_Play}">
-                    <ic:SymbolIcon Symbol="Play" />
+            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto,Auto,Auto,Auto" VerticalAlignment="Center">
+                <Button Grid.Column="0" Classes="icon lessonNav" Command="{Binding PreviousLessonCommand}"
+                        AutomationProperties.Name="{x:Static res:Strings.Player_PreviousLesson}" ToolTip.Tip="{x:Static res:Strings.Player_PreviousLesson}">
+                    <ic:SymbolIcon Symbol="Previous" />
                 </Button>
-                <TextBlock Grid.Column="1" Classes="caption secondary tabular"
+                <Button x:Name="PlayPauseButton" Grid.Column="1" Classes="icon" Command="{Binding PlayPauseCommand}"
+                        AutomationProperties.Name="{Binding PlayPauseName}" ToolTip.Tip="{Binding PlayPauseName}">
+                    <Panel>
+                        <ic:SymbolIcon Symbol="Play" IsVisible="{Binding !IsPlaying}" />
+                        <ic:SymbolIcon Symbol="Pause" IsVisible="{Binding IsPlaying}" />
+                    </Panel>
+                </Button>
+                <Button Grid.Column="2" Classes="icon lessonNav" Command="{Binding NextLessonCommand}"
+                        AutomationProperties.Name="{x:Static res:Strings.Player_NextLesson}" ToolTip.Tip="{x:Static res:Strings.Player_NextLesson}">
+                    <ic:SymbolIcon Symbol="Next" />
+                </Button>
+                <TextBlock x:Name="PositionText" Grid.Column="3" Classes="caption secondary tabular"
                            Margin="{StaticResource PaddingTab}" VerticalAlignment="Center"
                            AutomationProperties.Name="{x:Static res:Strings.Player_CurrentTime}"
-                           Text="{x:Static res:Strings.Player_TimeZero}" />
-                <Slider Grid.Column="2" VerticalAlignment="Center" Minimum="0" Maximum="1" Value="0"
-                        AutomationProperties.Name="{x:Static res:Strings.Player_Progress}" />
-                <TextBlock Grid.Column="3" Classes="caption secondary tabular"
+                           Text="{Binding PositionText}" />
+                <Slider x:Name="PositionSlider" Grid.Column="4" VerticalAlignment="Center"
+                        Minimum="0" Maximum="{Binding DurationSeconds}" Value="{Binding PositionSeconds}"
+                        AutomationProperties.Name="{x:Static res:Strings.Player_Progress}"
+                        PointerMoved="OnPositionPointerMoved" />
+                <TextBlock x:Name="DurationText" Grid.Column="5" Classes="caption secondary tabular"
                            Margin="{StaticResource PaddingTab}" VerticalAlignment="Center"
                            AutomationProperties.Name="{x:Static res:Strings.Player_Duration}"
-                           Text="{x:Static res:Strings.Player_TimeZero}" />
-                <Button Grid.Column="4" Classes="icon" AutomationProperties.Name="{x:Static res:Strings.Player_Volume}">
-                    <ic:SymbolIcon Symbol="Speaker2" />
+                           Text="{Binding DurationText}" />
+                <Button x:Name="MuteButton" Grid.Column="6" Classes="icon" Command="{Binding ToggleMuteCommand}"
+                        AutomationProperties.Name="{Binding MuteName}" ToolTip.Tip="{Binding MuteName}">
+                    <Panel>
+                        <ic:SymbolIcon Symbol="Speaker2" IsVisible="{Binding !IsMuted}" />
+                        <ic:SymbolIcon Symbol="SpeakerMute" IsVisible="{Binding IsMuted}" />
+                    </Panel>
                 </Button>
-                <Button Grid.Column="5" Classes="ghost" Content="{x:Static res:Strings.Player_SpeedNormal}"
-                        AutomationProperties.Name="{x:Static res:Strings.Player_Speed}" />
-                <Button Grid.Column="6" Classes="icon" AutomationProperties.Name="{x:Static res:Strings.Player_Fullscreen}">
-                    <ic:SymbolIcon Symbol="FullScreenMaximize" />
+                <Slider x:Name="VolumeSlider" Grid.Column="7" Classes="volume" VerticalAlignment="Center"
+                        Minimum="0" Maximum="100" Value="{Binding Volume}"
+                        AutomationProperties.Name="{x:Static res:Strings.Player_Volume}" />
+                <Button x:Name="RateButton" Grid.Column="8" Classes="ghost tabular" Content="{Binding RateText}"
+                        AutomationProperties.Name="{x:Static res:Strings.Player_Speed}" ToolTip.Tip="{x:Static res:Strings.Player_Speed}">
+                    <Button.Flyout>
+                        <MenuFlyout ItemsSource="{Binding Rates}">
+                            <MenuFlyout.ItemContainerTheme>
+                                <ControlTheme TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}" x:DataType="x:Double">
+                                    <Setter Property="Header" Value="{Binding StringFormat={}{0:0.##}×}" />
+                                    <Setter Property="Command" Value="{Binding $parent[Button].((vm:PlayerViewModel)DataContext).SetRateCommand}" />
+                                    <Setter Property="CommandParameter" Value="{Binding}" />
+                                </ControlTheme>
+                            </MenuFlyout.ItemContainerTheme>
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+                <Button x:Name="FullscreenButton" Grid.Column="9" Classes="icon" Command="{Binding ToggleFullscreenCommand}"
+                        AutomationProperties.Name="{Binding FullscreenName}" ToolTip.Tip="{Binding FullscreenName}">
+                    <Panel>
+                        <ic:SymbolIcon Symbol="FullScreenMaximize" IsVisible="{Binding !IsFullscreen}" />
+                        <ic:SymbolIcon Symbol="FullScreenMinimize" IsVisible="{Binding IsFullscreen}" />
+                    </Panel>
                 </Button>
             </Grid>
         </Border>

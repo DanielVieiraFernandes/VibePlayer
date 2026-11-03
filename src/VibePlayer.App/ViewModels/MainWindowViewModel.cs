@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using VibePlayer.Core.Threading;
 
 namespace VibePlayer.App.ViewModels;
 
@@ -44,19 +45,50 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         SidePanelWidth = DefaultSidePanelWidth;
         SelectedTab = SidePanelTab.Lessons;
 
-        // A aula escolhida na biblioteca é a aula do player.
+        // A aula escolhida na biblioteca vai para o player; a que o player começa sozinho (próxima
+        // aula, reabertura) fica marcada na biblioteca. Os dois lados ignoram a aula que já têm,
+        // então a ida e a volta não viram um ciclo.
         library.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(LibraryViewModel.CurrentLesson))
+            if (e.PropertyName == nameof(LibraryViewModel.CurrentLesson) && library.CurrentLesson is { } lesson)
             {
-                player.CurrentLesson = library.CurrentLesson;
+                player.LoadAsync(lesson.Id, autoPlay: true).FireAndForget(_logger, "AbrirAula");
             }
         };
+        player.LessonStarted += (_, lessonId) => library.ShowCurrentLesson(lessonId);
+        player.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(PlayerViewModel.IsFullscreen))
+            {
+                OnPropertyChanged(nameof(IsFullscreen));
+                OnPropertyChanged(nameof(ShowSidePanel));
+            }
+        };
+        player.LessonCompleted += (_, _) => library.ReloadInBackground();
+    }
+
+    /// <summary>
+    /// Depois que a janela abre: preferências do player, biblioteca e, por fim, a última aula
+    /// assistida, pausada (spec 0006).
+    /// </summary>
+    public async Task InitializeAsync()
+    {
+        await Player.LoadPreferencesAsync();
+        await Library.InitializeAsync();
+        if (await Player.GetLastLessonIdAsync() is { } lastLesson)
+        {
+            await Player.LoadAsync(lastLesson, autoPlay: false);
+        }
     }
 
     public string Title => Resources.Strings.AppName;
 
-    public LibraryViewModel Library { get; }
+    /// <summary>Tela cheia: só o player, sem barra superior nem painel lateral.</summary>
+    public bool IsFullscreen => Player.IsFullscreen;
+
+    public bool ShowSidePanel => IsSidePanelOpen && !IsFullscreen;
+
+        public LibraryViewModel Library { get; }
 
     public PlayerViewModel Player { get; }
 
@@ -118,8 +150,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         return Math.Clamp(width, MinSidePanelWidth, max);
     }
 
-    partial void OnIsSidePanelOpenChanged(bool value) =>
+    partial void OnIsSidePanelOpenChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowSidePanel));
         _logger.LogDebug("Painel lateral {State}", value ? "aberto" : "fechado");
+    }
 
     partial void OnSelectedTabChanged(SidePanelTab value)
     {

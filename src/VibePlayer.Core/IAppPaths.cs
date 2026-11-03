@@ -17,6 +17,9 @@ public interface IAppPaths
     /// <summary>Backups automáticos do banco.</summary>
     string BackupsDirectory { get; }
 
+    /// <summary>Miniaturas das aulas (cache regenerável, fora dos backups).</summary>
+    string ThumbnailsDirectory { get; }
+
     /// <summary>Modelos do Whisper, baixados na primeira transcrição.</summary>
     string ModelsDirectory { get; }
 }

@@ -70,12 +70,12 @@ public sealed class LibraryTests : IDisposable
 
         var lessons = (await library.GetCoursesAsync(Token)).Single().Lessons;
         lessons.Select(l => l.Title).ShouldBe(["1 - a", "2 - b", "3 - c"]);
-        lessons.Single(l => l.Title == "2 - b").ShouldBe(original with { IsAvailable = false });
+        Identity(lessons.Single(l => l.Title == "2 - b")).ShouldBe((original.Id, original.Title, false));
 
         _sample.AddVideo("Curso/2 - b.mp4");
         await library.RefreshAsync(cancellationToken: Token);
 
-        (await library.GetCoursesAsync(Token)).Single().Lessons.Single(l => l.Title == "2 - b").ShouldBe(original);
+        Identity((await library.GetCoursesAsync(Token)).Single().Lessons.Single(l => l.Title == "2 - b")).ShouldBe(Identity(original));
     }
 
     [Fact]
@@ -248,7 +248,7 @@ public sealed class LibraryTests : IDisposable
         var after = vm.Courses.Single().Node;
         after.Id.ShouldBe(before.Id);
         after.IsRootAvailable.ShouldBeTrue();
-        after.Modules.Single().Lessons.ShouldBe(before.Modules.Single().Lessons);
+        after.Modules.Single().Lessons.Select(Identity).ShouldBe(before.Modules.Single().Lessons.Select(Identity));
     }
 
     [AvaloniaFact]
@@ -270,6 +270,9 @@ public sealed class LibraryTests : IDisposable
         dialogs.Confirmations.ShouldHaveSingleItem();
         vm.Courses.Single().Node.IsRootAvailable.ShouldBeFalse("Cancelado: a pasta não foi trocada");
     }
+
+    // O que identifica a aula; caminho e data do arquivo mudam quando ele é recriado ou movido.
+    private static (Guid Id, string Title, bool IsAvailable) Identity(LessonNode lesson) => (lesson.Id, lesson.Title, lesson.IsAvailable);
 
     private ServiceProvider OpenWithFakes(FakeFilePicker picker, ScriptedDialogs dialogs)
     {

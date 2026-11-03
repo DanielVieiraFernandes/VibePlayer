@@ -65,3 +65,15 @@ internal sealed class LessonConfiguration : IEntityTypeConfiguration<LessonEntit
         builder.HasOne<ModuleEntity>().WithMany().HasForeignKey(l => l.ModuleId).OnDelete(DeleteBehavior.SetNull);
     }
 }
+
+internal sealed class LessonProgressConfiguration : IEntityTypeConfiguration<LessonProgressEntity>
+{
+    public void Configure(EntityTypeBuilder<LessonProgressEntity> builder)
+    {
+        builder.ToTable("LessonProgress");
+        builder.HasKey(p => p.LessonId);
+
+        // Aula removida da biblioteca leva o progresso junto.
+        builder.HasOne<LessonEntity>().WithOne().HasForeignKey<LessonProgressEntity>(p => p.LessonId).OnDelete(DeleteBehavior.Cascade);
+    }
+}

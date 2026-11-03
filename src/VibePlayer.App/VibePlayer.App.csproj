@@ -4,6 +4,8 @@
     <AssemblyName>VibePlayer</AssemblyName>
     <RootNamespace>VibePlayer.App</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Cópia dos quadros de vídeo para o bitmap da tela (Controls/VideoView). -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,5 +40,19 @@
     <PackageReference Include="Serilog" />
     <PackageReference Include="Serilog.Sinks.File" />
     <PackageReference Include="Serilog.Extensions.Logging" />
+    <PackageReference Include="LibVLCSharp" />
   </ItemGroup>
+
+  <!--
+    Binários nativos do VLC só do sistema do pacote: o do Windows no Windows (ou publicando para
+    win-*), o do macOS no macOS. No Linux o app usa o VLC instalado no sistema (spec 0006).
+  -->
+  <ItemGroup>
+    <PackageReference Include="VideoLAN.LibVLC.Windows"
+                      Condition="$(RuntimeIdentifier.StartsWith('win')) Or ('$(RuntimeIdentifier)' == '' And $([MSBuild]::IsOSPlatform('Windows')))" />
+    <PackageReference Include="VideoLAN.LibVLC.Mac"
+                      Condition="$(RuntimeIdentifier.StartsWith('osx')) Or ('$(RuntimeIdentifier)' == '' And $([MSBuild]::IsOSPlatform('OSX')))" />
+  </ItemGroup>
+
+  <Import Project="VlcPlugins.targets" />
 </Project>

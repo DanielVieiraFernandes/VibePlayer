@@ -39,7 +39,11 @@ public static class TestAppBuilder
         var services = AppComposition.BuildServices(
             paths,
             logger,
-            overrides => overrides.AddSingleton<TimeProvider>(new SteppingTimeProvider(TimeSpan.FromMinutes(1))));
+            overrides =>
+            {
+                overrides.AddSingleton<TimeProvider>(new SteppingTimeProvider(TimeSpan.FromMinutes(1)));
+                overrides.UseFakePlayback();
+            });
 
         // Mesmo preparo da produção: banco criado com as migrations na pasta temporária.
         var startup = AppStartup.Prepare(services);

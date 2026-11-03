@@ -20,11 +20,16 @@ public sealed class TemporaryAppData : IDisposable
     public AppPaths Paths { get; }
 
     /// <summary>Uma "abertura" do app: mesmo composition root de produção, sobre esta pasta.</summary>
+    /// <remarks>Reprodução sempre falsa (ver FakeMediaPlayer); <paramref name="overrides"/> vem depois e pode trocar os falsos.</remarks>
     public ServiceProvider BuildServices(Action<IServiceCollection>? overrides = null) =>
         AppComposition.BuildServices(
             Paths,
             new LoggerConfiguration().MinimumLevel.Verbose().WriteTo.Sink(TestAppBuilder.LogSink).CreateLogger(),
-            overrides);
+            services =>
+            {
+                services.UseFakePlayback();
+                overrides?.Invoke(services);
+            });
 
     public void Dispose()
     {

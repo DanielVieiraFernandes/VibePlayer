@@ -94,7 +94,8 @@ public sealed class WindowStateTracker(ISettingsStore settings, ILogger<WindowSt
 
     private void OnWindowChanged(Window window, AvaloniaPropertyChangedEventArgs e)
     {
-        if (e.Property == Window.WindowStateProperty && window.WindowState != WindowState.Minimized)
+        // Minimizada e tela cheia (do player) são estados passageiros: não viram preferência.
+        if (e.Property == Window.WindowStateProperty && window.WindowState is WindowState.Normal or WindowState.Maximized)
         {
             Update(_state with { Maximized = window.WindowState == WindowState.Maximized });
         }
