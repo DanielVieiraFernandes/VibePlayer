@@ -77,30 +77,51 @@
                   ItemsSource="{Binding Courses}"
                   SelectedItem="{Binding SelectedItem}"
                   IsVisible="{Binding HasCourses}"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                   AutomationProperties.Name="{x:Static res:Strings.Library_Tree}">
+            <!-- Sem rolagem horizontal: com ela, a linha teria largura infinita, nomes longos
+                 empurrariam o botão "⋯" para fora da tela em vez de serem cortados com "…". -->
             <TreeView.Styles>
                 <Style Selector="TreeViewItem" x:DataType="vm:LibraryItemViewModel">
                     <Setter Property="AutomationProperties.Name" Value="{Binding AccessibleName}" />
                 </Style>
+                <!-- O conteúdo de cada linha ocupa até a borda do painel: o botão de ações fica
+                     sempre no mesmo lugar, alinhado à direita. -->
+                <Style Selector="TreeViewItem /template/ ContentPresenter#PART_HeaderPresenter">
+                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
             </TreeView.Styles>
             <TreeView.ItemTemplate>
+                <!-- O menu de ações (clique direito ou botão "⋯") é montado no código, ver LibraryView.axaml.cs. -->
                 <TreeDataTemplate DataType="vm:LibraryItemViewModel" ItemsSource="{Binding Children}">
-                    <StackPanel Classes="libraryItem">
-                        <StackPanel.ContextMenu>
-                            <ContextMenu IsVisible="{Binding HasActions}">
-                                <MenuItem Header="{x:Static res:Strings.Library_Locate}"
-                                          IsVisible="{Binding CanLocate}"
-                                          Command="{Binding $parent[TreeView].((vm:LibraryViewModel)DataContext).LocateCommand}"
-                                          CommandParameter="{Binding}" />
-                                <MenuItem Header="{x:Static res:Strings.Library_Remove}"
-                                          IsVisible="{Binding CanRemove}"
-                                          Command="{Binding $parent[TreeView].((vm:LibraryViewModel)DataContext).RemoveCommand}"
-                                          CommandParameter="{Binding}" />
-                            </ContextMenu>
-                        </StackPanel.ContextMenu>
-                        <TextBlock Classes="body" Classes.unavailable="{Binding !IsAvailable}" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
-                        <TextBlock Classes="caption secondary" Text="{Binding Caption}" IsVisible="{Binding Caption, Converter={x:Static ObjectConverters.IsNotNull}}" TextTrimming="CharacterEllipsis" />
-                    </StackPanel>
+                    <Grid Classes="libraryRow" ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource SpaceSm}">
+                        <StackPanel Classes="libraryItem">
+                            <TextBlock Classes="body" Classes.unavailable="{Binding !IsAvailable}" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Classes="caption secondary" Text="{Binding Caption}" IsVisible="{Binding Caption, Converter={x:Static ObjectConverters.IsNotNull}}" TextTrimming="CharacterEllipsis" />
+
+                            <!-- Pasta que sumiu: a saída fica à vista, sem depender de achar o menu. -->
+                            <Button Classes="link"
+                                    IsVisible="{Binding CanLocate}"
+                                    Command="{Binding $parent[TreeView].((vm:LibraryViewModel)DataContext).LocateCommand}"
+                                    CommandParameter="{Binding}">
+                                <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpaceXs}">
+                                    <ic:SymbolIcon Symbol="FolderSearch" FontSize="{StaticResource IconSizeSmall}" />
+                                    <TextBlock Classes="caption" Text="{x:Static res:Strings.Library_Locate}" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <Button Grid.Column="1"
+                                Classes="icon rowActions"
+                                VerticalAlignment="Center"
+                                IsVisible="{Binding HasActions}"
+                                AutomationProperties.Name="{Binding ActionsName}"
+                                ToolTip.Tip="{Binding ActionsName}"
+                                Click="OnActionsButtonClick">
+                            <ic:SymbolIcon Symbol="MoreHorizontal" />
+                        </Button>
+                    </Grid>
                 </TreeDataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>

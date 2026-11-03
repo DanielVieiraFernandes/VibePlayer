@@ -26,6 +26,9 @@ public abstract class LibraryItemViewModel : ViewModelBase
 
     public bool HasActions => CanRemove || CanLocate;
 
+    /// <summary>Nome do botão "⋯" (leitores de tela e dica): "Ações de “Curso X”".</summary>
+    public string ActionsName => string.Format(CultureInfo.CurrentCulture, Strings.Library_ItemActionsFor, Title);
+
     /// <summary>Nome lido pelos leitores de tela: título e, se houver, a segunda linha.</summary>
     public string AccessibleName => Caption is null ? Title : $"{Title}, {Caption}";
 }

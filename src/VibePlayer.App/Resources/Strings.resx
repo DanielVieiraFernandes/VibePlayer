@@ -305,4 +305,8 @@
   <data name="Player_SelectedHint" xml:space="preserve">
     <value>A reprodução chega numa próxima versão.</value>
   </data>
+  <data name="Library_ItemActionsFor" xml:space="preserve">
+    <value>Ações de “{0}”</value>
+    <comment>Botão "⋯" de cada curso; {0} = título.</comment>
+  </data>
 </root>

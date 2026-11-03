@@ -150,6 +150,8 @@ Elevação é feita com **superfície** (`SurfaceRaised`) e borda sutil, não co
 | Barra de ações de painel | `Border.toolbar` | — | Botões de ícone alinhados à direita, borda inferior sutil |
 | Árvore da biblioteca | `TreeView` + `StackPanel.libraryItem` | — | Título `body` e, quando houver, segunda linha `caption secondary` (contagem de aulas, "Indisponível", "Pasta não encontrada") |
 | Item indisponível | `TextBlock.unavailable` | — | Título em `TextDisabled`; continua com foco e menu (para remover ou localizar), mas não vira a aula atual |
+| Ações de uma linha | `Button.rowActions` ("⋯") + menu | 32 × 32, à direita da linha | Sempre visível em itens com ações, para quem não conhece o clique direito. O clique direito e a tecla Menu abrem o mesmo menu em qualquer ponto da linha. Itens de menu com ícone (`Delete` para remover, `FolderSearch` para localizar) |
+| Link de ação | `Button.link` | sem fundo nem borda | Texto `AccentText`, sublinhado no hover. Para a saída óbvia de um estado (ex.: "Localizar pasta…" numa pasta não encontrada) |
 | Selo | `Border.badge` | — | Texto `caption` sobre `AccentSubtle` (ex.: "sugerido") |
 | Caixa de prévia | `Border.previewBox` | raio 8 | Fundo `AppBackground` com borda sutil, dentro de diálogos |
 | Diálogo | `Window` modal | largura 440–520, altura pelo conteúdo | Título `subtitle`, ações à direita (Cancelar, depois a principal). Confirmações destrutivas têm Cancelar como padrão do Enter |

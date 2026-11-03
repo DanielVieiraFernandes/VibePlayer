@@ -166,6 +166,77 @@ public sealed class LibraryViewTests : IDisposable
         window.Close();
     }
 
+    [AvaloniaFact]
+    public async Task CliqueDireito_EmQualquerPontoDaLinha_AbreAcoesDoCurso()
+    {
+        _sample.AddVideo("Curso/M/a.mp4");
+        var window = await OpenWithFolderAsync("Curso");
+        var view = window.GetVisualDescendants().OfType<LibraryView>().Single();
+        var row = window.GetVisualDescendants().OfType<TreeViewItem>().First();
+
+        // Pontos sem texto: logo depois do recuo (antes do título) e perto da borda direita.
+        foreach (var x in new[] { 4.0, row.Bounds.Width - 48 })
+        {
+            RightClick(window, row, new Point(x, 12));
+
+            var menu = view.OpenActionsMenu.ShouldNotBeNull($"Clique direito em x={x} não abriu o menu");
+            menu.Items.OfType<MenuItem>().Select(i => i.Header).ShouldBe([Strings.Library_Remove]);
+            menu.Close();
+        }
+
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public async Task BotaoDeAcoes_AbreMenuEItemSemAcoesNaoAbreODoCurso()
+    {
+        _sample.AddVideo("Curso/M/a.mp4");
+        var window = await OpenWithFolderAsync("Curso");
+        var view = window.GetVisualDescendants().OfType<LibraryView>().Single();
+        var course = window.GetVisualDescendants().OfType<TreeViewItem>().First();
+
+        var actions = course.GetVisualDescendants().OfType<Button>().First(b => b.Classes.Contains("rowActions"));
+        actions.IsEffectivelyVisible.ShouldBeTrue();
+        window.Click(actions);
+        view.OpenActionsMenu.ShouldNotBeNull().Items.OfType<MenuItem>().Select(i => i.Header).ShouldBe([Strings.Library_Remove]);
+        view.OpenActionsMenu!.Close();
+
+        // Módulo não tem ações: o clique direito nele não pode abrir o menu do curso.
+        course.IsExpanded = true;
+        WindowTestExtensions.Settle();
+        var module = course.GetVisualDescendants().OfType<TreeViewItem>().First();
+        RightClick(window, module, new Point(module.Bounds.Width - 48, 12));
+        view.OpenActionsMenu.ShouldBeNull();
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public async Task PastaIndisponivel_MostraLocalizarPastaNaLinha()
+    {
+        _sample.AddVideo("HD/Curso/a.mp4");
+        var window = await OpenWithFolderAsync("HD/Curso");
+        Directory.Delete(_sample.PathOf("HD"), recursive: true);
+        await window.ViewModel().Library.RefreshCommand.ExecuteAsync(null);
+        WindowTestExtensions.Settle();
+
+        var link = window.GetVisualDescendants().OfType<Button>().Single(b => b.Classes.Contains("link"));
+        link.IsEffectivelyVisible.ShouldBeTrue();
+        window.ShowsText(Strings.Library_Locate).ShouldBeTrue();
+
+        _picker.Folders.Enqueue(null);
+        window.Click(link);
+        await WaitUntilAsync(() => _picker.Folders.Count == 0);
+        window.Close();
+    }
+
+    private static void RightClick(MainWindow window, Control target, Point point)
+    {
+        var position = target.TranslatePoint(point, window)!.Value;
+        window.MouseDown(position, MouseButton.Right);
+        window.MouseUp(position, MouseButton.Right);
+        WindowTestExtensions.Settle();
+    }
+
     private async Task<MainWindow> OpenAsync()
     {
         _services = _data.BuildServices(overrides =>

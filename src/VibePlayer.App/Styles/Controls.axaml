@@ -176,6 +176,36 @@
     <Style Selector="StackPanel.libraryItem">
         <Setter Property="Margin" Value="{StaticResource PaddingTreeItem}" />
     </Style>
+    <!-- Fundo transparente (e não nulo) para a linha toda responder ao ponteiro. -->
+    <Style Selector="Grid.libraryRow">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <!-- Botão "⋯" das linhas: discreto, mas sempre visível, para quem não conhece o clique direito. -->
+    <Style Selector="Button.rowActions">
+        <Setter Property="Width" Value="{StaticResource ButtonHeightCompact}" />
+        <Setter Property="Height" Value="{StaticResource ButtonHeightCompact}" />
+        <Setter Property="MinHeight" Value="{StaticResource ButtonHeightCompact}" />
+    </Style>
+
+    <!-- Botão com aparência de link, para uma ação dentro de um texto (ex.: "Localizar pasta…"). -->
+    <Style Selector="Button.link">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="Margin" Value="{StaticResource PaddingTreeItem}" />
+        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.link:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+    </Style>
+    <Style Selector="Button.link:pointerover TextBlock">
+        <Setter Property="TextDecorations" Value="Underline" />
+    </Style>
+
     <Style Selector="TextBlock.unavailable">
         <Setter Property="Foreground" Value="{DynamicResource TextDisabledBrush}" />
     </Style>

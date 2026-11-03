@@ -49,6 +49,12 @@ A biblioteca de exemplo é gerada pelo próprio teste em pasta temporária (arqu
 
 - **Tabela `RemovedCourses`:** remover um curso de uma "pasta de cursos" precisa ser lembrado; sem isso, a próxima atualização encontraria a subpasta e traria o curso de volta. Remover o último curso de uma pasta tira a pasta inteira da biblioteca.
 - **`IFolderPicker` virou `IFilePicker`** (pasta e vídeos), e os diálogos ficam atrás de `IDialogService` (`WindowDialogService` em produção, respostas roteirizadas nos E2E).
+- **Ações dos itens mais à vista** (pedido do mantenedor na revisão do PR):
+  - botão "⋯" sempre visível em cada item com ações;
+  - clique direito em qualquer ponto da linha, inclusive no recuo e no espaço à direita do texto;
+  - "Localizar pasta…" como link direto na linha do curso cuja pasta sumiu.
+
+  O menu é tratado no `TreeView`, e não preso ao conteúdo do item, e a árvore não tem mais rolagem horizontal, para nomes longos serem cortados em vez de empurrar o botão para fora. Testes: `LibraryViewTests.CliqueDireito_EmQualquerPontoDaLinha_AbreAcoesDoCurso`, `BotaoDeAcoes_AbreMenuEItemSemAcoesNaoAbreODoCurso` e `PastaIndisponivel_MostraLocalizarPastaNaLinha`.
 - **Aula indisponível recebe foco e menu**, em vez de ficar desabilitada na árvore, para dar para remover um vídeo avulso que sumiu. Ela só não vira a aula atual (CA10).
 - **Ordem dos cursos:** natural pelo título, com "Vídeos avulsos" por último. A coluna `Position` dos cursos guarda a ordem do scan, mas a árvore não a usa.
 - **Ids com `ValueGeneratedNever`:** gerados no código (Guid v7). Sem isso, o EF tentava `UPDATE` em entidades novas encontradas por navegação.
