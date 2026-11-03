@@ -136,6 +136,12 @@ public sealed class ThumbnailService(
         {
             // Task.Run: abrir o decodificador do VLC é síncrono e não pode ocupar a thread de UI.
             ok = await Task.Run(() => generator.GenerateAsync(request.FilePath, at, output, _shutdown.Token), _shutdown.Token).ConfigureAwait(false);
+
+            // Sem duração conhecida, os 5 s podem passar do fim de um vídeo curto; aí tenta o começo.
+            if (!ok && at > TimeSpan.Zero)
+            {
+                ok = await Task.Run(() => generator.GenerateAsync(request.FilePath, TimeSpan.Zero, output, _shutdown.Token), _shutdown.Token).ConfigureAwait(false);
+            }
         }
         catch (OperationCanceledException)
         {

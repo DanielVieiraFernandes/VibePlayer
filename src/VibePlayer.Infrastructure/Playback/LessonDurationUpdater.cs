@@ -55,7 +55,9 @@ public sealed class LessonDurationUpdater(
                     }
                 }).ConfigureAwait(false);
 
+            // Um lote por transação: no SQLite, cada gravação fora de transação é um fsync.
             await using (var db = await contextFactory.CreateDbContextAsync(cancellationToken).ConfigureAwait(false))
+            await using (var transaction = await db.Database.BeginTransactionAsync(cancellationToken).ConfigureAwait(false))
             {
                 foreach (var (id, duration) in results)
                 {
@@ -63,6 +65,8 @@ public sealed class LessonDurationUpdater(
                         .ExecuteUpdateAsync(set => set.SetProperty(l => l.DurationMs, (long)duration.TotalMilliseconds), cancellationToken)
                         .ConfigureAwait(false);
                 }
+
+                await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
             }
 
             read += results.Count;

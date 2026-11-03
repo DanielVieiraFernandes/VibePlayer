@@ -47,6 +47,7 @@ public sealed partial class PlayerViewModel : ViewModelBase
     private readonly ILogger<PlayerViewModel> _logger;
 
     private PlayableLesson? _lesson;
+    private Guid? _requestedLessonId;
     private TimeSpan _lastSavedPosition;
     private bool _completedThisSession;
     private bool _autoAdvance = true;
@@ -229,10 +230,15 @@ public sealed partial class PlayerViewModel : ViewModelBase
             return;
         }
 
-        if (_lesson?.Id == lessonId && State is not PlaybackState.Error and not PlaybackState.Idle)
+        // A mesma aula de novo (a biblioteca acompanhando o que o player abriu) não reabre. Decide
+        // pela aula pedida, marcada antes de qualquer await: o pedido repetido costuma chegar
+        // enquanto a primeira abertura ainda está no meio. Com erro, escolher de novo é tentar de novo.
+        if (_requestedLessonId == lessonId && State != PlaybackState.Error)
         {
             return;
         }
+
+        _requestedLessonId = lessonId;
 
         CancelCountdown();
         await SaveCurrentPositionAsync();
@@ -240,6 +246,7 @@ public sealed partial class PlayerViewModel : ViewModelBase
         IsAvailable = _player.Availability == PlayerAvailability.Available;
         if (await _progress.GetPlayableAsync(lessonId) is not { } lesson)
         {
+            _requestedLessonId = _lesson?.Id;
             return;
         }
 
@@ -516,7 +523,9 @@ public sealed partial class PlayerViewModel : ViewModelBase
 
     private Task SaveCurrentPositionAsync()
     {
-        if (_lesson is null || _player is null || _progress is null || !HasStartedPlaying)
+        // Player parado (já fechou ou trocou de arquivo) informa posição zero: gravar agora
+        // apagaria a posição boa salva antes (aconteceu com o fechamento chamado duas vezes).
+        if (_lesson is null || _player is null || _progress is null || !HasStartedPlaying || _player.State == PlaybackState.Idle)
         {
             return Task.CompletedTask;
         }
