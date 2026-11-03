@@ -15,4 +15,12 @@
       <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
     </application>
   </compatibility>
+
+  <!-- Caminhos acima de 260 caracteres: cursos com nomes longos em pastas fundas são comuns
+       (spec 0005). O .NET já os aceita; o manifesto libera também as APIs nativas do Windows. -->
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+    <windowsSettings>
+      <longPathAware xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">true</longPathAware>
+    </windowsSettings>
+  </application>
 </assembly>

@@ -1,0 +1,69 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:res="using:VibePlayer.App.Resources"
+        xmlns:vm="using:VibePlayer.App.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="520" d:DesignHeight="480"
+        x:Class="VibePlayer.App.Views.Library.AddLibraryFolderDialog"
+        x:DataType="vm:AddLibraryFolderViewModel"
+        Title="{x:Static res:Strings.AddFolder_Title}"
+        Width="520" SizeToContent="Height"
+        CanResize="False"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+
+    <StackPanel Margin="{StaticResource PaddingEmptyState}" Spacing="{StaticResource SpaceLg}">
+        <StackPanel Spacing="{StaticResource SpaceXs}">
+            <TextBlock Classes="subtitle" Text="{x:Static res:Strings.AddFolder_Question}" />
+            <TextBlock Classes="caption secondary" Text="{Binding FolderPath}" TextTrimming="PrefixCharacterEllipsis" />
+        </StackPanel>
+
+        <StackPanel Spacing="{StaticResource SpaceSm}">
+            <RadioButton x:Name="CollectionOption" GroupName="Interpretation" IsChecked="{Binding IsCollection}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpaceSm}">
+                        <TextBlock Classes="body" FontWeight="SemiBold" Text="{x:Static res:Strings.AddFolder_AsCollection}" />
+                        <Border Classes="badge" IsVisible="{Binding IsCollectionSuggested}">
+                            <TextBlock Classes="caption" Text="{x:Static res:Strings.AddFolder_Suggested}" />
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="caption secondary" Text="{Binding CollectionSummary}" />
+                </StackPanel>
+            </RadioButton>
+            <RadioButton x:Name="CourseOption" GroupName="Interpretation" IsChecked="{Binding IsCourse}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpaceSm}">
+                        <TextBlock Classes="body" FontWeight="SemiBold" Text="{x:Static res:Strings.AddFolder_AsCourse}" />
+                        <Border Classes="badge" IsVisible="{Binding IsCourseSuggested}">
+                            <TextBlock Classes="caption" Text="{x:Static res:Strings.AddFolder_Suggested}" />
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Classes="caption secondary" Text="{Binding CourseSummary}" />
+                </StackPanel>
+            </RadioButton>
+        </StackPanel>
+
+        <!-- Prévia do que a opção marcada cria. -->
+        <Border Classes="previewBox">
+            <StackPanel Spacing="{StaticResource SpaceXs}">
+                <ItemsControl x:Name="PreviewList" ItemsSource="{Binding PreviewLines}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <TextBlock Classes="body" Text="{Binding}" TextTrimming="CharacterEllipsis" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Classes="body secondary" Text="{x:Static res:Strings.AddFolder_NothingFound}" IsVisible="{Binding IsEmpty}" TextWrapping="Wrap" />
+                <TextBlock Classes="caption secondary" Text="{Binding IgnoredLooseText}" IsVisible="{Binding HasIgnoredLoose}" TextWrapping="Wrap" />
+            </StackPanel>
+        </Border>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="{StaticResource SpaceSm}">
+            <Button Content="{x:Static res:Strings.Common_Cancel}" IsCancel="True" Click="OnCancelClick" />
+            <Button x:Name="ConfirmButton" Classes="primary" Content="{x:Static res:Strings.Common_Add}" IsDefault="True"
+                    IsEnabled="{Binding CanConfirm}" Click="OnConfirmClick" />
+        </StackPanel>
+    </StackPanel>
+
+</Window>

@@ -12,11 +12,20 @@
     <Grid RowDefinitions="*,Auto">
         <!-- Fundo do vídeo sempre escuro, nos dois temas (DESIGN.md, "Vídeo sempre escuro"). -->
         <Border x:Name="VideoArea" Background="{DynamicResource VideoBackgroundBrush}">
-            <StackPanel Classes="emptyState" Margin="{StaticResource PaddingEmptyState}">
-                <ic:SymbolIcon Symbol="Video" Foreground="{DynamicResource VideoTextSecondaryBrush}" />
-                <TextBlock Classes="title" Foreground="{DynamicResource VideoTextBrush}" Text="{x:Static res:Strings.Player_EmptyTitle}" />
-                <TextBlock Foreground="{DynamicResource VideoTextSecondaryBrush}" Text="{x:Static res:Strings.Player_EmptyDescription}" />
-            </StackPanel>
+            <Panel>
+                <StackPanel Classes="emptyState" Margin="{StaticResource PaddingEmptyState}" IsVisible="{Binding !HasSelectedLesson}">
+                    <ic:SymbolIcon Symbol="Video" Foreground="{DynamicResource VideoTextSecondaryBrush}" />
+                    <TextBlock Classes="title" Foreground="{DynamicResource VideoTextBrush}" Text="{x:Static res:Strings.Player_EmptyTitle}" />
+                    <TextBlock Foreground="{DynamicResource VideoTextSecondaryBrush}" Text="{x:Static res:Strings.Player_EmptyDescription}" />
+                </StackPanel>
+
+                <!-- Aula escolhida na biblioteca; a reprodução chega na spec do player. -->
+                <StackPanel Classes="emptyState" Margin="{StaticResource PaddingEmptyState}" IsVisible="{Binding HasSelectedLesson}">
+                    <TextBlock x:Name="LessonTitle" Classes="title" Foreground="{DynamicResource VideoTextBrush}" Text="{Binding CurrentLesson.Title, FallbackValue={x:Null}}" />
+                    <TextBlock x:Name="LessonCourse" Classes="body" Foreground="{DynamicResource VideoTextSecondaryBrush}" Text="{Binding CurrentLesson.CourseTitle, FallbackValue={x:Null}}" />
+                    <TextBlock Classes="caption" Foreground="{DynamicResource VideoTextSecondaryBrush}" Text="{x:Static res:Strings.Player_SelectedHint}" />
+                </StackPanel>
+            </Panel>
         </Border>
 
         <!-- Controles existem para o layout e ficam desabilitados até haver aula (spec do player). -->

@@ -39,6 +39,10 @@ public static class AppComposition
         services.AddSingleton<INotificationService>(sp => sp.GetRequiredService<NotificationService>());
         services.AddSingleton<GlobalExceptionHandler>();
         services.AddSingleton<WindowStateTracker>();
+        services.AddSingleton<StorageFilePicker>();
+        services.AddSingleton<IFilePicker>(sp => sp.GetRequiredService<StorageFilePicker>());
+        services.AddSingleton<WindowDialogService>();
+        services.AddSingleton<IDialogService>(sp => sp.GetRequiredService<WindowDialogService>());
 
         services.AddTransient<MainWindowViewModel>();
         services.AddTransient<LibraryViewModel>();

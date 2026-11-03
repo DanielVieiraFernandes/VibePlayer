@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:res="using:VibePlayer.App.Resources"
+        mc:Ignorable="d" d:DesignWidth="440" d:DesignHeight="200"
+        x:Class="VibePlayer.App.Views.Shell.ConfirmDialog"
+        Title="{x:Static res:Strings.AppName}"
+        Width="440" SizeToContent="Height"
+        CanResize="False"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+
+    <!-- Confirmação genérica; o botão padrão é Cancelar, para Enter nunca confirmar algo por engano. -->
+    <StackPanel Margin="{StaticResource PaddingEmptyState}" Spacing="{StaticResource SpaceLg}">
+        <TextBlock x:Name="TitleText" Classes="subtitle" TextWrapping="Wrap" />
+        <TextBlock x:Name="MessageText" Classes="body" TextWrapping="Wrap" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="{StaticResource SpaceSm}">
+            <Button x:Name="CancelButton" Content="{x:Static res:Strings.Common_Cancel}" IsCancel="True" IsDefault="True" Click="OnCancelClick" />
+            <Button x:Name="ConfirmButton" Classes="primary" Click="OnConfirmClick" />
+        </StackPanel>
+    </StackPanel>
+
+</Window>

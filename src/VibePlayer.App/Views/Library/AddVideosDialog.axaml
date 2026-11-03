@@ -1,0 +1,39 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:res="using:VibePlayer.App.Resources"
+        xmlns:vm="using:VibePlayer.App.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="320"
+        x:Class="VibePlayer.App.Views.Library.AddVideosDialog"
+        x:DataType="vm:AddVideosViewModel"
+        Title="{x:Static res:Strings.AddVideos_Title}"
+        Width="480" SizeToContent="Height"
+        CanResize="False"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+
+    <StackPanel Margin="{StaticResource PaddingEmptyState}" Spacing="{StaticResource SpaceLg}">
+        <TextBlock Classes="subtitle" Text="{Binding Summary}" />
+
+        <StackPanel Spacing="{StaticResource SpaceSm}">
+            <RadioButton x:Name="NewCourseOption" GroupName="Destination" IsChecked="{Binding IsNewCourse}"
+                         Content="{x:Static res:Strings.AddVideos_NewCourse}" />
+            <TextBox x:Name="CourseNameBox"
+                     Margin="{StaticResource PaddingTab}"
+                     Text="{Binding CourseName}"
+                     IsEnabled="{Binding IsNewCourse}"
+                     PlaceholderText="{x:Static res:Strings.AddVideos_CourseName}"
+                     AutomationProperties.Name="{x:Static res:Strings.AddVideos_CourseName}" />
+            <RadioButton x:Name="LooseVideosOption" GroupName="Destination" IsChecked="{Binding IsLooseVideos}"
+                         Content="{x:Static res:Strings.AddVideos_ToLoose}" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="{StaticResource SpaceSm}">
+            <Button Content="{x:Static res:Strings.Common_Cancel}" IsCancel="True" Click="OnCancelClick" />
+            <Button x:Name="ConfirmButton" Classes="primary" Content="{x:Static res:Strings.Common_Add}" IsDefault="True"
+                    IsEnabled="{Binding CanConfirm}" Click="OnConfirmClick" />
+        </StackPanel>
+    </StackPanel>
+
+</Window>

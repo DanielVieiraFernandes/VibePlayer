@@ -9,22 +9,122 @@
              x:Class="VibePlayer.App.Views.Library.LibraryView"
              x:DataType="vm:LibraryViewModel">
 
-    <StackPanel Classes="emptyState" Margin="{StaticResource PaddingEmptyState}">
-        <ic:SymbolIcon Symbol="Library" />
-        <TextBlock Classes="subtitle" Text="{x:Static res:Strings.Library_EmptyTitle}" />
-        <TextBlock Classes="body secondary" Text="{x:Static res:Strings.Library_EmptyDescription}" />
-        <!-- Sem ação até a spec da biblioteca; desabilitado para não parecer quebrado. -->
-        <Button Classes="primary"
-                HorizontalAlignment="Center"
-                IsEnabled="False"
-                AutomationProperties.Name="{x:Static res:Strings.Library_AddFolder}"
-                ToolTip.Tip="{x:Static res:Strings.Common_ComingSoon}"
-                ToolTip.ShowOnDisabled="True">
-            <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpaceSm}">
-                <ic:SymbolIcon Symbol="FolderAdd" />
-                <TextBlock VerticalAlignment="Center" Text="{x:Static res:Strings.Library_AddFolder}" />
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+        <!-- Ações: só aparecem com a biblioteca preenchida; vazia, o estado vazio já oferece as mesmas. -->
+        <Border Classes="toolbar" IsVisible="{Binding HasCourses}">
+            <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpaceXs}" HorizontalAlignment="Right">
+                <Button Classes="icon" Command="{Binding AddFolderCommand}"
+                        AutomationProperties.Name="{x:Static res:Strings.Library_AddFolder}"
+                        ToolTip.Tip="{x:Static res:Strings.Library_AddFolder}">
+                    <ic:SymbolIcon Symbol="FolderAdd" />
+                </Button>
+                <Button Classes="icon" Command="{Binding AddVideosCommand}"
+                        AutomationProperties.Name="{x:Static res:Strings.Library_AddVideos}"
+                        ToolTip.Tip="{x:Static res:Strings.Library_AddVideos}">
+                    <ic:SymbolIcon Symbol="VideoAdd" />
+                </Button>
+                <Button x:Name="RefreshButton" Classes="icon" Command="{Binding RefreshCommand}"
+                        AutomationProperties.Name="{x:Static res:Strings.Library_Refresh}"
+                        ToolTip.Tip="{x:Static res:Strings.Library_Refresh}">
+                    <ic:SymbolIcon Symbol="ArrowSync" />
+                </Button>
             </StackPanel>
-        </Button>
-    </StackPanel>
+        </Border>
+
+        <!-- Progresso da atualização em segundo plano. -->
+        <StackPanel Grid.Row="1" Margin="{StaticResource PaddingBar}" Spacing="{StaticResource SpaceXs}" IsVisible="{Binding IsRefreshing}">
+            <ProgressBar IsIndeterminate="True" />
+            <TextBlock x:Name="ProgressText" Classes="caption secondary" Text="{Binding ProgressText}" />
+        </StackPanel>
+
+        <!-- Faixa de erro (DESIGN.md, "Faixa de erro"). -->
+        <Border Grid.Row="2" Classes="errorBanner" IsVisible="{Binding HasError}">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource SpaceSm}">
+                <ic:SymbolIcon Symbol="ErrorCircle" Foreground="{DynamicResource ErrorBrush}" VerticalAlignment="Top" />
+                <TextBlock x:Name="ErrorText" Grid.Column="1" Classes="body" Text="{Binding ErrorMessage}" TextWrapping="Wrap" />
+                <Button Grid.Column="2" Classes="icon" Command="{Binding DismissErrorCommand}" VerticalAlignment="Top"
+                        AutomationProperties.Name="{x:Static res:Strings.Library_DismissError}">
+                    <ic:SymbolIcon Symbol="Dismiss" FontSize="{StaticResource IconSizeSmall}" />
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Biblioteca vazia. -->
+        <StackPanel Grid.Row="3" Classes="emptyState" Margin="{StaticResource PaddingEmptyState}" IsVisible="{Binding !HasCourses}">
+            <ic:SymbolIcon Symbol="Library" />
+            <TextBlock Classes="subtitle" Text="{x:Static res:Strings.Library_EmptyTitle}" />
+            <TextBlock Classes="body secondary" Text="{x:Static res:Strings.Library_EmptyDescription}" />
+            <Button x:Name="EmptyAddFolderButton" Classes="primary" HorizontalAlignment="Center" Command="{Binding AddFolderCommand}"
+                    AutomationProperties.Name="{x:Static res:Strings.Library_AddFolder}">
+                <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpaceSm}">
+                    <ic:SymbolIcon Symbol="FolderAdd" />
+                    <TextBlock VerticalAlignment="Center" Text="{x:Static res:Strings.Library_AddFolder}" />
+                </StackPanel>
+            </Button>
+            <Button HorizontalAlignment="Center" Command="{Binding AddVideosCommand}"
+                    AutomationProperties.Name="{x:Static res:Strings.Library_AddVideos}">
+                <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpaceSm}">
+                    <ic:SymbolIcon Symbol="VideoAdd" />
+                    <TextBlock VerticalAlignment="Center" Text="{x:Static res:Strings.Library_AddVideos}" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+
+        <!-- Cursos → módulos → aulas. Cursos começam recolhidos: bibliotecas grandes continuam leves. -->
+        <TreeView x:Name="Tree"
+                  Grid.Row="3"
+                  Classes="library"
+                  ItemsSource="{Binding Courses}"
+                  SelectedItem="{Binding SelectedItem}"
+                  IsVisible="{Binding HasCourses}"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  AutomationProperties.Name="{x:Static res:Strings.Library_Tree}">
+            <!-- Sem rolagem horizontal: com ela, a linha teria largura infinita, nomes longos
+                 empurrariam o botão "⋯" para fora da tela em vez de serem cortados com "…". -->
+            <TreeView.Styles>
+                <Style Selector="TreeViewItem" x:DataType="vm:LibraryItemViewModel">
+                    <Setter Property="AutomationProperties.Name" Value="{Binding AccessibleName}" />
+                </Style>
+                <!-- O conteúdo de cada linha ocupa até a borda do painel: o botão de ações fica
+                     sempre no mesmo lugar, alinhado à direita. -->
+                <Style Selector="TreeViewItem /template/ ContentPresenter#PART_HeaderPresenter">
+                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </TreeView.Styles>
+            <TreeView.ItemTemplate>
+                <!-- O menu de ações (clique direito ou botão "⋯") é montado no código, ver LibraryView.axaml.cs. -->
+                <TreeDataTemplate DataType="vm:LibraryItemViewModel" ItemsSource="{Binding Children}">
+                    <Grid Classes="libraryRow" ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource SpaceSm}">
+                        <StackPanel Classes="libraryItem">
+                            <TextBlock Classes="body" Classes.unavailable="{Binding !IsAvailable}" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Classes="caption secondary" Text="{Binding Caption}" IsVisible="{Binding Caption, Converter={x:Static ObjectConverters.IsNotNull}}" TextTrimming="CharacterEllipsis" />
+
+                            <!-- Pasta que sumiu: a saída fica à vista, sem depender de achar o menu. -->
+                            <Button Classes="link"
+                                    IsVisible="{Binding CanLocate}"
+                                    Command="{Binding $parent[TreeView].((vm:LibraryViewModel)DataContext).LocateCommand}"
+                                    CommandParameter="{Binding}">
+                                <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpaceXs}">
+                                    <ic:SymbolIcon Symbol="FolderSearch" FontSize="{StaticResource IconSizeSmall}" />
+                                    <TextBlock Classes="caption" Text="{x:Static res:Strings.Library_Locate}" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <Button Grid.Column="1"
+                                Classes="icon rowActions"
+                                VerticalAlignment="Center"
+                                IsVisible="{Binding HasActions}"
+                                AutomationProperties.Name="{Binding ActionsName}"
+                                ToolTip.Tip="{Binding ActionsName}"
+                                Click="OnActionsButtonClick">
+                            <ic:SymbolIcon Symbol="MoreHorizontal" />
+                        </Button>
+                    </Grid>
+                </TreeDataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+    </Grid>
 
 </UserControl>

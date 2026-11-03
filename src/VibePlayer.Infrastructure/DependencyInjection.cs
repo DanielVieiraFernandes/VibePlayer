@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using VibePlayer.Core;
+using VibePlayer.Core.Library;
 using VibePlayer.Core.Persistence;
 using VibePlayer.Core.Settings;
+using VibePlayer.Infrastructure.FileSystem;
+using VibePlayer.Infrastructure.Library;
 using VibePlayer.Infrastructure.Persistence;
 using VibePlayer.Infrastructure.Settings;
 
@@ -26,6 +29,11 @@ public static class DependencyInjection
         services.AddSingleton<IBackupService, SqliteBackupService>();
         services.AddSingleton<IDatabaseInitializer, DatabaseInitializer>();
         services.AddSingleton<ISettingsStore, SqliteSettingsStore>();
+
+        services.AddSingleton<IFileSystemReader, PhysicalFileSystemReader>();
+        services.AddSingleton<ICourseLibrary, CourseLibrary>();
+        services.AddSingleton<LibraryFolderValidator>();
+        services.AddSingleton<VideoSelectionValidator>();
         return services;
     }
 }

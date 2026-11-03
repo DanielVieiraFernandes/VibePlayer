@@ -55,7 +55,7 @@ public partial class VibePlayerApp : Application
                 if (_startup.Succeeded)
                 {
                     desktop.MainWindow = CreateMainWindow();
-                    desktop.MainWindow.Opened += (_, _) => StartDailyBackup();
+                    desktop.MainWindow.Opened += (_, _) => StartBackgroundWork((MainWindowViewModel)desktop.MainWindow.DataContext!);
                 }
                 else
                 {
@@ -86,18 +86,23 @@ public partial class VibePlayerApp : Application
         var window = new MainWindow { DataContext = viewModel };
         _services.GetRequiredService<WindowStateTracker>().Attach(window, viewModel);
 
-        // As notificações (inclusive as de erro do GlobalExceptionHandler) aparecem nesta janela.
+        // Notificações, seletores de arquivo e diálogos aparecem sobre esta janela.
         _services.GetRequiredService<NotificationService>().AttachTo(window);
+        _services.GetRequiredService<StorageFilePicker>().AttachTo(window);
+        _services.GetRequiredService<WindowDialogService>().AttachTo(window);
+        window.Closing += (_, _) => viewModel.Library.Shutdown();
         return window;
     }
 
     /// <summary>
-    /// Depois que a janela abre, para o backup nunca atrasar a abertura. Fica fora de
-    /// <see cref="CreateMainWindow"/> para os testes E2E não dispararem backups a cada janela.
+    /// Depois que a janela abre, para nada disso atrasar a abertura: backup diário e leitura da
+    /// biblioteca. Fica fora de <see cref="CreateMainWindow"/> para os testes E2E não dispararem
+    /// backups e varreduras a cada janela (eles chamam o que precisam).
     /// </summary>
-    private void StartDailyBackup()
+    private void StartBackgroundWork(MainWindowViewModel viewModel)
     {
         var logger = _services!.GetRequiredService<ILogger<VibePlayerApp>>();
         _services!.GetRequiredService<IBackupService>().RunDailyIfDueAsync().FireAndForget(logger, "BackupDiario");
+        viewModel.Library.InitializeAsync().FireAndForget(logger, "CarregarBiblioteca");
     }
 }

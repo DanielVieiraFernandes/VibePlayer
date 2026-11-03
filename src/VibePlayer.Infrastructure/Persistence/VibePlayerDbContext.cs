@@ -16,6 +16,16 @@ public sealed class VibePlayerDbContext(DbContextOptions<VibePlayerDbContext> op
 {
     public DbSet<SettingEntry> Settings => Set<SettingEntry>();
 
+    public DbSet<LibraryRootEntity> LibraryRoots => Set<LibraryRootEntity>();
+
+    public DbSet<RemovedCourseEntity> RemovedCourses => Set<RemovedCourseEntity>();
+
+    public DbSet<CourseEntity> Courses => Set<CourseEntity>();
+
+    public DbSet<ModuleEntity> Modules => Set<ModuleEntity>();
+
+    public DbSet<LessonEntity> Lessons => Set<LessonEntity>();
+
     /// <summary>
     /// Connection string do banco do app.
     /// </summary>

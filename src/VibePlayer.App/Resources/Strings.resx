@@ -129,4 +129,184 @@
   <data name="DatabaseError_Hint" xml:space="preserve">
     <value>O VibePlayer será fechado. Tente abrir de novo ou instale uma versão mais recente.</value>
   </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Common_Add" xml:space="preserve">
+    <value>Adicionar</value>
+  </data>
+  <data name="Common_Remove" xml:space="preserve">
+    <value>Remover</value>
+  </data>
+  <data name="Library_AddVideos" xml:space="preserve">
+    <value>Adicionar vídeos</value>
+  </data>
+  <data name="Library_Refresh" xml:space="preserve">
+    <value>Atualizar biblioteca</value>
+  </data>
+  <data name="Library_Refreshing" xml:space="preserve">
+    <value>Atualizando… {0} aulas encontradas</value>
+    <comment>{0} = número de aulas lidas até agora.</comment>
+  </data>
+  <data name="Library_LessonCountOne" xml:space="preserve">
+    <value>1 aula</value>
+  </data>
+  <data name="Library_LessonCountMany" xml:space="preserve">
+    <value>{0} aulas</value>
+  </data>
+  <data name="Library_LooseVideos" xml:space="preserve">
+    <value>Vídeos avulsos</value>
+    <comment>Curso fixo com os vídeos adicionados sem pasta.</comment>
+  </data>
+  <data name="Library_FolderUnavailable" xml:space="preserve">
+    <value>Pasta não encontrada: {0}</value>
+    <comment>{0} = caminho onde a pasta era esperada.</comment>
+  </data>
+  <data name="Library_VideosUnavailable" xml:space="preserve">
+    <value>Vídeos não encontrados</value>
+  </data>
+  <data name="Library_LessonUnavailable" xml:space="preserve">
+    <value>Indisponível</value>
+  </data>
+  <data name="Library_Remove" xml:space="preserve">
+    <value>Remover da biblioteca</value>
+  </data>
+  <data name="Library_Locate" xml:space="preserve">
+    <value>Localizar pasta…</value>
+  </data>
+  <data name="Library_ItemActions" xml:space="preserve">
+    <value>Ações</value>
+  </data>
+  <data name="Library_Tree" xml:space="preserve">
+    <value>Cursos e aulas</value>
+  </data>
+  <data name="Library_RemoveConfirmTitle" xml:space="preserve">
+    <value>Remover da biblioteca?</value>
+  </data>
+  <data name="Library_RemoveConfirmMessage" xml:space="preserve">
+    <value>“{0}” sai da biblioteca. Nenhum arquivo é apagado do seu computador.</value>
+  </data>
+  <data name="Library_LocateNoMatchTitle" xml:space="preserve">
+    <value>Nenhuma aula conhecida</value>
+  </data>
+  <data name="Library_LocateNoMatchMessage" xml:space="preserve">
+    <value>Nenhuma aula de “{0}” foi encontrada nesta pasta. Usar mesmo assim? As aulas atuais continuarão indisponíveis.</value>
+  </data>
+  <data name="Library_UseAnyway" xml:space="preserve">
+    <value>Usar mesmo assim</value>
+  </data>
+  <data name="Library_PickFolderTitle" xml:space="preserve">
+    <value>Escolha a pasta de cursos</value>
+  </data>
+  <data name="Library_PickVideosTitle" xml:space="preserve">
+    <value>Escolha os vídeos</value>
+  </data>
+  <data name="Library_PickLocateTitle" xml:space="preserve">
+    <value>Onde está a pasta agora?</value>
+  </data>
+  <data name="Library_VideoFilesFilter" xml:space="preserve">
+    <value>Vídeos</value>
+  </data>
+  <data name="Library_RefreshFailed" xml:space="preserve">
+    <value>Não foi possível atualizar a biblioteca. Os detalhes estão no log.</value>
+  </data>
+  <data name="Library_OperationFailed" xml:space="preserve">
+    <value>Não foi possível concluir a operação. Os detalhes estão no log.</value>
+  </data>
+  <data name="Library_DismissError" xml:space="preserve">
+    <value>Fechar aviso</value>
+  </data>
+  <data name="Library_Error_FolderNotFound" xml:space="preserve">
+    <value>A pasta não foi encontrada.</value>
+  </data>
+  <data name="Library_Error_AppDataFolder" xml:space="preserve">
+    <value>Essa é a pasta de dados do VibePlayer. Escolha a pasta onde ficam seus cursos.</value>
+  </data>
+  <data name="Library_Error_AlreadyAdded" xml:space="preserve">
+    <value>Essa pasta já está na biblioteca.</value>
+  </data>
+  <data name="Library_Error_OverlapsExisting" xml:space="preserve">
+    <value>Essa pasta fica dentro de uma pasta que já está na biblioteca, ou contém uma.</value>
+  </data>
+  <data name="Library_Error_NoVideos" xml:space="preserve">
+    <value>Nenhum vídeo foi encontrado nessa pasta.</value>
+  </data>
+  <data name="Library_Error_NoFiles" xml:space="preserve">
+    <value>Nenhum vídeo foi escolhido.</value>
+  </data>
+  <data name="Library_Error_FileNotFound" xml:space="preserve">
+    <value>{0}: arquivo não encontrado.</value>
+    <comment>{0} = nome do arquivo.</comment>
+  </data>
+  <data name="Library_Error_NotAVideo" xml:space="preserve">
+    <value>{0}: formato de vídeo não reconhecido.</value>
+    <comment>{0} = nome do arquivo.</comment>
+  </data>
+  <data name="Library_Error_VideoAlreadyAdded" xml:space="preserve">
+    <value>{0}: já está na biblioteca.</value>
+    <comment>{0} = nome do arquivo.</comment>
+  </data>
+  <data name="AddFolder_Title" xml:space="preserve">
+    <value>Adicionar pasta de cursos</value>
+  </data>
+  <data name="AddFolder_Question" xml:space="preserve">
+    <value>Como o VibePlayer deve entender esta pasta?</value>
+  </data>
+  <data name="AddFolder_AsCollection" xml:space="preserve">
+    <value>Vários cursos</value>
+  </data>
+  <data name="AddFolder_AsCourse" xml:space="preserve">
+    <value>Um curso</value>
+  </data>
+  <data name="AddFolder_Suggested" xml:space="preserve">
+    <value>sugerido</value>
+  </data>
+  <data name="AddFolder_CoursesOne" xml:space="preserve">
+    <value>1 curso</value>
+  </data>
+  <data name="AddFolder_CoursesMany" xml:space="preserve">
+    <value>{0} cursos</value>
+  </data>
+  <data name="AddFolder_CourseSummary" xml:space="preserve">
+    <value>1 curso com {0} módulos e {1} aulas</value>
+    <comment>{0} = módulos, {1} = aulas.</comment>
+  </data>
+  <data name="AddFolder_CourseLine" xml:space="preserve">
+    <value>{0} — {1}</value>
+    <comment>{0} = título do curso, {1} = contagem de aulas.</comment>
+  </data>
+  <data name="AddFolder_MoreCourses" xml:space="preserve">
+    <value>e mais {0}</value>
+  </data>
+  <data name="AddFolder_IgnoredLoose" xml:space="preserve">
+    <value>{0} vídeos soltos nesta pasta não pertencem a nenhum curso e ficarão de fora.</value>
+  </data>
+  <data name="AddFolder_NothingFound" xml:space="preserve">
+    <value>Com esta opção nenhum curso seria criado.</value>
+  </data>
+  <data name="AddVideos_Title" xml:space="preserve">
+    <value>Adicionar vídeos</value>
+  </data>
+  <data name="AddVideos_SummaryOne" xml:space="preserve">
+    <value>1 vídeo selecionado</value>
+  </data>
+  <data name="AddVideos_SummaryMany" xml:space="preserve">
+    <value>{0} vídeos selecionados</value>
+  </data>
+  <data name="AddVideos_NewCourse" xml:space="preserve">
+    <value>Criar um curso novo</value>
+  </data>
+  <data name="AddVideos_CourseName" xml:space="preserve">
+    <value>Nome do curso</value>
+  </data>
+  <data name="AddVideos_ToLoose" xml:space="preserve">
+    <value>Adicionar a “Vídeos avulsos”</value>
+  </data>
+  <data name="Player_SelectedHint" xml:space="preserve">
+    <value>A reprodução chega numa próxima versão.</value>
+  </data>
+  <data name="Library_ItemActionsFor" xml:space="preserve">
+    <value>Ações de “{0}”</value>
+    <comment>Botão "⋯" de cada curso; {0} = título.</comment>
+  </data>
 </root>
