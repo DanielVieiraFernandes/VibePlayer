@@ -4,7 +4,9 @@ using Avalonia;
 using Serilog;
 using VibePlayer.App.Diagnostics;
 using VibePlayer.Core.Persistence;
+using VibePlayer.Core.Transcription;
 using VibePlayer.Infrastructure;
+using VibePlayer.Infrastructure.Transcription.Worker;
 
 namespace VibePlayer.App;
 
@@ -19,6 +21,12 @@ internal static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        // Antes de tudo: o processo de transcrição não usa log em arquivo, banco nem interface.
+        if (args is [WorkerProtocol.Argument])
+        {
+            return WorkerEntryPoint.Main();
+        }
+
         var paths = AppPaths.CreateDefault();
         Log.Logger = LoggingSetup.CreateLogger(paths);
         AppDomain.CurrentDomain.UnhandledException += OnFatalException;

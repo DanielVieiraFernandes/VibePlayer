@@ -27,6 +27,14 @@
     <PackageVersion Include="SkiaSharp" Version="3.119.4" />
   </ItemGroup>
 
+  <ItemGroup Label="Transcrição">
+    <!-- MIT. Nativos filtrados por RID em src/VibePlayer.App/WhisperRuntimes.targets. -->
+    <PackageVersion Include="Whisper.net" Version="1.9.1" />
+    <PackageVersion Include="Whisper.net.Runtime" Version="1.9.1" />
+    <PackageVersion Include="Whisper.net.Runtime.Vulkan" Version="1.9.1" />
+    <PackageVersion Include="Whisper.net.Runtime.NoAvx" Version="1.9.1" />
+  </ItemGroup>
+
   <ItemGroup Label="Infraestrutura">
     <PackageVersion Include="FluentValidation" Version="12.2.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.14" />
