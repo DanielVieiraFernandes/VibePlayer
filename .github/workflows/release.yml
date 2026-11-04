@@ -97,7 +97,11 @@ jobs:
             --runtime "$RID" \
             --self-contained true \
             --output publish/VibePlayer
-          cp LICENSE THIRD-PARTY-NOTICES.md publish/VibePlayer/
+          cp -r LICENSE THIRD-PARTY-NOTICES.md licenses publish/VibePlayer/
+
+      - name: Conferir plugins do VLC
+        shell: bash
+        run: bash .github/scripts/check-vlc-plugins.sh publish/VibePlayer
 
       - name: Empacotar (zip)
         if: runner.os == 'Windows'
@@ -151,6 +155,8 @@ jobs:
     name: Levar a release de volta para develop
     needs: [prepare, publish]
     runs-on: ubuntu-latest
+    # A CI dos três SOs leva poucos minutos; o limite só evita um job preso para sempre.
+    timeout-minutes: 45
     env:
       VERSION: ${{ needs.prepare.outputs.version }}
       # Token pessoal para que o PR criado aqui dispare a CI exigida em develop.
@@ -170,7 +176,8 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
 
-      - name: Abrir PR main → develop com auto-merge
+      - name: Abrir PR main → develop
+        id: pr
         run: |
           # O PR sai de uma branch temporária, e não de main direto: com "apagar branch após o
           # merge" ligado, usar main como origem do PR arriscaria o GitHub tentar apagá-la.
@@ -181,8 +188,36 @@ jobs:
             --base develop \
             --head "$branch" \
             --title "chore: leva v$VERSION de volta para develop" \
-            --body "Retorno automático da release **v$VERSION** de \`main\` para \`develop\` (GitFlow). Mescla sozinho quando a CI passar; se houver conflito, resolva nesta branch.")"
+            --body "Retorno automático da release **v$VERSION** de \`main\` para \`develop\` (GitFlow). Mescla sozinho quando a CI passar; se a CI falhar ou houver conflito, resolva nesta branch e mescle com merge commit.")"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Esperar a CI e mesclar
+        env:
+          PR_URL: ${{ steps.pr.outputs.url }}
+        run: |
+          # Por que esperar aqui em vez de usar o auto-merge do GitHub: o RELEASE_TOKEN é do
+          # mantenedor, que como administrador pode passar por cima das regras de develop. Para
+          # esse usuário o GitHub considera o PR "já mesclável" e recusa ligar o auto-merge
+          # (falhou assim na v0.1.0). Esperando os checks exigidos antes, o merge só acontece
+          # com a CI verde, sem depender do bypass.
+
+          # Logo após abrir o PR os checks ainda não existem e "gh pr checks" falharia;
+          # espera até eles serem registrados (no máximo 5 minutos).
+          for _ in $(seq 1 30); do
+            count="$(gh pr checks "$PR_URL" --required --json name --jq 'length' 2>/dev/null || echo 0)"
+            [ "$count" -gt 0 ] && break
+            sleep 10
+          done
+
+          if ! gh pr checks "$PR_URL" --required --watch --fail-fast --interval 30; then
+            echo "::error::A CI do PR de retorno falhou. Corrija na branch do PR e mescle com merge commit: $PR_URL"
+            exit 1
+          fi
 
           # Merge commit (não squash) para develop continuar ligada ao histórico de main;
-          # com squash, o próximo retorno mostraria conflitos falsos.
-          gh pr merge "$url" --auto --merge
+          # com squash, o próximo retorno mostraria conflitos falsos. --match-head-commit garante
+          # que nada foi enviado ao PR depois da CI que acabou de passar.
+          if ! gh pr merge "$PR_URL" --merge --match-head-commit "$(git rev-parse HEAD)"; then
+            echo "::error::Não foi possível mesclar o PR de retorno (provável conflito). Resolva e mescle com merge commit: $PR_URL"
+            exit 1
+          fi

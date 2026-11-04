@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Headless;
+using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using VibePlayer.App;
 using VibePlayer.E2ETests;
@@ -32,9 +33,22 @@ public static class TestAppBuilder
             .WriteTo.Sink(LogSink)
             .CreateLogger();
 
-        var services = AppComposition.BuildServices(paths, logger);
+        // Relógio que avança 1 minuto a cada leitura: desliga na prática o limite de uma notificação
+        // de erro a cada 5 s, que senão faria o resultado de um teste depender de qual rodou antes.
+        // O limite em si é coberto por NotificationThrottleTests.
+        var services = AppComposition.BuildServices(
+            paths,
+            logger,
+            overrides =>
+            {
+                overrides.AddSingleton<TimeProvider>(new SteppingTimeProvider(TimeSpan.FromMinutes(1)));
+                overrides.UseFakePlayback();
+            });
 
-        return AppBuilder.Configure(() => new VibePlayerApp(services))
+        // Mesmo preparo da produção: banco criado com as migrations na pasta temporária.
+        var startup = AppStartup.Prepare(services);
+
+        return AppBuilder.Configure(() => new VibePlayerApp(services, startup))
             .UseHeadless(new AvaloniaHeadlessPlatformOptions())
             .WithInterFont();
     }

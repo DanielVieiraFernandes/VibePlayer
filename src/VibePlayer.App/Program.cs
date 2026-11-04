@@ -3,7 +3,10 @@ using System.Runtime.InteropServices;
 using Avalonia;
 using Serilog;
 using VibePlayer.App.Diagnostics;
+using VibePlayer.Core.Persistence;
+using VibePlayer.Core.Transcription;
 using VibePlayer.Infrastructure;
+using VibePlayer.Infrastructure.Transcription.Worker;
 
 namespace VibePlayer.App;
 
@@ -12,11 +15,18 @@ internal static class Program
     /// <remarks>
     /// Ordem de inicialização importa: o Serilog é configurado antes de tudo para que qualquer
     /// falha durante o bootstrap (container, Avalonia) já fique registrada. Só a criação da
-    /// pasta de dados acontece antes — sem ela não há onde gravar o log.
+    /// pasta de dados acontece antes — sem ela não há onde gravar o log. O banco é preparado
+    /// antes do Avalonia (ver <see cref="AppStartup"/>).
     /// </remarks>
     [STAThread]
     public static int Main(string[] args)
     {
+        // Antes de tudo: o processo de transcrição não usa log em arquivo, banco nem interface.
+        if (args is [WorkerProtocol.Argument])
+        {
+            return WorkerEntryPoint.Main();
+        }
+
         var paths = AppPaths.CreateDefault();
         Log.Logger = LoggingSetup.CreateLogger(paths);
         AppDomain.CurrentDomain.UnhandledException += OnFatalException;
@@ -25,7 +35,10 @@ internal static class Program
         {
             LogStartup();
             using var services = AppComposition.BuildServices(paths, Log.Logger);
-            return BuildAvaloniaApp(services).StartWithClassicDesktopLifetime(args);
+
+            // Banco pronto antes da UI; se falhar, o app abre só a janela de erro e encerra.
+            var startup = AppStartup.Prepare(services);
+            return BuildAvaloniaApp(services, startup).StartWithClassicDesktopLifetime(args);
         }
         catch (Exception ex)
         {
@@ -39,8 +52,8 @@ internal static class Program
         }
     }
 
-    public static AppBuilder BuildAvaloniaApp(IServiceProvider services) =>
-        AppBuilder.Configure(() => new VibePlayerApp(services))
+    public static AppBuilder BuildAvaloniaApp(IServiceProvider services, DatabaseInitializationResult startup) =>
+        AppBuilder.Configure(() => new VibePlayerApp(services, startup))
             .UsePlatformDetect()
             .WithInterFont()
             .LogToTrace();

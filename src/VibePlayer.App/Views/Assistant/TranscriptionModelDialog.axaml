@@ -1,0 +1,28 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:res="using:VibePlayer.App.Resources"
+        mc:Ignorable="d" d:DesignWidth="460" d:DesignHeight="300"
+        x:Class="VibePlayer.App.Views.Assistant.TranscriptionModelDialog"
+        Title="{x:Static res:Strings.AppName}"
+        Width="460" SizeToContent="Height"
+        CanResize="False"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+
+    <!-- Primeiro uso: o download só começa depois de o usuário ver o tamanho e confirmar. -->
+    <StackPanel Margin="{StaticResource PaddingEmptyState}" Spacing="{StaticResource SpaceLg}">
+        <TextBlock Classes="subtitle" TextWrapping="Wrap" Text="{x:Static res:Strings.Transcription_ModelDialogTitle}" />
+        <TextBlock Classes="body" TextWrapping="Wrap" Text="{x:Static res:Strings.Transcription_ModelDialogDescription}" />
+        <StackPanel Spacing="{StaticResource SpaceSm}">
+            <RadioButton x:Name="BalancedOption" GroupName="Model" IsChecked="True" Content="{x:Static res:Strings.Transcription_ModelBalanced}" />
+            <RadioButton x:Name="AccurateOption" GroupName="Model" Content="{x:Static res:Strings.Transcription_ModelAccurate}" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="{StaticResource SpaceSm}">
+            <Button x:Name="CancelButton" Content="{x:Static res:Strings.Common_Cancel}" IsCancel="True" Click="OnCancelClick" />
+            <Button x:Name="ConfirmButton" Classes="primary" IsDefault="True" Content="{x:Static res:Strings.Transcription_ModelDownload}" Click="OnConfirmClick" />
+        </StackPanel>
+    </StackPanel>
+
+</Window>

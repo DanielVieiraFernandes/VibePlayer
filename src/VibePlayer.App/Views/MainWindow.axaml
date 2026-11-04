@@ -1,6 +1,8 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:VibePlayer.App.ViewModels"
+        xmlns:shell="using:VibePlayer.App.Views.Shell"
+        xmlns:player="using:VibePlayer.App.Views.Player"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1280" d:DesignHeight="800"
@@ -16,7 +18,27 @@
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <!-- Layout real definido na spec de layout, seguindo o DESIGN.md. -->
-    <Panel />
+    <!--
+        Player à esquerda (ocupa o que sobra) e painel lateral à direita. A largura do painel vem
+        do ViewModel e a divisória é um Thumb, não um GridSplitter: ver MainWindowViewModel.
+    -->
+    <DockPanel>
+        <shell:TopBar DockPanel.Dock="Top" IsVisible="{Binding !IsFullscreen}" />
+
+        <Grid x:Name="ContentGrid" ColumnDefinitions="*,Auto,Auto">
+            <player:PlayerPanel x:Name="PlayerPanel" DataContext="{Binding Player}" />
+
+            <Thumb x:Name="SidePanelSplitter"
+                   Grid.Column="1"
+                   Classes="splitter"
+                   IsVisible="{Binding ShowSidePanel}"
+                   DragDelta="OnSplitterDragDelta" />
+
+            <shell:SidePanel x:Name="SidePanel"
+                             Grid.Column="2"
+                             Width="{Binding SidePanelWidth}"
+                             IsVisible="{Binding ShowSidePanel}" />
+        </Grid>
+    </DockPanel>
 
 </Window>

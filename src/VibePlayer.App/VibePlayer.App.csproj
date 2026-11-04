@@ -4,7 +4,24 @@
     <AssemblyName>VibePlayer</AssemblyName>
     <RootNamespace>VibePlayer.App</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Cópia dos quadros de vídeo para o bitmap da tela (Controls/VideoView). -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      Gera a classe Strings no próprio build (em obj/), sem o Designer.cs do Visual Studio:
+      funciona com dotnet build em qualquer SO e não deixa arquivo gerado no repositório.
+      Pública porque as Views a usam via {x:Static} e os testes conferem os textos.
+    -->
+    <EmbeddedResource Update="Resources\Strings.resx">
+      <StronglyTypedFileName>$(IntermediateOutputPath)Strings.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>VibePlayer.App.Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>Strings</StronglyTypedClassName>
+      <PublicClass>true</PublicClass>
+    </EmbeddedResource>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\VibePlayer.Core\VibePlayer.Core.csproj" />
@@ -17,10 +34,33 @@
     <PackageReference Include="Avalonia.Themes.Fluent" />
     <PackageReference Include="Avalonia.Fonts.Inter" />
     <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="FluentIcons.Avalonia" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
     <PackageReference Include="Microsoft.Extensions.Logging" />
     <PackageReference Include="Serilog" />
     <PackageReference Include="Serilog.Sinks.File" />
     <PackageReference Include="Serilog.Extensions.Logging" />
+    <PackageReference Include="LibVLCSharp" />
   </ItemGroup>
+
+  <!--
+    Binários nativos do VLC só do sistema do pacote: o do Windows no Windows (ou publicando para
+    win-*), o do macOS no macOS. No Linux o app usa o VLC instalado no sistema (spec 0006).
+  -->
+  <ItemGroup>
+    <PackageReference Include="VideoLAN.LibVLC.Windows"
+                      Condition="$(RuntimeIdentifier.StartsWith('win')) Or ('$(RuntimeIdentifier)' == '' And $([MSBuild]::IsOSPlatform('Windows')))" />
+    <PackageReference Include="VideoLAN.LibVLC.Mac"
+                      Condition="$(RuntimeIdentifier.StartsWith('osx')) Or ('$(RuntimeIdentifier)' == '' And $([MSBuild]::IsOSPlatform('OSX')))" />
+  </ItemGroup>
+
+  <!-- Referenciados aqui porque os targets que copiam os nativos não passam de projeto para projeto. -->
+  <ItemGroup>
+    <PackageReference Include="Whisper.net.Runtime" />
+    <PackageReference Include="Whisper.net.Runtime.Vulkan" />
+    <PackageReference Include="Whisper.net.Runtime.NoAvx" />
+  </ItemGroup>
+
+  <Import Project="VlcPlugins.targets" />
+  <Import Project="WhisperRuntimes.targets" />
 </Project>

@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Textos da interface em pt-BR (idioma neutro do app). As Views usam {x:Static res:Strings.Chave};
+    para outro idioma, crie Strings.<cultura>.resx com as mesmas chaves.
+    Chaves no formato Area_Elemento para agrupar por tela.
+  -->
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AppName" xml:space="preserve">
+    <value>VibePlayer</value>
+    <comment>Nome do produto; não traduzir.</comment>
+  </data>
+  <data name="Common_ComingSoon" xml:space="preserve">
+    <value>Disponível em breve</value>
+    <comment>Dica de botões cuja função chega numa próxima versão.</comment>
+  </data>
+  <data name="TopBar_ToggleSidePanel" xml:space="preserve">
+    <value>Mostrar ou ocultar o painel lateral</value>
+  </data>
+  <data name="TopBar_Settings" xml:space="preserve">
+    <value>Configurações</value>
+  </data>
+  <data name="Player_EmptyTitle" xml:space="preserve">
+    <value>Selecione uma aula</value>
+  </data>
+  <data name="Player_EmptyDescription" xml:space="preserve">
+    <value>Escolha uma aula na aba Aulas para começar a assistir.</value>
+  </data>
+  <data name="Player_Play" xml:space="preserve">
+    <value>Reproduzir</value>
+  </data>
+  <data name="Player_Progress" xml:space="preserve">
+    <value>Progresso da aula</value>
+  </data>
+  <data name="Player_CurrentTime" xml:space="preserve">
+    <value>Tempo atual</value>
+  </data>
+  <data name="Player_Duration" xml:space="preserve">
+    <value>Duração</value>
+  </data>
+  <data name="Player_TimeZero" xml:space="preserve">
+    <value>00:00</value>
+  </data>
+  <data name="Player_Volume" xml:space="preserve">
+    <value>Volume</value>
+  </data>
+  <data name="Player_Speed" xml:space="preserve">
+    <value>Velocidade de reprodução</value>
+  </data>
+  <data name="Player_SpeedNormal" xml:space="preserve">
+    <value>1x</value>
+  </data>
+  <data name="Player_Fullscreen" xml:space="preserve">
+    <value>Tela cheia</value>
+  </data>
+  <data name="SidePanel_Name" xml:space="preserve">
+    <value>Painel lateral</value>
+  </data>
+  <data name="Tab_Lessons" xml:space="preserve">
+    <value>Aulas</value>
+  </data>
+  <data name="Tab_Chat" xml:space="preserve">
+    <value>Chat</value>
+  </data>
+  <data name="Tab_Summary" xml:space="preserve">
+    <value>Resumo</value>
+  </data>
+  <data name="Tab_KeyPoints" xml:space="preserve">
+    <value>Pontos principais</value>
+  </data>
+  <data name="Library_EmptyTitle" xml:space="preserve">
+    <value>Nenhum curso ainda</value>
+  </data>
+  <data name="Library_EmptyDescription" xml:space="preserve">
+    <value>Adicione a pasta onde ficam seus cursos em vídeo. Cada subpasta vira um curso e cada vídeo, uma aula.</value>
+  </data>
+  <data name="Library_AddFolder" xml:space="preserve">
+    <value>Adicionar pasta de cursos</value>
+  </data>
+  <data name="Chat_EmptyTitle" xml:space="preserve">
+    <value>Pergunte sobre a aula</value>
+  </data>
+  <data name="Chat_EmptyDescription" xml:space="preserve">
+    <value>Selecione uma aula para conversar com o assistente sobre o conteúdo dela.</value>
+  </data>
+  <data name="Chat_InputPlaceholder" xml:space="preserve">
+    <value>Pergunte algo sobre a aula…</value>
+  </data>
+  <data name="Chat_Send" xml:space="preserve">
+    <value>Enviar mensagem</value>
+  </data>
+  <data name="Summary_EmptyTitle" xml:space="preserve">
+    <value>Nenhum resumo ainda</value>
+  </data>
+  <data name="Summary_EmptyDescription" xml:space="preserve">
+    <value>Selecione uma aula para gerar um resumo do conteúdo.</value>
+  </data>
+  <data name="KeyPoints_EmptyTitle" xml:space="preserve">
+    <value>Nenhum ponto principal ainda</value>
+  </data>
+  <data name="KeyPoints_EmptyDescription" xml:space="preserve">
+    <value>Os principais pontos da aula aparecem aqui, cada um com o momento exato no vídeo.</value>
+  </data>
+  <data name="Error_Title" xml:space="preserve">
+    <value>Algo deu errado</value>
+    <comment>Notificação mostrada quando o handler global trata uma exceção.</comment>
+  </data>
+  <data name="Error_Message" xml:space="preserve">
+    <value>Os detalhes foram registrados no log.</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>Fechar</value>
+  </data>
+  <data name="DatabaseError_Title" xml:space="preserve">
+    <value>Não foi possível atualizar seus dados</value>
+    <comment>Janela mostrada quando a atualização do banco falha na inicialização; o app fecha em seguida.</comment>
+  </data>
+  <data name="DatabaseError_BackupMessage" xml:space="preserve">
+    <value>Seus dados foram preservados e há um backup em {0}. Os detalhes estão no log.</value>
+    <comment>{0} = caminho do backup.</comment>
+  </data>
+  <data name="DatabaseError_NoBackupMessage" xml:space="preserve">
+    <value>Nenhum dado foi alterado. Os detalhes estão no log, em {0}.</value>
+    <comment>{0} = pasta de logs.</comment>
+  </data>
+  <data name="DatabaseError_Hint" xml:space="preserve">
+    <value>O VibePlayer será fechado. Tente abrir de novo ou instale uma versão mais recente.</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Common_Add" xml:space="preserve">
+    <value>Adicionar</value>
+  </data>
+  <data name="Common_Remove" xml:space="preserve">
+    <value>Remover</value>
+  </data>
+  <data name="Library_AddVideos" xml:space="preserve">
+    <value>Adicionar vídeos</value>
+  </data>
+  <data name="Library_Refresh" xml:space="preserve">
+    <value>Atualizar biblioteca</value>
+  </data>
+  <data name="Library_Refreshing" xml:space="preserve">
+    <value>Atualizando… {0} aulas encontradas</value>
+    <comment>{0} = número de aulas lidas até agora.</comment>
+  </data>
+  <data name="Library_LessonCountOne" xml:space="preserve">
+    <value>1 aula</value>
+  </data>
+  <data name="Library_LessonCountMany" xml:space="preserve">
+    <value>{0} aulas</value>
+  </data>
+  <data name="Library_LooseVideos" xml:space="preserve">
+    <value>Vídeos avulsos</value>
+    <comment>Curso fixo com os vídeos adicionados sem pasta.</comment>
+  </data>
+  <data name="Library_FolderUnavailable" xml:space="preserve">
+    <value>Pasta não encontrada: {0}</value>
+    <comment>{0} = caminho onde a pasta era esperada.</comment>
+  </data>
+  <data name="Library_VideosUnavailable" xml:space="preserve">
+    <value>Vídeos não encontrados</value>
+  </data>
+  <data name="Library_LessonUnavailable" xml:space="preserve">
+    <value>Indisponível</value>
+  </data>
+  <data name="Library_Remove" xml:space="preserve">
+    <value>Remover da biblioteca</value>
+  </data>
+  <data name="Library_Locate" xml:space="preserve">
+    <value>Localizar pasta…</value>
+  </data>
+  <data name="Library_ItemActions" xml:space="preserve">
+    <value>Ações</value>
+  </data>
+  <data name="Library_Tree" xml:space="preserve">
+    <value>Cursos e aulas</value>
+  </data>
+  <data name="Library_RemoveConfirmTitle" xml:space="preserve">
+    <value>Remover da biblioteca?</value>
+  </data>
+  <data name="Library_RemoveConfirmMessage" xml:space="preserve">
+    <value>“{0}” sai da biblioteca. Nenhum arquivo é apagado do seu computador.</value>
+  </data>
+  <data name="Library_LocateNoMatchTitle" xml:space="preserve">
+    <value>Nenhuma aula conhecida</value>
+  </data>
+  <data name="Library_LocateNoMatchMessage" xml:space="preserve">
+    <value>Nenhuma aula de “{0}” foi encontrada nesta pasta. Usar mesmo assim? As aulas atuais continuarão indisponíveis.</value>
+  </data>
+  <data name="Library_UseAnyway" xml:space="preserve">
+    <value>Usar mesmo assim</value>
+  </data>
+  <data name="Library_PickFolderTitle" xml:space="preserve">
+    <value>Escolha a pasta de cursos</value>
+  </data>
+  <data name="Library_PickVideosTitle" xml:space="preserve">
+    <value>Escolha os vídeos</value>
+  </data>
+  <data name="Library_PickLocateTitle" xml:space="preserve">
+    <value>Onde está a pasta agora?</value>
+  </data>
+  <data name="Library_VideoFilesFilter" xml:space="preserve">
+    <value>Vídeos</value>
+  </data>
+  <data name="Library_RefreshFailed" xml:space="preserve">
+    <value>Não foi possível atualizar a biblioteca. Os detalhes estão no log.</value>
+  </data>
+  <data name="Library_OperationFailed" xml:space="preserve">
+    <value>Não foi possível concluir a operação. Os detalhes estão no log.</value>
+  </data>
+  <data name="Library_DismissError" xml:space="preserve">
+    <value>Fechar aviso</value>
+  </data>
+  <data name="Library_Error_FolderNotFound" xml:space="preserve">
+    <value>A pasta não foi encontrada.</value>
+  </data>
+  <data name="Library_Error_AppDataFolder" xml:space="preserve">
+    <value>Essa é a pasta de dados do VibePlayer. Escolha a pasta onde ficam seus cursos.</value>
+  </data>
+  <data name="Library_Error_AlreadyAdded" xml:space="preserve">
+    <value>Essa pasta já está na biblioteca.</value>
+  </data>
+  <data name="Library_Error_OverlapsExisting" xml:space="preserve">
+    <value>Essa pasta fica dentro de uma pasta que já está na biblioteca, ou contém uma.</value>
+  </data>
+  <data name="Library_Error_NoVideos" xml:space="preserve">
+    <value>Nenhum vídeo foi encontrado nessa pasta.</value>
+  </data>
+  <data name="Library_Error_NoFiles" xml:space="preserve">
+    <value>Nenhum vídeo foi escolhido.</value>
+  </data>
+  <data name="Library_Error_FileNotFound" xml:space="preserve">
+    <value>{0}: arquivo não encontrado.</value>
+    <comment>{0} = nome do arquivo.</comment>
+  </data>
+  <data name="Library_Error_NotAVideo" xml:space="preserve">
+    <value>{0}: formato de vídeo não reconhecido.</value>
+    <comment>{0} = nome do arquivo.</comment>
+  </data>
+  <data name="Library_Error_VideoAlreadyAdded" xml:space="preserve">
+    <value>{0}: já está na biblioteca.</value>
+    <comment>{0} = nome do arquivo.</comment>
+  </data>
+  <data name="AddFolder_Title" xml:space="preserve">
+    <value>Adicionar pasta de cursos</value>
+  </data>
+  <data name="AddFolder_Question" xml:space="preserve">
+    <value>Como o VibePlayer deve entender esta pasta?</value>
+  </data>
+  <data name="AddFolder_AsCollection" xml:space="preserve">
+    <value>Vários cursos</value>
+  </data>
+  <data name="AddFolder_AsCourse" xml:space="preserve">
+    <value>Um curso</value>
+  </data>
+  <data name="AddFolder_Suggested" xml:space="preserve">
+    <value>sugerido</value>
+  </data>
+  <data name="AddFolder_CoursesOne" xml:space="preserve">
+    <value>1 curso</value>
+  </data>
+  <data name="AddFolder_CoursesMany" xml:space="preserve">
+    <value>{0} cursos</value>
+  </data>
+  <data name="AddFolder_CourseSummary" xml:space="preserve">
+    <value>1 curso com {0} módulos e {1} aulas</value>
+    <comment>{0} = módulos, {1} = aulas.</comment>
+  </data>
+  <data name="AddFolder_CourseLine" xml:space="preserve">
+    <value>{0} — {1}</value>
+    <comment>{0} = título do curso, {1} = contagem de aulas.</comment>
+  </data>
+  <data name="AddFolder_MoreCourses" xml:space="preserve">
+    <value>e mais {0}</value>
+  </data>
+  <data name="AddFolder_IgnoredLoose" xml:space="preserve">
+    <value>{0} vídeos soltos nesta pasta não pertencem a nenhum curso e ficarão de fora.</value>
+  </data>
+  <data name="AddFolder_NothingFound" xml:space="preserve">
+    <value>Com esta opção nenhum curso seria criado.</value>
+  </data>
+  <data name="AddVideos_Title" xml:space="preserve">
+    <value>Adicionar vídeos</value>
+  </data>
+  <data name="AddVideos_SummaryOne" xml:space="preserve">
+    <value>1 vídeo selecionado</value>
+  </data>
+  <data name="AddVideos_SummaryMany" xml:space="preserve">
+    <value>{0} vídeos selecionados</value>
+  </data>
+  <data name="AddVideos_NewCourse" xml:space="preserve">
+    <value>Criar um curso novo</value>
+  </data>
+  <data name="AddVideos_CourseName" xml:space="preserve">
+    <value>Nome do curso</value>
+  </data>
+  <data name="AddVideos_ToLoose" xml:space="preserve">
+    <value>Adicionar a “Vídeos avulsos”</value>
+  </data>
+  <data name="Player_SelectedHint" xml:space="preserve">
+    <value>A reprodução chega numa próxima versão.</value>
+  </data>
+  <data name="Library_ItemActionsFor" xml:space="preserve">
+    <value>Ações de “{0}”</value>
+    <comment>Botão "⋯" de cada curso; {0} = título.</comment>
+  </data>
+  <data name="Player_Pause" xml:space="preserve">
+    <value>Pausar</value>
+  </data>
+  <data name="Player_Mute" xml:space="preserve">
+    <value>Ativar mudo</value>
+  </data>
+  <data name="Player_Unmute" xml:space="preserve">
+    <value>Desativar mudo</value>
+  </data>
+  <data name="Player_ExitFullscreen" xml:space="preserve">
+    <value>Sair da tela cheia</value>
+  </data>
+  <data name="Player_PreviousLesson" xml:space="preserve">
+    <value>Aula anterior</value>
+  </data>
+  <data name="Player_NextLesson" xml:space="preserve">
+    <value>Próxima aula</value>
+  </data>
+  <data name="Player_ErrorTitle" xml:space="preserve">
+    <value>Não foi possível reproduzir esta aula</value>
+  </data>
+  <data name="Player_ErrorFileNotFound" xml:space="preserve">
+    <value>O arquivo do vídeo não foi encontrado.</value>
+  </data>
+  <data name="Player_ErrorCannotPlay" xml:space="preserve">
+    <value>O formato do vídeo não é suportado ou o arquivo está danificado. Os detalhes estão no log.</value>
+  </data>
+  <data name="Player_UnavailableTitle" xml:space="preserve">
+    <value>O VLC não está instalado</value>
+  </data>
+  <data name="Player_UnavailableDescription" xml:space="preserve">
+    <value>O VibePlayer usa o VLC para tocar os vídeos. Instale pelo gerenciador de pacotes da sua distribuição (por exemplo: sudo apt install vlc) e abra o app de novo.</value>
+  </data>
+  <data name="Player_StatusPlaying" xml:space="preserve">
+    <value>Tocando</value>
+  </data>
+  <data name="Player_StatusPaused" xml:space="preserve">
+    <value>Pausado</value>
+  </data>
+  <data name="Player_StatusEnded" xml:space="preserve">
+    <value>Aula terminada</value>
+  </data>
+  <data name="Player_NextLessonIn" xml:space="preserve">
+    <value>Próxima aula em {0} s</value>
+    <comment>{0} = segundos restantes.</comment>
+  </data>
+  <data name="Player_CancelNext" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Player_PlayNextNow" xml:space="preserve">
+    <value>Ir agora</value>
+  </data>
+  <data name="Library_CourseProgress" xml:space="preserve">
+    <value>{0} de {1} aulas</value>
+    <comment>{0} = concluídas, {1} = total.</comment>
+  </data>
+  <data name="Library_LessonCompleted" xml:space="preserve">
+    <value>Concluída</value>
+  </data>
+  <data name="Library_LessonInProgress" xml:space="preserve">
+    <value>Em andamento</value>
+  </data>
+  <data name="Library_MarkCompleted" xml:space="preserve">
+    <value>Marcar como concluída</value>
+  </data>
+  <data name="Library_MarkNotCompleted" xml:space="preserve">
+    <value>Marcar como não concluída</value>
+  </data>
+  <data name="Player_VideoArea" xml:space="preserve">
+    <value>Vídeo</value>
+  </data>
+  <data name="Tab_Transcription" xml:space="preserve">
+    <value>Transcrição</value>
+  </data>
+  <data name="Library_Transcribe" xml:space="preserve">
+    <value>Transcrever</value>
+  </data>
+  <data name="Library_TranscribeCourse" xml:space="preserve">
+    <value>Transcrever curso</value>
+  </data>
+  <data name="Transcription_NoLessonTitle" xml:space="preserve">
+    <value>Nenhuma aula aberta</value>
+  </data>
+  <data name="Transcription_NoLessonDescription" xml:space="preserve">
+    <value>Abra uma aula para ver a transcrição dela.</value>
+  </data>
+  <data name="Transcription_NotTranscribedTitle" xml:space="preserve">
+    <value>Aula sem transcrição</value>
+  </data>
+  <data name="Transcription_NotTranscribedDescription" xml:space="preserve">
+    <value>O texto da aula é gerado no seu computador. Nada é enviado para a internet.</value>
+  </data>
+  <data name="Transcription_Language" xml:space="preserve">
+    <value>Idioma da aula</value>
+  </data>
+  <data name="Transcription_LanguageAuto" xml:space="preserve">
+    <value>Detectar o idioma</value>
+  </data>
+  <data name="Transcription_LanguagePortuguese" xml:space="preserve">
+    <value>Português</value>
+  </data>
+  <data name="Transcription_LanguageEnglish" xml:space="preserve">
+    <value>Inglês</value>
+  </data>
+  <data name="Transcription_LanguageSpanish" xml:space="preserve">
+    <value>Espanhol</value>
+  </data>
+  <data name="Transcription_Start" xml:space="preserve">
+    <value>Transcrever esta aula</value>
+  </data>
+  <data name="Transcription_ProgressName" xml:space="preserve">
+    <value>Andamento da transcrição</value>
+  </data>
+  <data name="Transcription_Queued" xml:space="preserve">
+    <value>Na fila</value>
+  </data>
+  <data name="Transcription_DownloadingModel" xml:space="preserve">
+    <value>Baixando o modelo</value>
+  </data>
+  <data name="Transcription_StagePreparing" xml:space="preserve">
+    <value>Preparando</value>
+  </data>
+  <data name="Transcription_StageExtracting" xml:space="preserve">
+    <value>Extraindo o áudio</value>
+  </data>
+  <data name="Transcription_StageTranscribing" xml:space="preserve">
+    <value>Transcrevendo</value>
+  </data>
+  <data name="Transcription_NoAudioTitle" xml:space="preserve">
+    <value>Aula sem áudio</value>
+  </data>
+  <data name="Transcription_NoAudioDescription" xml:space="preserve">
+    <value>Este vídeo não tem faixa de áudio para transcrever.</value>
+  </data>
+  <data name="Transcription_FailedTitle" xml:space="preserve">
+    <value>Não foi possível transcrever</value>
+  </data>
+  <data name="Transcription_Retry" xml:space="preserve">
+    <value>Tentar de novo</value>
+  </data>
+  <data name="Transcription_ErrorUnreadable" xml:space="preserve">
+    <value>Não foi possível ler o áudio deste arquivo.</value>
+  </data>
+  <data name="Transcription_ErrorFileMissing" xml:space="preserve">
+    <value>O arquivo do vídeo não foi encontrado.</value>
+  </data>
+  <data name="Transcription_ErrorModelMissing" xml:space="preserve">
+    <value>O modelo de transcrição não está baixado.</value>
+  </data>
+  <data name="Transcription_ErrorModelInvalid" xml:space="preserve">
+    <value>O modelo de transcrição está corrompido. Baixe de novo.</value>
+  </data>
+  <data name="Transcription_ErrorCrashed" xml:space="preserve">
+    <value>A transcrição foi interrompida. Se acontecer de novo, escolha um modelo menor.</value>
+  </data>
+  <data name="Transcription_ErrorUnexpected" xml:space="preserve">
+    <value>Ocorreu um erro inesperado.</value>
+  </data>
+  <data name="Transcription_VlcMissingTitle" xml:space="preserve">
+    <value>VLC necessário</value>
+  </data>
+  <data name="Transcription_VlcMissingDescription" xml:space="preserve">
+    <value>Para transcrever vídeos, instale o VLC. Legendas ao lado do vídeo funcionam sem ele.</value>
+  </data>
+  <data name="Transcription_SourceSubtitle" xml:space="preserve">
+    <value>Origem: legenda ao lado do vídeo</value>
+  </data>
+  <data name="Transcription_SourceWhisper" xml:space="preserve">
+    <value>Origem: Whisper · {0}</value>
+  </data>
+  <data name="Transcription_UseWhisper" xml:space="preserve">
+    <value>Transcrever com o Whisper</value>
+  </data>
+  <data name="Transcription_TextName" xml:space="preserve">
+    <value>Texto da aula</value>
+  </data>
+  <data name="Transcription_JumpTo" xml:space="preserve">
+    <value>Ir para {0}</value>
+  </data>
+  <data name="Transcription_ModelDialogTitle" xml:space="preserve">
+    <value>Baixar o modelo de transcrição</value>
+  </data>
+  <data name="Transcription_ModelDialogDescription" xml:space="preserve">
+    <value>O modelo é baixado uma vez e fica no seu computador. Depois disso, a transcrição funciona sem internet, e nada da aula é enviado.</value>
+  </data>
+  <data name="Transcription_ModelBalanced" xml:space="preserve">
+    <value>Equilibrado (190 MB, recomendado)</value>
+  </data>
+  <data name="Transcription_ModelAccurate" xml:space="preserve">
+    <value>Mais preciso (574 MB, bem mais lento)</value>
+  </data>
+  <data name="Transcription_ModelDownload" xml:space="preserve">
+    <value>Baixar</value>
+  </data>
+  <data name="Transcription_DownloadFailedTitle" xml:space="preserve">
+    <value>Não foi possível baixar o modelo</value>
+  </data>
+  <data name="Transcription_DownloadNetwork" xml:space="preserve">
+    <value>Verifique a conexão e tente de novo. O download continua de onde parou.</value>
+  </data>
+  <data name="Transcription_DownloadNoSpace" xml:space="preserve">
+    <value>Não há espaço livre suficiente no disco.</value>
+  </data>
+  <data name="Transcription_DownloadCorrupted" xml:space="preserve">
+    <value>O arquivo baixado veio com defeito. Tente de novo.</value>
+  </data>
+</root>

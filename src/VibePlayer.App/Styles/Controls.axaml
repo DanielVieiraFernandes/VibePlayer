@@ -1,0 +1,320 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ic="using:FluentIcons.Avalonia">
+    <!--
+        Estilos por classe do design system (DESIGN.md, "Componentes"). As Views aplicam classes
+        (Classes="title secondary") em vez de repetir setters, para que um ajuste valha no app todo.
+
+        Os estilos de estado (:pointerover, :pressed, :disabled) miram o ContentPresenter do template
+        do Fluent porque é ele que pinta o fundo nesses estados; setar só o Background do Button
+        seria sobrescrito pelo tema assim que o ponteiro passasse por cima.
+    -->
+
+    <!-- Texto. Tamanho e cor padrão vêm da janela (Window, mais abaixo) por herança, e não de um
+         estilo "TextBlock" global: esse estilo atingiria também os TextBlocks de dentro dos templates
+         do Fluent (botões, abas, placeholder) e quebraria as cores de hover e desabilitado. -->
+    <Style Selector="Window">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+        <Setter Property="Background" Value="{DynamicResource AppBackgroundBrush}" />
+    </Style>
+    <Style Selector="TextBlock.body">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="LineHeight" Value="{StaticResource LineHeightBody}" />
+    </Style>
+    <Style Selector="TextBlock.display">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeDisplay}" />
+        <Setter Property="LineHeight" Value="{StaticResource LineHeightDisplay}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.title">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeTitle}" />
+        <Setter Property="LineHeight" Value="{StaticResource LineHeightTitle}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.subtitle">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeSubtitle}" />
+        <Setter Property="LineHeight" Value="{StaticResource LineHeightSubtitle}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.caption">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeCaption}" />
+        <Setter Property="LineHeight" Value="{StaticResource LineHeightCaption}" />
+    </Style>
+    <Style Selector="TextBlock.secondary">
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+    </Style>
+    <Style Selector="TextBlock.tabular">
+        <!-- Algarismos de largura fixa: o tempo do vídeo não "pula" enquanto conta. -->
+        <Setter Property="FontFeatures" Value="+tnum" />
+    </Style>
+
+    <!-- Superfícies -->
+    <Style Selector="Border.surface">
+        <Setter Property="Background" Value="{DynamicResource SurfaceBackgroundBrush}" />
+    </Style>
+
+    <!-- Estado vazio: ícone, título, explicação e, quando houver, a ação principal. -->
+    <Style Selector="StackPanel.emptyState">
+        <Setter Property="Spacing" Value="{StaticResource SpaceMd}" />
+        <Setter Property="MaxWidth" Value="{StaticResource EmptyStateMaxWidth}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="StackPanel.emptyState > TextBlock">
+        <Setter Property="TextAlignment" Value="Center" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="StackPanel.emptyState > ic|SymbolIcon">
+        <Setter Property="FontSize" Value="{StaticResource IconSizeEmptyState}" />
+        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <!-- Ícones -->
+    <Style Selector="ic|SymbolIcon">
+        <Setter Property="FontSize" Value="{StaticResource IconSize}" />
+    </Style>
+
+    <!-- Botões -->
+    <Style Selector="Button, ToggleButton">
+        <Setter Property="MinHeight" Value="{StaticResource ButtonHeight}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingButton}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusMd}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style Selector="Button.primary">
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}" />
+    </Style>
+    <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AccentPressedBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextOnAccentBrush}" />
+    </Style>
+
+    <!-- Botão de ícone: quadrado, sem fundo até o ponteiro passar; usado nas barras. -->
+    <Style Selector="Button.icon, ToggleButton.icon">
+        <Setter Property="Width" Value="{StaticResource IconButtonSize}" />
+        <Setter Property="Height" Value="{StaticResource IconButtonSize}" />
+        <Setter Property="MinHeight" Value="{StaticResource IconButtonSize}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSm}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+    </Style>
+    <Style Selector="ToggleButton.icon:checked /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AccentSubtleBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+    </Style>
+
+    <!-- Botões sem fundo continuam sem fundo quando desabilitados; o Fluent pinta um cinza que,
+         numa barra cheia de controles desabilitados, parece uma fileira de blocos. -->
+    <Style Selector="Button.icon:disabled /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.icon:disabled /template/ ContentPresenter#PART_ContentPresenter, Button.ghost:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource TextDisabledBrush}" />
+    </Style>
+
+    <!-- Botão de texto compacto sem fundo (ex.: velocidade "1x" na barra do player). -->
+    <Style Selector="Button.ghost">
+        <Setter Property="MinHeight" Value="{StaticResource ButtonHeightCompact}" />
+        <Setter Property="Height" Value="{StaticResource ButtonHeightCompact}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingTab}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSm}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+    </Style>
+
+    <!-- Abas do painel lateral: o Fluent usa cabeçalhos grandes (24 px), feitos para navegação de
+         página; aqui elas são secundárias e precisam caber quatro em 320 px. -->
+    <Style Selector="TabItem">
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="MinHeight" Value="{StaticResource TabHeight}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingTab}" />
+    </Style>
+
+    <!-- Campos -->
+    <Style Selector="TextBox">
+        <Setter Property="MinHeight" Value="{StaticResource ButtonHeight}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusMd}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <!-- Divisória arrastável entre o player e o painel lateral. -->
+    <Style Selector="Thumb.splitter">
+        <Setter Property="Width" Value="{StaticResource SplitterWidth}" />
+        <Setter Property="Background" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="Cursor" Value="SizeWestEast" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}" />
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="Thumb.splitter:pointerover">
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+    </Style>
+
+    <!-- Biblioteca -->
+    <Style Selector="Border.toolbar">
+        <Setter Property="Padding" Value="{StaticResource PaddingToolbar}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderBottom}" />
+    </Style>
+    <Style Selector="StackPanel.libraryItem">
+        <Setter Property="Margin" Value="{StaticResource PaddingTreeItem}" />
+    </Style>
+    <!-- Fundo transparente (e não nulo) para a linha toda responder ao ponteiro. -->
+    <Style Selector="Grid.libraryRow">
+        <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <!-- Botão "⋯" das linhas: discreto, mas sempre visível, para quem não conhece o clique direito. -->
+    <Style Selector="Button.rowActions">
+        <Setter Property="Width" Value="{StaticResource ButtonHeightCompact}" />
+        <Setter Property="Height" Value="{StaticResource ButtonHeightCompact}" />
+        <Setter Property="MinHeight" Value="{StaticResource ButtonHeightCompact}" />
+    </Style>
+
+    <!-- Botão com aparência de link, para uma ação dentro de um texto (ex.: "Localizar pasta…"). -->
+    <Style Selector="Button.link">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="Margin" Value="{StaticResource PaddingTreeItem}" />
+        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+        <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.link:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+    </Style>
+    <Style Selector="Button.link:pointerover TextBlock">
+        <Setter Property="TextDecorations" Value="Underline" />
+    </Style>
+
+    <Style Selector="TextBlock.unavailable">
+        <Setter Property="Foreground" Value="{DynamicResource TextDisabledBrush}" />
+    </Style>
+
+    <!-- Faixa de erro: fundo ErrorSubtle com texto primário (par verificado em DesignTokenTests). -->
+    <Style Selector="Border.errorBanner">
+        <Setter Property="Background" Value="{DynamicResource ErrorSubtleBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
+        <Setter Property="BorderThickness" Value="{StaticResource BorderLeftAccent}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSm}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingBanner}" />
+        <Setter Property="Margin" Value="{StaticResource PaddingBar}" />
+    </Style>
+
+    <!-- Selo pequeno ao lado de um texto (ex.: "sugerido"). -->
+    <Style Selector="Border.badge">
+        <Setter Property="Background" Value="{DynamicResource AccentSubtleBrush}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSm}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingBadge}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- Caixa de prévia nos diálogos de adicionar. -->
+    <Style Selector="Border.previewBox">
+        <Setter Property="Background" Value="{DynamicResource AppBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusMd}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingPanel}" />
+    </Style>
+
+    <!-- Player -->
+    <!-- Em tela cheia a barra fica por cima da parte de baixo do vídeo, e não abaixo dele. -->
+    <Style Selector="Grid.playerRoot.fullscreen > Border#ControlsBar">
+        <Setter Property="Grid.Row" Value="0" />
+        <Setter Property="VerticalAlignment" Value="Bottom" />
+    </Style>
+    <Style Selector="Border.playerControls">
+        <Setter Property="Transitions">
+            <Transitions>
+                <DoubleTransition Property="Opacity" Duration="0:0:0.15" />
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Grid.playerRoot.compact Slider.volume, Grid.playerRoot.compact Button.lessonNav">
+        <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="Border.seekPreview">
+        <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSm}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingBadge}" />
+    </Style>
+    <Style Selector="Slider.volume">
+        <Setter Property="Width" Value="{StaticResource VolumeSliderWidth}" />
+        <Setter Property="Margin" Value="{StaticResource PaddingTab}" />
+    </Style>
+    <!-- Pôster escurecido, para o título e o botão por cima continuarem legíveis. -->
+    <Style Selector="Image.poster">
+        <Setter Property="Opacity" Value="0.45" />
+    </Style>
+    <Style Selector="StackPanel.posterOverlay">
+        <Setter Property="Margin" Value="{StaticResource PaddingEmptyState}" />
+    </Style>
+    <Style Selector="Button.bigPlay">
+        <Setter Property="Width" Value="{StaticResource BigPlaySize}" />
+        <Setter Property="Height" Value="{StaticResource BigPlaySize}" />
+        <Setter Property="CornerRadius" Value="{StaticResource BigPlayRadius}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.bigPlay ic|SymbolIcon">
+        <Setter Property="FontSize" Value="{StaticResource IconSizeEmptyState}" />
+    </Style>
+    <Style Selector="Border.countdown">
+        <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusLg}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingPanel}" />
+        <Setter Property="Margin" Value="{StaticResource PaddingEmptyState}" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Bottom" />
+    </Style>
+    <!-- Texto só para leitores de tela (anúncio de estado): presente na árvore, invisível. -->
+    <Style Selector="TextBlock.srOnly">
+        <Setter Property="Opacity" Value="0" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="MaxHeight" Value="1" />
+    </Style>
+
+    <!-- Miniaturas na árvore da biblioteca. -->
+    <Style Selector="Border.thumbnail">
+        <Setter Property="Width" Value="{StaticResource ThumbnailWidth}" />
+        <Setter Property="Height" Value="{StaticResource ThumbnailHeight}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSm}" />
+        <Setter Property="ClipToBounds" Value="True" />
+        <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="ic|SymbolIcon.completed">
+        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+        <Setter Property="FontSize" Value="{StaticResource IconSizeSmall}" />
+    </Style>
+    <Style Selector="ic|SymbolIcon.inProgress">
+        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+        <Setter Property="FontSize" Value="{StaticResource IconSizeSmall}" />
+    </Style>
+</Styles>

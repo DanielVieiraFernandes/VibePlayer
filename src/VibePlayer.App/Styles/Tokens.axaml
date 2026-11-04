@@ -1,0 +1,141 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--
+        Tokens do design system (valores e regras em DESIGN.md). As Views usam só estes nomes,
+        nunca cores ou tamanhos literais; trocar o tema ou ajustar um tom é mudar um lugar só.
+
+        Cores ficam em ThemeDictionaries para o Avalonia trocar de Light para Dark sozinho quando
+        o sistema muda de tema; por isso as Views precisam referenciá-las com DynamicResource.
+        Os nomes são semânticos (papel na tela), não descritivos (TextSecondaryBrush, e não Gray500).
+
+        Toda cor existe nos dois temas e todo par texto/fundo do DESIGN.md passa no WCAG AA;
+        DesignTokenTests verifica as duas coisas, então ajuste os tons por aqui e rode os testes.
+    -->
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+            <SolidColorBrush x:Key="AppBackgroundBrush" Color="#F4F5F8" />
+            <SolidColorBrush x:Key="SurfaceBackgroundBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="SurfaceRaisedBackgroundBrush" Color="#FFFFFF" />
+            <SolidColorBrush x:Key="BorderSubtleBrush" Color="#E3E5EA" />
+            <SolidColorBrush x:Key="BorderStrongBrush" Color="#7E8494" />
+
+            <SolidColorBrush x:Key="TextPrimaryBrush" Color="#16181D" />
+            <SolidColorBrush x:Key="TextSecondaryBrush" Color="#555B6A" />
+            <SolidColorBrush x:Key="TextDisabledBrush" Color="#A0A5B1" />
+            <SolidColorBrush x:Key="TextOnAccentBrush" Color="#FFFFFF" />
+
+            <SolidColorBrush x:Key="AccentBrush" Color="#6D4AFF" />
+            <SolidColorBrush x:Key="AccentHoverBrush" Color="#5E3BF0" />
+            <SolidColorBrush x:Key="AccentPressedBrush" Color="#4F2DDB" />
+            <SolidColorBrush x:Key="AccentSubtleBrush" Color="#EEEAFF" />
+            <SolidColorBrush x:Key="AccentTextBrush" Color="#5436E0" />
+
+            <SolidColorBrush x:Key="ErrorBrush" Color="#B42318" />
+            <SolidColorBrush x:Key="ErrorSubtleBrush" Color="#FDECEA" />
+            <SolidColorBrush x:Key="WarningBrush" Color="#8A5100" />
+            <SolidColorBrush x:Key="WarningSubtleBrush" Color="#FFF4E0" />
+            <SolidColorBrush x:Key="SuccessBrush" Color="#18794E" />
+            <SolidColorBrush x:Key="SuccessSubtleBrush" Color="#E6F6EE" />
+            <SolidColorBrush x:Key="InfoBrush" Color="#1D5FC2" />
+            <SolidColorBrush x:Key="InfoSubtleBrush" Color="#E8F1FD" />
+
+            <SolidColorBrush x:Key="FocusRingBrush" Color="#6D4AFF" />
+
+            <!-- Área do vídeo: igual nos dois temas (ver DESIGN.md, "Vídeo sempre escuro"). -->
+            <SolidColorBrush x:Key="VideoBackgroundBrush" Color="#050506" />
+            <SolidColorBrush x:Key="VideoTextBrush" Color="#ECEDF1" />
+            <SolidColorBrush x:Key="VideoTextSecondaryBrush" Color="#A3A8B5" />
+        </ResourceDictionary>
+
+        <ResourceDictionary x:Key="Dark">
+            <SolidColorBrush x:Key="AppBackgroundBrush" Color="#0F1115" />
+            <SolidColorBrush x:Key="SurfaceBackgroundBrush" Color="#16181D" />
+            <SolidColorBrush x:Key="SurfaceRaisedBackgroundBrush" Color="#1F222A" />
+            <SolidColorBrush x:Key="BorderSubtleBrush" Color="#2A2E37" />
+            <SolidColorBrush x:Key="BorderStrongBrush" Color="#6B7180" />
+
+            <SolidColorBrush x:Key="TextPrimaryBrush" Color="#ECEDF1" />
+            <SolidColorBrush x:Key="TextSecondaryBrush" Color="#A3A8B5" />
+            <SolidColorBrush x:Key="TextDisabledBrush" Color="#5C6270" />
+            <SolidColorBrush x:Key="TextOnAccentBrush" Color="#FFFFFF" />
+
+            <SolidColorBrush x:Key="AccentBrush" Color="#6D4AFF" />
+            <SolidColorBrush x:Key="AccentHoverBrush" Color="#5E3BF0" />
+            <SolidColorBrush x:Key="AccentPressedBrush" Color="#4F2DDB" />
+            <SolidColorBrush x:Key="AccentSubtleBrush" Color="#2A2350" />
+            <SolidColorBrush x:Key="AccentTextBrush" Color="#A894FF" />
+
+            <SolidColorBrush x:Key="ErrorBrush" Color="#FF8A8A" />
+            <SolidColorBrush x:Key="ErrorSubtleBrush" Color="#3A1D20" />
+            <SolidColorBrush x:Key="WarningBrush" Color="#F5C04E" />
+            <SolidColorBrush x:Key="WarningSubtleBrush" Color="#3A2E12" />
+            <SolidColorBrush x:Key="SuccessBrush" Color="#4ADE9B" />
+            <SolidColorBrush x:Key="SuccessSubtleBrush" Color="#123326" />
+            <SolidColorBrush x:Key="InfoBrush" Color="#7AB8FF" />
+            <SolidColorBrush x:Key="InfoSubtleBrush" Color="#142A45" />
+
+            <SolidColorBrush x:Key="FocusRingBrush" Color="#A894FF" />
+
+            <SolidColorBrush x:Key="VideoBackgroundBrush" Color="#050506" />
+            <SolidColorBrush x:Key="VideoTextBrush" Color="#ECEDF1" />
+            <SolidColorBrush x:Key="VideoTextSecondaryBrush" Color="#A3A8B5" />
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+
+    <!-- Tipografia (Inter): tamanho e altura de linha andam juntos para manter o ritmo vertical. -->
+    <x:Double x:Key="FontSizeDisplay">28</x:Double>
+    <x:Double x:Key="LineHeightDisplay">36</x:Double>
+    <x:Double x:Key="FontSizeTitle">20</x:Double>
+    <x:Double x:Key="LineHeightTitle">28</x:Double>
+    <x:Double x:Key="FontSizeSubtitle">16</x:Double>
+    <x:Double x:Key="LineHeightSubtitle">24</x:Double>
+    <x:Double x:Key="FontSizeBody">14</x:Double>
+    <x:Double x:Key="LineHeightBody">20</x:Double>
+    <x:Double x:Key="FontSizeCaption">12</x:Double>
+    <x:Double x:Key="LineHeightCaption">16</x:Double>
+
+    <!-- Espaçamento em grade de 4 px. Double para Spacing; Thickness para Margin/Padding. -->
+    <x:Double x:Key="SpaceXs">4</x:Double>
+    <x:Double x:Key="SpaceSm">8</x:Double>
+    <x:Double x:Key="SpaceMd">12</x:Double>
+    <x:Double x:Key="SpaceLg">16</x:Double>
+    <x:Double x:Key="SpaceXl">24</x:Double>
+    <x:Double x:Key="Space2Xl">32</x:Double>
+    <x:Double x:Key="Space3Xl">48</x:Double>
+
+    <Thickness x:Key="PaddingPanel">16</Thickness>
+    <Thickness x:Key="PaddingEmptyState">24</Thickness>
+    <Thickness x:Key="PaddingBar">12,0</Thickness>
+    <Thickness x:Key="PaddingButton">16,0</Thickness>
+    <Thickness x:Key="PaddingTab">12,0</Thickness>
+    <Thickness x:Key="BorderBottom">0,0,0,1</Thickness>
+    <Thickness x:Key="BorderTop">0,1,0,0</Thickness>
+    <Thickness x:Key="BorderLeftAccent">3,0,0,0</Thickness>
+    <Thickness x:Key="PaddingToolbar">8,4</Thickness>
+    <Thickness x:Key="PaddingTreeItem">0,4</Thickness>
+    <Thickness x:Key="PaddingBanner">12,8</Thickness>
+    <Thickness x:Key="PaddingBadge">6,1</Thickness>
+
+    <!-- Raios: 4 controles pequenos, 8 campos e cartões, 12 painéis e diálogos. -->
+    <CornerRadius x:Key="RadiusSm">4</CornerRadius>
+    <CornerRadius x:Key="RadiusMd">8</CornerRadius>
+    <CornerRadius x:Key="RadiusLg">12</CornerRadius>
+
+    <!-- Tamanhos de componentes. -->
+    <x:Double x:Key="TopBarHeight">48</x:Double>
+    <x:Double x:Key="PlayerControlsHeight">56</x:Double>
+    <x:Double x:Key="ButtonHeight">36</x:Double>
+    <x:Double x:Key="ButtonHeightCompact">32</x:Double>
+    <x:Double x:Key="IconButtonSize">32</x:Double>
+    <x:Double x:Key="IconSize">20</x:Double>
+    <x:Double x:Key="IconSizeSmall">16</x:Double>
+    <x:Double x:Key="IconSizeEmptyState">40</x:Double>
+    <x:Double x:Key="TabHeight">40</x:Double>
+    <x:Double x:Key="SplitterWidth">4</x:Double>
+    <x:Double x:Key="EmptyStateMaxWidth">320</x:Double>
+    <x:Double x:Key="VolumeSliderWidth">96</x:Double>
+    <x:Double x:Key="BigPlaySize">64</x:Double>
+    <CornerRadius x:Key="BigPlayRadius">32</CornerRadius>
+    <x:Double x:Key="ThumbnailWidth">64</x:Double>
+    <x:Double x:Key="ThumbnailHeight">36</x:Double>
+</ResourceDictionary>

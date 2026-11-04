@@ -1,0 +1,24 @@
+<Project>
+  <!--
+    Bibliotecas nativas do Whisper distribuídas com o app (spec 0007).
+
+    Os pacotes Whisper.net.Runtime.* copiam para a saída os nativos de todas as plataformas desktop,
+    independentemente do RuntimeIdentifier. Ao publicar para um RID, fica só o dele: o Vulkan sozinho
+    tem 58 MB por plataforma. Num build de desenvolvimento, sem RID, tudo fica, porque o Whisper.net
+    escolhe em tempo de execução.
+  -->
+  <PropertyGroup>
+    <WhisperNativeFolder Condition="'$(RuntimeIdentifier)' == 'osx-arm64'">macos-arm64</WhisperNativeFolder>
+    <WhisperNativeFolder Condition="'$(RuntimeIdentifier)' == 'osx-x64'">macos-x64</WhisperNativeFolder>
+    <WhisperNativeFolder Condition="'$(WhisperNativeFolder)' == ''">$(RuntimeIdentifier)</WhisperNativeFolder>
+  </PropertyGroup>
+
+  <Target Name="FilterWhisperRuntimes" BeforeTargets="AssignTargetPaths" Condition="'$(RuntimeIdentifier)' != ''">
+    <ItemGroup>
+      <_WhisperNative Include="@(None)" Condition="$([System.String]::Copy('%(None.TargetPath)').Replace('\', '/').StartsWith('runtimes/'))" />
+      <_WhisperRejected Include="@(_WhisperNative)"
+                        Condition="!$([System.String]::Copy('%(_WhisperNative.TargetPath)').Replace('\', '/').Contains('/$(WhisperNativeFolder)/'))" />
+      <None Remove="@(_WhisperRejected)" />
+    </ItemGroup>
+  </Target>
+</Project>
