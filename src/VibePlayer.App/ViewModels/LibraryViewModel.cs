@@ -34,6 +34,8 @@ public sealed partial class LibraryViewModel : ViewModelBase
     private readonly VideoSelectionValidator _videoValidator;
     private readonly IAppPaths? _paths;
     private readonly ILogger<LibraryViewModel> _logger;
+    private static readonly TimeSpan DurationReloadInterval = TimeSpan.FromSeconds(2);
+
     private readonly CancellationTokenSource _shutdown = new();
     private readonly ILessonProgressStore? _progress;
     private readonly ILessonDurationUpdater? _durations;
@@ -216,7 +218,7 @@ public sealed partial class LibraryViewModel : ViewModelBase
             await ReloadAsync();
 
             // Durações em segundo plano; a árvore recarrega a cada lote gravado.
-            _durations?.UpdateMissingAsync(ReloadInBackground, _shutdown.Token).FireAndForget(_logger, "LerDuracoes");
+            UpdateDurationsAsync().FireAndForget(_logger, "LerDuracoes");
         }
         catch (OperationCanceledException) when (_shutdown.IsCancellationRequested)
         {
@@ -343,6 +345,32 @@ public sealed partial class LibraryViewModel : ViewModelBase
         {
             ShowCurrentLesson(id);
         }
+    }
+
+    /// <summary>
+    /// Lê as durações que faltam. A árvore é recriada inteira a cada recarga, então uma biblioteca
+    /// grande recarrega no máximo a cada <see cref="DurationReloadInterval"/>, e uma vez no fim.
+    /// </summary>
+    private async Task UpdateDurationsAsync()
+    {
+        if (_durations is null)
+        {
+            return;
+        }
+
+        var lastReload = Environment.TickCount64;
+        await _durations.UpdateMissingAsync(
+            () =>
+            {
+                var now = Environment.TickCount64;
+                if (now - Interlocked.Read(ref lastReload) >= (long)DurationReloadInterval.TotalMilliseconds)
+                {
+                    Interlocked.Exchange(ref lastReload, now);
+                    ReloadInBackground();
+                }
+            },
+            _shutdown.Token);
+        ReloadInBackground();
     }
 
     /// <summary>

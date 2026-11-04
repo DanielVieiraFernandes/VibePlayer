@@ -16,6 +16,9 @@ O VibePlayer usa os componentes abaixo, cada um sob sua própria licença. Esses
 | SQLitePCLRaw (bundle_e_sqlite3) | Apache 2.0 | https://github.com/ericsink/SQLitePCL.raw |
 | SQLite (biblioteca nativa e_sqlite3) | Domínio público | https://www.sqlite.org/copyright.html |
 | FluentValidation | Apache 2.0 | https://github.com/FluentValidation/FluentValidation |
+| LibVLCSharp | LGPL 2.1 ou posterior | https://code.videolan.org/videolan/LibVLCSharp |
+| LibVLC (VLC media player: bibliotecas e plugins; Windows e macOS) | LGPL 2.1 ou posterior | https://code.videolan.org/videolan/vlc |
+| SkiaSharp | MIT | https://github.com/mono/SkiaSharp |
 | Serilog | Apache 2.0 | https://github.com/serilog/serilog |
 | Serilog.Sinks.File | Apache 2.0 | https://github.com/serilog/serilog-sinks-file |
 | Serilog.Extensions.Logging | Apache 2.0 | https://github.com/serilog/serilog-extensions-logging |
@@ -33,4 +36,8 @@ O VibePlayer usa os componentes abaixo, cada um sob sua própria licença. Esses
 | Avalonia.Headless.XUnit | MIT | https://github.com/AvaloniaUI/Avalonia |
 | Microsoft.EntityFrameworkCore.Design e dotnet-ef | MIT | https://github.com/dotnet/efcore |
 
-Os textos completos das licenças acompanharão o pacote de cada release.
+## Bibliotecas sob LGPL
+
+LibVLCSharp e LibVLC são distribuídos como bibliotecas separadas, carregadas em tempo de execução, sem modificações. Você pode substituí-las por outras versões compatíveis trocando `LibVLCSharp.dll` e os arquivos da pasta `libvlc/` do pacote. O código-fonte de cada uma está nos endereços da tabela acima. O texto completo da licença está em `licenses/LGPL-2.1.txt`, incluído em cada pacote.
+
+No VLC, só os plugins necessários para tocar arquivos locais são distribuídos; os que têm licença GPL ficam de fora. No Linux, o VibePlayer usa o VLC instalado no sistema.

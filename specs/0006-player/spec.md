@@ -1,6 +1,6 @@
 # 0006 — Player de vídeo, progresso e miniaturas das aulas
 
-**Status:** Aprovada
+**Status:** Implementada
 **Branch:** `feature/0006-player`
 
 ## Problema
@@ -74,19 +74,19 @@ Selecionar uma aula toca o vídeo. Os controles (reproduzir, posição, volume, 
 ## Critérios de aceite
 
 - [ ] CA1 — Selecionar uma aula disponível toca o vídeo; os controles habilitam e refletem o estado (tocando/pausado, tempo, duração) (E2E com player falso + verificação manual com o VLC real nos três SOs).
-- [ ] CA2 — Arrastar a barra, os atalhos de tempo e o clique na barra levam o vídeo à posição certa; a velocidade e o volume mudam e ficam salvos entre aberturas (unitário + E2E).
-- [ ] CA3 — Todos os atalhos da tabela funcionam e nenhum dispara enquanto o usuário digita na caixa do chat (E2E).
-- [ ] CA4 — A tela cheia mostra só o vídeo; os controles aparecem ao mexer o mouse e somem 3 s depois; Esc ou F saem da tela cheia (E2E + manual).
-- [ ] CA5 — A posição é salva periodicamente, ao pausar, ao trocar de aula e ao fechar; reabrir a aula retoma a posição salva conforme a regra da questão 2 (unitário + E2E).
-- [ ] CA6 — Chegar a 95% ou ao fim marca a aula como concluída; marcar e desmarcar pelo menu funciona; a biblioteca mostra os ícones e o andamento do curso (unitário + E2E).
-- [ ] CA7 — No fim da aula aparece a contagem para a próxima; cancelar mantém a aula atual; sem cancelar, a próxima aula disponível do curso começa; na última aula do curso nada acontece (unitário + E2E).
-- [ ] CA8 — As durações aparecem na biblioteca sem travar a UI, inclusive numa pasta com 2.000 vídeos (E2E).
-- [ ] CA9 — Ao abrir o app, a última aula assistida já vem selecionada, pausada na posição salva (E2E).
-- [ ] CA10 — Arquivo indisponível, corrompido ou com codec não suportado mostra a mensagem de erro na área do vídeo, registra no log e o app segue funcionando (unitário + E2E + manual).
+- [x] CA2 — Arrastar a barra, os atalhos de tempo e o clique na barra levam o vídeo à posição certa; a velocidade e o volume mudam e ficam salvos entre aberturas (unitário + E2E).
+- [x] CA3 — Todos os atalhos da tabela funcionam e nenhum dispara enquanto o usuário digita na caixa do chat (E2E).
+- [x] CA4 — A tela cheia mostra só o vídeo; os controles aparecem ao mexer o mouse e somem 3 s depois; Esc ou F saem da tela cheia (E2E + manual).
+- [x] CA5 — A posição é salva periodicamente, ao pausar, ao trocar de aula e ao fechar; reabrir a aula retoma a posição salva conforme a regra da questão 2 (unitário + E2E).
+- [x] CA6 — Chegar a 95% ou ao fim marca a aula como concluída; marcar e desmarcar pelo menu funciona; a biblioteca mostra os ícones e o andamento do curso (unitário + E2E).
+- [x] CA7 — No fim da aula aparece a contagem para a próxima; cancelar mantém a aula atual; sem cancelar, a próxima aula disponível do curso começa; na última aula do curso nada acontece (unitário + E2E).
+- [x] CA8 — As durações aparecem na biblioteca sem travar a UI, inclusive numa pasta com 2.000 vídeos (E2E).
+- [x] CA9 — Ao abrir o app, a última aula assistida já vem selecionada, pausada na posição salva (E2E).
+- [x] CA10 — Arquivo indisponível, corrompido ou com codec não suportado mostra a mensagem de erro na área do vídeo, registra no log e o app segue funcionando (unitário + E2E + manual).
 - [ ] CA11 — No Linux sem `libvlc`, a área do vídeo mostra como instalar o VLC e a biblioteca segue funcionando (E2E simulado + manual).
 - [ ] CA12 — Os pacotes de release não contêm plugins do VLC com licença GPL, e o app toca MP4 (H.264/AAC), MKV (H.265), WebM (VP9/Opus) e AVI nos três SOs (verificação automatizada da lista de plugins + manual).
-- [ ] CA13 — Os controles novos têm nome acessível e as mudanças de estado (tocando, pausado) são anunciadas (E2E).
-- [ ] CA14 — As miniaturas aparecem nas aulas e na capa do curso, sem travar a UI; enquanto não existem, aparece o ícone de vídeo; vídeo alterado ganha miniatura nova; abrir a aula pausada mostra a miniatura como pôster (unitário + E2E com gerador falso + integração com o VLC real).
+- [x] CA13 — Os controles novos têm nome acessível e as mudanças de estado (tocando, pausado) são anunciadas (E2E).
+- [x] CA14 — As miniaturas aparecem nas aulas e na capa do curso, sem travar a UI; enquanto não existem, aparece o ícone de vídeo; vídeo alterado ganha miniatura nova; abrir a aula pausada mostra a miniatura como pôster (unitário + E2E com gerador falso + integração com o VLC real).
 
 ## Impacto para o usuário
 

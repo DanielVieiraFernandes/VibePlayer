@@ -97,7 +97,11 @@ jobs:
             --runtime "$RID" \
             --self-contained true \
             --output publish/VibePlayer
-          cp LICENSE THIRD-PARTY-NOTICES.md publish/VibePlayer/
+          cp -r LICENSE THIRD-PARTY-NOTICES.md licenses publish/VibePlayer/
+
+      - name: Conferir plugins do VLC
+        shell: bash
+        run: bash .github/scripts/check-vlc-plugins.sh publish/VibePlayer
 
       - name: Empacotar (zip)
         if: runner.os == 'Windows'

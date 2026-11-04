@@ -105,6 +105,11 @@ Durante a reprodução:
   - **Player:** com a aula selecionada e ainda sem tocar, a miniatura aparece grande, centralizada, com o título e o botão de reproduzir por cima, no lugar do vídeo.
 - **Carregar as imagens na UI:** decodificar o JPEG em `Bitmap` com largura de 128 px (2× para telas de alta densidade) fora da thread de UI. Há um cache em memória das últimas 300, para a árvore rolar sem reler o disco.
 
+### Barra de posição
+
+- **Tempo sob o ponteiro:** um controle sobre o vídeo, centralizado no ponteiro e com a mesma conta do Slider (`PlayerPanel.SeekFraction`). Um `ToolTip` não serve, porque abre uma vez e não acompanha o mouse.
+- **Arraste:** entre `BeginScrub` e `EndScrub`, a barra segue só o ponteiro e os avisos do player são ignorados. O vídeo acompanha a cada 200 ms, e ao soltar vai para o ponto exato. Depois de um seek, avisos de posição antigos são ignorados por até 1 s, para a barra não voltar.
+
 ### Tela cheia
 
 - A própria `MainWindow` vai para `WindowState.FullScreen` e esconde a barra superior, o painel lateral e a divisória. Nada é recriado, e o vídeo segue tocando sem interrupção.

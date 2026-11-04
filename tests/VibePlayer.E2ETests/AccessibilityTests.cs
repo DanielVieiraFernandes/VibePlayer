@@ -5,6 +5,7 @@ using Avalonia.Headless.XUnit;
 using Avalonia.VisualTree;
 using Microsoft.Extensions.DependencyInjection;
 using VibePlayer.App;
+using VibePlayer.App.Resources;
 using VibePlayer.App.Services;
 using VibePlayer.App.ViewModels;
 using VibePlayer.App.Views;
@@ -50,6 +51,32 @@ public sealed class AccessibilityTests
         WindowTestExtensions.Settle();
         window.GetVisualDescendants().OfType<TreeViewItem>().Count().ShouldBeGreaterThan(2);
         UnnamedControlsInAllTabs(window).ShouldBeEmpty();
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public async Task Player_ControlesTemNomeEEstadoEhAnunciado()
+    {
+        using var app = new PlayerHarness();
+        app.Sample.AddVideo("Curso/1 - a.mp4");
+        var window = await app.OpenAsync();
+        await app.AddFolderAsync("Curso");
+        await window.ViewModel().Library.RefreshCommand.ExecuteAsync(null);
+        await PlayerHarness.SelectAsync(window, "1 - a");
+
+        UnnamedControlsInAllTabs(window).ShouldBeEmpty();
+
+        // Botões que mudam de função mudam de nome; o estado vai para a região anunciada.
+        var playPause = window.Find<Button>("PlayPauseButton");
+        var liveStatus = window.Find<TextBlock>("LiveStatus");
+        AutomationProperties.GetName(playPause).ShouldBe(Strings.Player_Pause);
+        AutomationProperties.GetLiveSetting(liveStatus).ShouldBe(AutomationLiveSetting.Polite);
+        liveStatus.Text.ShouldBe(Strings.Player_StatusPlaying);
+
+        window.ViewModel().Player.PlayPauseCommand.Execute(null);
+        await PlayerHarness.SettleAsync();
+        AutomationProperties.GetName(playPause).ShouldBe(Strings.Player_Play);
+        liveStatus.Text.ShouldBe(Strings.Player_StatusPaused);
         window.Close();
     }
 

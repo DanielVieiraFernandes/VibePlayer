@@ -253,6 +253,13 @@
     <Style Selector="Grid.playerRoot.compact Slider.volume, Grid.playerRoot.compact Button.lessonNav">
         <Setter Property="IsVisible" Value="False" />
     </Style>
+    <Style Selector="Border.seekPreview">
+        <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSm}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingBadge}" />
+    </Style>
     <Style Selector="Slider.volume">
         <Setter Property="Width" Value="{StaticResource VolumeSliderWidth}" />
         <Setter Property="Margin" Value="{StaticResource PaddingTab}" />

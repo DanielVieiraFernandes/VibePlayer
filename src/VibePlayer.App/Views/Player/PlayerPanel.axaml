@@ -104,8 +104,7 @@
                            Text="{Binding PositionText}" />
                 <Slider x:Name="PositionSlider" Grid.Column="4" VerticalAlignment="Center"
                         Minimum="0" Maximum="{Binding DurationSeconds}" Value="{Binding PositionSeconds}"
-                        AutomationProperties.Name="{x:Static res:Strings.Player_Progress}"
-                        PointerMoved="OnPositionPointerMoved" />
+                        AutomationProperties.Name="{x:Static res:Strings.Player_Progress}" />
                 <TextBlock x:Name="DurationText" Grid.Column="5" Classes="caption secondary tabular"
                            Margin="{StaticResource PaddingTab}" VerticalAlignment="Center"
                            AutomationProperties.Name="{x:Static res:Strings.Player_Duration}"
@@ -143,6 +142,13 @@
                 </Button>
             </Grid>
         </Border>
+
+        <!-- Tempo do ponto sob o ponteiro na barra de posição; posicionado no code-behind. -->
+        <Canvas Grid.RowSpan="2" IsHitTestVisible="False">
+            <Border x:Name="SeekPreview" Classes="seekPreview" IsVisible="False">
+                <TextBlock x:Name="SeekPreviewText" Classes="caption tabular" />
+            </Border>
+        </Canvas>
     </Grid>
 
 </UserControl>

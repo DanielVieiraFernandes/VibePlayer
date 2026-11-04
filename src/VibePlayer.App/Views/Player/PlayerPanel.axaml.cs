@@ -1,9 +1,11 @@
 using System.ComponentModel;
-using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using VibePlayer.App.ViewModels;
 
 namespace VibePlayer.App.Views.Player;
@@ -14,7 +16,10 @@ public partial class PlayerPanel : UserControl
     public static readonly TimeSpan ControlsHideDelay = TimeSpan.FromSeconds(3);
 
     private readonly DispatcherTimer _hideTimer;
+    private const double SeekPreviewGap = 8;
+
     private PlayerViewModel? _viewModel;
+    private bool _isScrubbing;
 
     public PlayerPanel()
     {
@@ -31,6 +36,14 @@ public partial class PlayerPanel : UserControl
         // Barra compacta em players estreitos: sem anterior/próxima e sem o controle deslizante de
         // volume (o botão de mudo e as setas ↑/↓ continuam). Assim tudo cabe nos 400 px mínimos.
         SizeChanged += (_, e) => Root.Classes.Set("compact", e.NewSize.Width < CompactWidth);
+
+        // Túnel e handledEventsToo: o Slider trata (e marca) os eventos de ponteiro para mover o
+        // Thumb, e aqui precisamos vê-los antes dele para saber quando o arraste começa.
+        PositionSlider.AddHandler(PointerPressedEvent, OnPositionPressed, RoutingStrategies.Tunnel, handledEventsToo: true);
+        PositionSlider.AddHandler(PointerReleasedEvent, OnPositionReleased, RoutingStrategies.Tunnel, handledEventsToo: true);
+        PositionSlider.AddHandler(PointerCaptureLostEvent, (_, _) => EndScrub(), RoutingStrategies.Bubble, handledEventsToo: true);
+        PositionSlider.AddHandler(PointerMovedEvent, (_, e) => UpdateSeekPreview(e), RoutingStrategies.Tunnel, handledEventsToo: true);
+        PositionSlider.PointerExited += (_, _) => HideSeekPreview();
     }
 
     /// <summary>Abaixo desta largura a barra do player fica compacta.</summary>
@@ -89,17 +102,67 @@ public partial class PlayerPanel : UserControl
         VideoArea.Cursor = new Cursor(StandardCursorType.None);
     }
 
-    // Dica com o tempo do ponto sob o ponteiro na barra de posição.
-    private void OnPositionPointerMoved(object? sender, PointerEventArgs e)
+    private void OnPositionPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (_viewModel is not { DurationSeconds: > 0 } viewModel || sender is not Slider slider || slider.Bounds.Width <= 0)
+        _isScrubbing = true;
+        _viewModel?.BeginScrub();
+    }
+
+    private void OnPositionReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        EndScrub();
+        if (!PositionSlider.IsPointerOver)
+        {
+            HideSeekPreview();
+        }
+    }
+
+    private void EndScrub()
+    {
+        _isScrubbing = false;
+        _viewModel?.EndScrub();
+    }
+
+    /// <summary>
+    /// Mostra, em cima do ponteiro, o tempo daquele ponto da barra. Um ToolTip não serve: ele abre
+    /// uma vez e não acompanha o mouse.
+    /// </summary>
+    private void UpdateSeekPreview(PointerEventArgs e)
+    {
+        if (_viewModel is not { DurationSeconds: > 0 } viewModel || PositionSlider.Bounds.Width <= 0)
         {
             return;
         }
 
-        var fraction = Math.Clamp(e.GetPosition(slider).X / slider.Bounds.Width, 0, 1);
-        var time = TimeSpan.FromSeconds(fraction * viewModel.DurationSeconds);
-        ToolTip.SetTip(slider, time.ToString(time.TotalHours >= 1 ? @"h\:mm\:ss" : @"mm\:ss", CultureInfo.InvariantCulture));
-        ToolTip.SetIsOpen(slider, true);
+        var thumbWidth = PositionSlider.GetVisualDescendants().OfType<Thumb>().FirstOrDefault()?.Bounds.Width ?? 0;
+        var fraction = SeekFraction(e.GetPosition(PositionSlider).X, PositionSlider.Bounds.Width, thumbWidth);
+        SeekPreviewText.Text = PlayerViewModel.FormatTime(TimeSpan.FromSeconds(fraction * viewModel.DurationSeconds));
+        SeekPreview.IsVisible = true;
+
+        SeekPreview.Measure(Size.Infinity);
+        var size = SeekPreview.DesiredSize;
+        var barTop = ControlsBar.TranslatePoint(default, Root)?.Y ?? Root.Bounds.Height;
+        var pointerX = e.GetPosition(Root).X;
+        Canvas.SetLeft(SeekPreview, Math.Clamp(pointerX - (size.Width / 2), 0, Math.Max(0, Root.Bounds.Width - size.Width)));
+        Canvas.SetTop(SeekPreview, barTop - size.Height - SeekPreviewGap);
+    }
+
+    private void HideSeekPreview()
+    {
+        if (!_isScrubbing)
+        {
+            SeekPreview.IsVisible = false;
+        }
+    }
+
+    /// <summary>
+    /// Fração da barra sob o ponteiro, com a mesma conta do Slider ao clicar: o centro do Thumb só
+    /// anda entre meia largura dele e o fim menos meia largura. Assim o tempo mostrado é o mesmo
+    /// para onde o clique leva.
+    /// </summary>
+    public static double SeekFraction(double x, double sliderWidth, double thumbWidth)
+    {
+        var track = sliderWidth - thumbWidth;
+        return track <= 0 ? 0 : Math.Clamp((x - (thumbWidth / 2)) / track, 0, 1);
     }
 }

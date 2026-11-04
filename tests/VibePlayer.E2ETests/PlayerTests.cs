@@ -1,4 +1,5 @@
 using System.Globalization;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Headless.XUnit;
@@ -84,6 +85,60 @@ public sealed class PlayerTests : IDisposable
         restored.Rate.ShouldBe(1.5);
         restored.RateText.ShouldBe(1.5.ToString("0.##", CultureInfo.CurrentCulture) + "×");
         reopened.Close();
+    }
+
+    [AvaloniaFact]
+    public async Task Arraste_BarraSegueOPonteiroEVideoVaiParaOFinal()
+    {
+        var window = await OpenWithCourseAsync();
+        await PlayerHarness.SelectAsync(window, "1 - Abertura");
+        var player = window.ViewModel().Player;
+        _app.Player.SimulatePosition(TimeSpan.FromSeconds(10));
+        await PlayerHarness.SettleAsync();
+
+        player.BeginScrub();
+        player.PositionSeconds = 300;
+        _app.Player.Position.ShouldBe(TimeSpan.FromSeconds(10), "Sem seek a cada movimento do mouse");
+
+        // Aviso do player durante o arraste não pode puxar a barra de volta.
+        _app.Player.SimulatePosition(TimeSpan.FromSeconds(11));
+        await PlayerHarness.SettleAsync();
+        player.PositionSeconds.ShouldBe(300);
+
+        player.PositionSeconds = 420;
+        player.EndScrub();
+        _app.Player.Position.ShouldBe(TimeSpan.FromSeconds(420));
+
+        // Aviso antigo logo depois de soltar também não.
+        _app.Player.SimulatePosition(TimeSpan.FromSeconds(12));
+        await PlayerHarness.SettleAsync();
+        player.PositionSeconds.ShouldBe(420);
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public async Task PassarOPonteiroNaBarra_MostraOTempoDaquelePontoSobOPonteiro()
+    {
+        var window = await OpenWithCourseAsync();
+        await PlayerHarness.SelectAsync(window, "1 - Abertura");
+        var slider = window.Find<Slider>("PositionSlider");
+        var preview = window.Find<Border>("SeekPreview");
+        var bounds = slider.BoundsIn(window);
+
+        var point = new Point(bounds.X + (bounds.Width * 0.75), bounds.Y + (bounds.Height / 2));
+        window.MouseMove(point);
+        await PlayerHarness.SettleAsync();
+
+        preview.IsVisible.ShouldBeTrue();
+        var thumb = slider.GetVisualDescendants().OfType<Avalonia.Controls.Primitives.Thumb>().First();
+        var fraction = PlayerPanel.SeekFraction(point.X - bounds.X, bounds.Width, thumb.Bounds.Width);
+        var expected = PlayerViewModel.FormatTime(TimeSpan.FromSeconds(fraction * FakeMediaPlayer.DefaultDuration.TotalSeconds));
+        window.Find<TextBlock>("SeekPreviewText").Text.ShouldBe(expected);
+
+        var previewBounds = preview.BoundsIn(window);
+        ((previewBounds.Left + previewBounds.Right) / 2).ShouldBe(point.X, 1, "Centralizado no ponteiro, não no ponto atual do vídeo");
+        previewBounds.Bottom.ShouldBeLessThanOrEqualTo(bounds.Y);
+        window.Close();
     }
 
     [AvaloniaFact]

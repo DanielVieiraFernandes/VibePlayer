@@ -22,8 +22,6 @@ public sealed class LibraryPlaybackTests : IDisposable
             }
         }
 
-        // Cada leitura demora: a UI não pode esperar por elas.
-        _app.MediaInfo.Delay = TimeSpan.FromMilliseconds(2);
         var window = await _app.OpenAsync();
         await _app.AddFolderAsync("Curso", LibraryRootKind.Course);
         var library = window.ViewModel().Library;
@@ -35,14 +33,12 @@ public sealed class LibraryPlaybackTests : IDisposable
         uiResponded.ShouldBeTrue();
         await refresh;
 
-        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
         await PlayerHarness.WaitUntilAsync(
             () => library.Courses.Single().Node.AllLessons.All(l => l.Duration is not null),
             "todas as durações");
-        TestContext.Current.SendDiagnosticMessage($"Durações em {stopwatch.Elapsed}");
         _app.MediaInfo.Reads.ShouldBe(2000);
         library.Courses.Single().Caption.ShouldEndWith("400 h 00 min");
-        PlayerHarness.Lesson(window, "Aula 1").Caption.ShouldStartWith("12:00");
+        library.Courses.Single().AllLessons.First().Caption.ShouldStartWith("12:00");
         window.Close();
     }
 

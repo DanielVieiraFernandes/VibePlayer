@@ -39,6 +39,15 @@ public sealed partial class PlayerViewModel : ViewModelBase
     private static readonly TimeSpan LongSeek = TimeSpan.FromSeconds(10);
     private const int VolumeStep = 5;
 
+    // Durante o arraste, o vídeo acompanha a barra no máximo neste ritmo: cada seek obriga o VLC a
+    // decodificar a partir do quadro-chave anterior, e pedir um por movimento do mouse o afoga.
+    private static readonly TimeSpan ScrubSeekInterval = TimeSpan.FromMilliseconds(200);
+
+    // Depois de um seek, avisos de posição antigos ainda chegam por um instante; sem esperar, a
+    // barra voltaria ao ponto anterior antes de pular para o novo.
+    private static readonly TimeSpan SeekSettleTime = TimeSpan.FromSeconds(1);
+    private const double SeekSettleToleranceSeconds = 1.5;
+
     private readonly IMediaPlayer? _player;
     private readonly ILessonProgressStore? _progress;
     private readonly ISettingsStore? _settings;
@@ -54,6 +63,11 @@ public sealed partial class PlayerViewModel : ViewModelBase
     private DispatcherTimer? _countdownTimer;
     private int _uiUpdateScheduled;
     private bool _updatingFromPlayer;
+    private DispatcherTimer? _scrubTimer;
+    private bool _isScrubbing;
+    private double? _pendingScrubSeek;
+    private double? _seekTarget;
+    private long _seekSettleDeadline;
 
     /// <summary>Usado apenas pelo previewer de XAML.</summary>
     public PlayerViewModel()
@@ -321,7 +335,44 @@ public sealed partial class PlayerViewModel : ViewModelBase
         }
 
         var target = _player.Position + TimeSpan.FromSeconds(seconds);
-        _player.Seek(target < TimeSpan.Zero ? TimeSpan.Zero : target);
+        SeekTo((target < TimeSpan.Zero ? TimeSpan.Zero : target).TotalSeconds);
+    }
+
+    /// <summary>
+    /// Começo do arraste na barra de posição. Daqui até <see cref="EndScrub"/> a barra segue só o
+    /// ponteiro (avisos do player são ignorados, senão ela brigaria com o mouse) e o vídeo
+    /// acompanha em intervalos de <see cref="ScrubSeekInterval"/>.
+    /// </summary>
+    public void BeginScrub()
+    {
+        if (!HasLesson)
+        {
+            return;
+        }
+
+        _isScrubbing = true;
+        CancelCountdown();
+        if (_scrubTimer is null)
+        {
+            _scrubTimer = new DispatcherTimer { Interval = ScrubSeekInterval };
+            _scrubTimer.Tick += (_, _) => ApplyPendingScrubSeek();
+        }
+
+        _scrubTimer.Start();
+    }
+
+    /// <summary>Soltou a barra: o vídeo vai exatamente para onde ela parou.</summary>
+    public void EndScrub()
+    {
+        if (!_isScrubbing)
+        {
+            return;
+        }
+
+        _isScrubbing = false;
+        _scrubTimer?.Stop();
+        _pendingScrubSeek = null;
+        SeekTo(PositionSeconds);
     }
 
     public void SeekShort(bool forward) => SeekBy((forward ? ShortSeek : -ShortSeek).TotalSeconds);
@@ -373,9 +424,18 @@ public sealed partial class PlayerViewModel : ViewModelBase
     {
         // Mudança vinda da barra (arraste ou clique): só vira seek se for longe da posição real;
         // as atualizações do próprio player chegam aqui também e não podem virar seek.
-        if (!_updatingFromPlayer && _player is not null && HasLesson && Math.Abs(value - _player.Position.TotalSeconds) > 0.5)
+        if (_updatingFromPlayer || _player is null || !HasLesson)
         {
-            _player.Seek(TimeSpan.FromSeconds(value));
+            return;
+        }
+
+        if (_isScrubbing)
+        {
+            _pendingScrubSeek = value;
+        }
+        else if (Math.Abs(value - _player.Position.TotalSeconds) > 0.5)
+        {
+            SeekTo(value);
         }
     }
 
@@ -437,6 +497,11 @@ public sealed partial class PlayerViewModel : ViewModelBase
             _progress?.SaveDurationAsync(_lesson.Id, duration).FireAndForget(_logger, "SalvarDuracao");
         }
 
+        if (_isScrubbing || IsSettlingAfterSeek(position.TotalSeconds))
+        {
+            return;
+        }
+
         SetPositionFromPlayer(position.TotalSeconds);
 
         if (IsPlaying && Math.Abs((position - _lastSavedPosition).TotalSeconds) >= SaveInterval.TotalSeconds)
@@ -448,6 +513,38 @@ public sealed partial class PlayerViewModel : ViewModelBase
         {
             MarkCompleted();
         }
+    }
+
+    private void SeekTo(double seconds)
+    {
+        _seekTarget = seconds;
+        _seekSettleDeadline = Environment.TickCount64 + (long)SeekSettleTime.TotalMilliseconds;
+        _player?.Seek(TimeSpan.FromSeconds(seconds));
+    }
+
+    private void ApplyPendingScrubSeek()
+    {
+        if (_pendingScrubSeek is { } target)
+        {
+            _pendingScrubSeek = null;
+            _player?.Seek(TimeSpan.FromSeconds(target));
+        }
+    }
+
+    private bool IsSettlingAfterSeek(double position)
+    {
+        if (_seekTarget is not { } target)
+        {
+            return false;
+        }
+
+        if (Math.Abs(position - target) <= SeekSettleToleranceSeconds || Environment.TickCount64 >= _seekSettleDeadline)
+        {
+            _seekTarget = null;
+            return false;
+        }
+
+        return true;
     }
 
     private void OnEnded()
@@ -592,7 +689,7 @@ public sealed partial class PlayerViewModel : ViewModelBase
     private void Save<T>(SettingKey<T> key, T value) =>
         _settings?.SetAsync(key, value).FireAndForget(_logger, "SalvarPreferenciaDoPlayer");
 
-    private static string FormatTime(TimeSpan time) =>
+    public static string FormatTime(TimeSpan time) =>
         time.TotalHours >= 1
             ? time.ToString(@"h\:mm\:ss", CultureInfo.InvariantCulture)
             : time.ToString(@"mm\:ss", CultureInfo.InvariantCulture);
