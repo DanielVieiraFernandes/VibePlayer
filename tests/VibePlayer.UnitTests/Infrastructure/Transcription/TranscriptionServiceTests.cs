@@ -274,6 +274,23 @@ public sealed class TranscriptionServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task Dispose_ComAulaEmAndamento_NaoAvisaMudanca()
+    {
+        var lesson = AddLesson("a.mp4");
+        var service = NewService();
+        var gate = _worker.ScriptGated();
+        await service.EnqueueAsync([lesson], Token);
+        await gate.Reached.WaitAsync(Timeout, Token);
+        var notices = 0;
+        service.Changed += (_, _) => Interlocked.Increment(ref notices);
+
+        service.Dispose();
+        await Task.Delay(100, Token);
+
+        Volatile.Read(ref notices).ShouldBe(0);
+    }
+
+    [Fact]
     public async Task Resume_AulaEmAndamentoAoFechar_Recomeca()
     {
         var running = AddLesson("a.mp4");

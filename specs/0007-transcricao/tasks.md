@@ -6,7 +6,7 @@ Marque cada tarefa ao concluir.
 
 Validação primeiro, porque as decisões mais arriscadas só foram testadas no Windows:
 
-- [ ] T1 — Comparar os modelos com a aula real enviada pelo mantenedor e fechar o padrão (Q3). Se o resultado mudar a decisão, atualizar a spec.
+- [x] T1 — Comparar os modelos com a aula real enviada pelo mantenedor e fechar o padrão (Q3). Se o resultado mudar a decisão, atualizar a spec.
 - [x] T2 — `VlcAudioExtractor` no worker, incluindo a distinção entre "sem áudio" e arquivo ilegível, com a CI rodando `AudioExtractionIntegrationTests` nos três SOs **antes** do restante. Falhou no Linux ou no macOS: parar e rever a spec.
 - [x] T3 — Plugins `libstream_out_transcode_plugin` e `libstream_out_smem_plugin` em `VlcPlugins.targets` e `vlc-allowed-plugins.txt`.
 - [x] T4 — Fixtures novos: tom contínuo de 60 s (deriva), áudio com buraco de PTS, vídeo sem áudio, fala curta de domínio público (`jfk.wav`, do whisper.cpp).
@@ -94,4 +94,4 @@ O provedor de Whisper real só roda em `WhisperIntegrationTests`. Os E2E usam um
 - [x] `DESIGN.md`: aba Transcrição.
 - [x] `THIRD-PARTY-NOTICES.md`: Whisper.net, whisper.cpp, ggml, `Microsoft.Extensions.AI.Abstractions`.
 - [ ] Wiki: página de transcrição, tempos esperados, legendas aceitas.
-- [ ] `specs/0007-transcricao`: status Implementada.
+- [x] `specs/0007-transcricao`: status Implementada.

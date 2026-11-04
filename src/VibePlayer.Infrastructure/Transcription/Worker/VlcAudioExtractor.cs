@@ -40,6 +40,11 @@ public sealed class VlcAudioExtractor : IAudioExtractor
         "--no-lua",
         "--no-stats",
         "--audio-resampler=speex_resampler",
+
+        // Qualidade mínima de propósito: em 44,1 kHz, a taxa da maioria dos vídeos, a padrão (4)
+        // extrai a 16x e esta a 100x. O texto do Whisper não piora de forma mensurável: mudar de
+        // qualidade altera o resultado tanto quanto trocar de decodificador (spec 0007).
+        "--speex-resampler-quality=0",
     ];
 
     private static readonly Lock InitLock = new();

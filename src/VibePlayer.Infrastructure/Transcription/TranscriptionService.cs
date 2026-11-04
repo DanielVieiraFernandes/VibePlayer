@@ -267,7 +267,11 @@ public sealed partial class TranscriptionService(
                 FinishRunning();
             }
 
-            Changed?.Invoke(this, lessonId);
+            // Ao fechar o app, quem assina o aviso consultaria serviços que já foram liberados.
+            if (!_lifetime.IsCancellationRequested)
+            {
+                Changed?.Invoke(this, lessonId);
+            }
         }
     }
 

@@ -73,7 +73,7 @@ O áudio fica em memória como `float[]` e vai para `WhisperProcessor.ProcessAsy
 | `amem`, `rate` 2 / 4 / 8 | 2x / 4x / 8x | Áudio perdido: metade, um quarto, nada |
 | `transcode` + WAV, padrão (`ugly`) | cerca de 1000x | **Deriva:** −1,17 s em 20 min |
 | `transcode` + WAV, `speex_resampler` | cerca de 550x | Sem deriva, mas perde buracos de PTS |
-| **`transcode` + `smem`, `speex_resampler`** | **cerca de 620x** | **1200,000 s exatos; buraco de 30 s preservado** |
+| **`transcode` + `smem`, `speex_resampler`** | **cerca de 620x em 48 kHz; 100x em 44,1 kHz** | **1200,000 s exatos; buraco de 30 s preservado** |
 | ffmpeg do sistema (GPL, só como referência) | cerca de 1400x | Referência da comparação |
 
 Comparação com o ffmpeg, por correlação de janelas de 5 s (vídeo de 20 min, H.264/AAC, 1080p, 468 MB):
@@ -109,7 +109,15 @@ Repetido com o caminho final (`smem`), pelo próprio `VlcAudioExtractor` (T5):
 | 20 min de vídeo 1080p | 1200,000 s | 2,10 s |
 | 3 horas (AAC) | 10800,107 s | 16,7 s |
 
-A primeira abertura depois de instalar leva mais (9 a 17 s no teste), provavelmente pela verificação do antivírus nos plugins novos; as seguintes abrem em menos de 0,5 s.
+**Correção desta tabela:** a linha de 44,1 kHz levava de 9 a 17 s, e atribuí isso ao antivírus. Estava errado. O curso real, todo em AAC 44,1 kHz, mostrou a causa: o `speex_resampler` é caro nessa taxa. Os "620x" só valem para 48 kHz. Medido numa aula real de 632 s:
+
+| Qualidade do reamostrador | Tempo | Velocidade | Correlação com o ffmpeg |
+|---|---|---|---|
+| 4 (padrão do VLC) | 39,4 s | 16x | 1,000 |
+| 2 | 19,9 s | 32x | 1,000 |
+| **0 (adotada)** | **6,2 s** | **100x** | **0,996** |
+
+O texto do `small-q5_1` muda 7,95% entre as qualidades 4 e 0, e 8,01% entre o áudio do ffmpeg e o do VLC. Ou seja, o Whisper reage a qualquer diferença mínima no áudio, e a qualidade 0 fica dentro dessa variação normal. Sem texto de referência, isso mostra que ela não é mais diferente que o ffmpeg, e não que o resultado seja melhor.
 
 Casos de borda com `smem`:
 
@@ -347,11 +355,51 @@ Sempre metadados, nunca texto:
 - **`speex_resampler` no Linux:** não apareceu em `vlc-plugins-base` do Arch, e o Fedora não foi verificado. Sem ele, os tempos ficam a menos de 113 ms, mas a qualidade do áudio cai. **Mitigação:** detectar o módulo pelo log do VLC, registrar `Warning` e documentar na wiki.
 - **VLC futuro:** `smem` é uma interface pouco usada e pode mudar no VLC 4. **Mitigação:** `IAudioExtractor` isola, e a CI acusa.
 - **Aulas muito longas:** cerca de 350 MB por hora; 5 h passam de 2,3 GB. **Mitigação:** em falta de memória, a aula falha sozinha, sem derrubar o app. Dividir em blocos fica para depois, se aparecer em uso real.
-- **Reprodução durante a transcrição:** não medida. Sem GPU, o worker ocupa 8 threads, mesmo em prioridade baixa. **Mitigação:** verificação manual, coordenada com a spec 0008. Se engasgar, reduzir as threads enquanto o vídeo toca.
-- **Qualidade em aula real:** só testada com voz sintética. **Mitigação:** Q3.
+- **Reprodução durante a transcrição em máquina fraca:** medida só aqui, sem queda de quadros nem na CPU. Num processador com poucos núcleos pode ser diferente. Se engasgar, reduzir as threads enquanto o vídeo toca.
 - **Driver de GPU:** Vulkan com driver ruim pode falhar. **Mitigação:** volta automática para CPU, testada no CA12.
 - **Handles herdados no Windows:** um processo filho herda arquivos abertos por código nativo (`fopen` do Skia, por exemplo) no instante em que nasce. Se o worker abrir enquanto uma miniatura é gravada, esse arquivo fica preso até ele terminar. Efeito em produção: uma miniatura antiga deixa de ser apagada nessa limpeza, e sai na seguinte. Nos testes, os que abrem processo ficam na coleção `VLC real`.
 - **Hugging Face fora ou URL alterada:** commit fixado reduz o risco, mas não o elimina. Um espelho próprio não entra nesta spec.
+
+## Validação com um curso real (T1)
+
+Curso de C# em pt-BR do mantenedor: 275 aulas, 51 horas, 7 GB, H.264 e AAC 44,1 kHz estéreo.
+
+**Extração das 275 aulas:** todas concluídas, em 30 min (100x), com duração a menos de 0,1 s do `ffprobe` em todas.
+
+**Modelos em duas aulas reais (632 s e 274 s), pelo executável publicado:**
+
+| Modelo | Velocidade com Vulkan | Diferença de texto para o `turbo` |
+|---|---|---|
+| `base` | 20x a 23x | 22,4% e 10,1% |
+| **`small-q5_1`** | **9x a 12x** (7x na CPU) | **13,6% e 6,2%** |
+| `small` | 8x a 10x | 13,5% e 6,9% |
+| `medium-q5_0` | 5x | 16,8% e 6,6% |
+| `large-v3-turbo-q5_0` | 5x | Referência |
+
+- Não há texto de referência humano: o `turbo` serve de comparação por ser o maior, e não por estar sempre certo.
+- **Quantizar não custou acerto:** `small-q5_1` e `small` ficaram iguais, com 60% menos download.
+- **`base` foi descartado:** perde termos como `FileStream` e `StreamWriter`.
+- **`medium` não compensa:** mais lento, sem aproximar-se mais do `turbo`.
+- **Boa parte da diferença é grafia**, como `stream writer` e `streamwriter`, o que não atrapalha a LLM. Sobram erros reais, como "bronco while" no lugar de "bloco while", que o `turbo` acerta.
+
+**Decisão:** `small-q5_1` segue como padrão, e o `turbo` como "Mais preciso".
+
+**App real de ponta a ponta**, sem janela visível, com VLC tocando, processo real, banco real e o curso inteiro na biblioteca:
+
+| Verificação | GPU (Vulkan) | CPU |
+|---|---|---|
+| Biblioteca com 275 aulas | 2,5 s | — |
+| Aula de 632 s, com o vídeo tocando | 70 s | 120 s |
+| Quadros por segundo durante a transcrição (janelas de 5 s) | 30,0, mínimo 30,0 | 30,0, mínimo 30,0 |
+| Clique no tempo | Foi ao ponto | Foi ao ponto |
+| Cancelar | 0,06 s | 0,04 s; processo encerrado em 0,05 s |
+| Fechar no meio da fila | Processo encerrado | Processo encerrado |
+| Reabrir | Fila retomada e concluída | Fila retomada e concluída |
+| Texto da aula no log | Nenhuma de 174 frases | Nenhuma de 174 frases |
+
+O teste achou um erro ao fechar: a fila avisava "mudou" depois de os serviços serem liberados. Corrigido, com `TranscriptionServiceTests.Dispose_ComAulaEmAndamento_NaoAvisaMudanca`.
+
+**Limites desta validação:** só Windows, nesta máquina, e a contagem de quadros mede o que o VLC entrega, sem tela real. Linux e macOS têm a CI com o Whisper real, mas não uma aula longa. `osx-x64` nunca foi executado.
 
 ## Achado durante a implementação
 
