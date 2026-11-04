@@ -52,6 +52,14 @@ internal static class WindowTestExtensions
         Settle();
     }
 
+    /// <summary>Tecla sem modificador (ou com os indicados), como o usuário apertaria.</summary>
+    public static void PressKey(this MainWindow window, PhysicalKey key, RawInputModifiers modifiers = RawInputModifiers.None)
+    {
+        window.KeyPressQwerty(key, modifiers);
+        window.KeyReleaseQwerty(key, modifiers);
+        Settle();
+    }
+
     public static void PressShortcut(this MainWindow window, PhysicalKey key)
     {
         // Mesmo modificador que o app registra (Ctrl, ou ⌘ no macOS).

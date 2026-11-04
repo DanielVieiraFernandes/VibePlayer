@@ -18,6 +18,7 @@ public sealed class AppPaths : IAppPaths
         LogsDirectory = Path.Combine(dataDirectory, "logs");
         ModelsDirectory = Path.Combine(dataDirectory, "models");
         BackupsDirectory = Path.Combine(dataDirectory, "backups");
+        ThumbnailsDirectory = Path.Combine(dataDirectory, "thumbnails");
         DatabasePath = Path.Combine(dataDirectory, "vibePlayer.db");
 
         // Criadas já na construção porque o Serilog precisa da pasta de logs antes de
@@ -25,6 +26,7 @@ public sealed class AppPaths : IAppPaths
         Directory.CreateDirectory(LogsDirectory);
         Directory.CreateDirectory(ModelsDirectory);
         Directory.CreateDirectory(BackupsDirectory);
+        Directory.CreateDirectory(ThumbnailsDirectory);
     }
 
     public string DataDirectory { get; }
@@ -36,6 +38,8 @@ public sealed class AppPaths : IAppPaths
     public string DatabasePath { get; }
 
     public string BackupsDirectory { get; }
+
+    public string ThumbnailsDirectory { get; }
 
     /// <summary>
     /// Pasta de dados padrão do usuário atual.

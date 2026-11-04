@@ -65,6 +65,9 @@ namespace VibePlayer.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("CourseId")
                         .HasColumnType("TEXT");
 
+                    b.Property<long?>("DurationMs")
+                        .HasColumnType("INTEGER");
+
                     b.Property<long>("FileSize")
                         .HasColumnType("INTEGER");
 
@@ -99,6 +102,28 @@ namespace VibePlayer.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Lessons", (string)null);
+                });
+
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.LessonProgressEntity", b =>
+                {
+                    b.Property<Guid>("LessonId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset>("LastWatchedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("PositionMs")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("LessonId");
+
+                    b.ToTable("LessonProgress", (string)null);
                 });
 
             modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.LibraryRootEntity", b =>
@@ -215,6 +240,15 @@ namespace VibePlayer.Infrastructure.Persistence.Migrations
                         .WithMany()
                         .HasForeignKey("ModuleId")
                         .OnDelete(DeleteBehavior.SetNull);
+                });
+
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.LessonProgressEntity", b =>
+                {
+                    b.HasOne("VibePlayer.Infrastructure.Persistence.LessonEntity", null)
+                        .WithOne()
+                        .HasForeignKey("VibePlayer.Infrastructure.Persistence.LessonProgressEntity", "LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.ModuleEntity", b =>

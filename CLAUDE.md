@@ -12,7 +12,7 @@ Player desktop **multiplataforma** (Windows, macOS e Linux) para cursos em víde
 
 O código-fonte fica em repositório público no GitHub, mas o projeto **não é open source** e **não aceita contribuições externas**: a licença é proprietária (todos os direitos reservados), com permissão apenas para baixar e usar os binários publicados em Releases. Não sugira nem adicione licenças open source, `CONTRIBUTING.md` convidando PRs ou templates de contribuição.
 
-O esqueleto (solution, DI, logs, testes, CI), o layout (DESIGN.md) e a persistência (SQLite, backups, preferências) existem; biblioteca, player, transcrição e LLM ainda são **planejados**. Ao criar ou mudar algo estrutural, atualize este arquivo.
+O esqueleto (solution, DI, logs, testes, CI), o layout (DESIGN.md), a persistência (SQLite, backups, preferências), a biblioteca e o player existem; transcrição e LLM ainda são **planejados**. Ao criar ou mudar algo estrutural, atualize este arquivo.
 
 ## Fluxo de trabalho (SDD — obrigatório)
 
@@ -46,7 +46,7 @@ Detalhes em [specs/README.md](specs/README.md).
 ## Stack
 
 - **.NET / C#** com **Avalonia UI**, padrão MVVM com `CommunityToolkit.Mvvm`.
-- **Vídeo:** LibVLCSharp (`LibVLCSharp.Avalonia`).
+- **Vídeo:** LibVLCSharp (sem `LibVLCSharp.Avalonia`: o VLC decodifica e o app desenha os quadros; ver "Reprodução").
 - **Transcrição:** Whisper local via `Whisper.net`; ffmpeg extrai o áudio antes. Modelos do Whisper são baixados na primeira execução, não vão no repositório nem no instalador.
 - **LLM:** provedores configuráveis — Claude via SDK oficial (`Anthropic`, modelo padrão `claude-opus-5-5`, streaming no chat) e Ollama local (`http://localhost:11434`).
 - **Persistência:** SQLite com EF Core (`Microsoft.EntityFrameworkCore.Sqlite`). Migrations aplicadas automaticamente na inicialização, pois o schema evolui entre versões instaladas nas máquinas dos usuários.
@@ -130,13 +130,24 @@ Comentários, nomes de testes e mensagens de commit em português; identificador
 - Logs estruturados (`Log.Information("Transcrição concluída para {LessonId} em {Elapsed}", ...)`), nunca interpolação de string.
 - **Nunca** registrar chaves de API, tokens, conteúdo de transcrições, prompts ou respostas do LLM — só metadados (IDs, durações, tamanhos, contagem de tokens).
 
+## Reprodução
+
+- `PlayerViewModel` só conhece `IMediaPlayer` (Core). `VlcMediaPlayer` (Infrastructure) é a implementação; os E2E usam `FakeMediaPlayer`, e `VlcIntegrationTests` cobre o VLC real sem janela, com as amostras de `tests/fixtures/videos`.
+- **Desenho:** `VlcFrameBuffer` recebe os quadros por callbacks (RV32, dois buffers, limite de 1920 px) e `VideoView` os copia para um `WriteableBitmap`. O vídeo é um controle comum: pode ter controles por cima, recebe mouse e teclado e funciona no headless. Não use `NativeControlHost`: sobre ele o app não recebe mouse, e o VLC 3 não troca de janela durante a reprodução.
+- **Regra de threads do VLC (derruba o processo se quebrada):** nunca chame o LibVLC de dentro de um evento ou callback dele. Isso inclui o código depois de `await media.Parse(...)`, que continua na thread do VLC: saia dela com `await Task.Yield()` antes de liberar a mídia. Eventos só atualizam estado e avisam; quem reage passa pela thread de UI ou pelo pool.
+- **Uma instância de `LibVLC` por processo**, nunca liberada (`VlcRuntime`). Carregada no primeiro uso, não na abertura do app.
+- **Plugins por lista de permissão** em `src/VibePlayer.App/VlcPlugins.targets`, com cópia em `.github/scripts/vlc-allowed-plugins.txt` que a CI usa para conferir o build e os pacotes (`VlcPluginListTests` falha se as duas divergirem). Plugin novo: confira a licença antes (GPL é proibido).
+- **Linux:** usa o VLC instalado no sistema; sem ele, o player mostra como instalar e o resto do app funciona.
+- **Progresso:** `ILessonProgressStore` (tabela `LessonProgress`) e regras puras em `PlaybackRules`. Limiares: retoma entre 10 s e 95%; conclui aos 95% ou no fim.
+- **Miniaturas:** `ThumbnailService` (cache em `thumbnails/`, nome com tamanho e data do vídeo, fila com prioridade, uma por vez).
+
 ## Persistência
 
 Tudo fica na pasta de dados do usuário, `Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)/VibePlayer` (resolve para `%APPDATA%` no Windows e `~/.config` no Linux/macOS), nunca dentro da pasta do curso:
 
 - `vibePlayer.db` — SQLite: cursos, aulas, progresso, transcrições (segmentos com timestamps), resumos, pontos principais, histórico de chat, configurações.
 - `backups/` — backups do banco: um diário na primeira abertura do dia (mantém 7) e um antes de cada atualização do banco (mantém 3), sempre verificados com `integrity_check`. Restaurar é manual por enquanto (fechar o app e copiar o backup sobre `vibePlayer.db`).
-- `models/` — modelos do Whisper; `logs/` — Serilog.
+- `models/` — modelos do Whisper; `logs/` — Serilog; `thumbnails/` — miniaturas das aulas (cache regenerável, fora dos backups).
 - **Banco:** `VibePlayerDbContext` (Infrastructure), sempre via `IDbContextFactory` com contextos curtos e acesso `async`; WAL ligado. Cada spec cria suas tabelas com uma migration própria; migrations publicadas nunca são editadas. `MigrationTests` falha se o modelo mudar sem migration.
 - **Inicialização:** `AppStartup.Prepare` (usado pelo `Program` e pelos E2E) roda o `DatabaseInitializer` antes da UI: backup → migrate → em falha, restaura o backup, mostra `DatabaseErrorWindow` e sai com código 2. Nunca abra a janela principal sobre um banco que não ficou pronto.
 - **Preferências:** `ISettingsStore` (Core) com chaves `SettingKey<T>` (nome permanente com prefixo por área, padrão, validação), gravadas como JSON na tabela `Settings`. Valor inválido volta ao padrão com aviso no log (só a chave). Layout da janela: `UiSettings` + `WindowStateTracker` (grava 500 ms depois da última mudança e ao fechar).

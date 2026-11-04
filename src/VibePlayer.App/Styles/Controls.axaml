@@ -236,4 +236,85 @@
         <Setter Property="CornerRadius" Value="{StaticResource RadiusMd}" />
         <Setter Property="Padding" Value="{StaticResource PaddingPanel}" />
     </Style>
+
+    <!-- Player -->
+    <!-- Em tela cheia a barra fica por cima da parte de baixo do vídeo, e não abaixo dele. -->
+    <Style Selector="Grid.playerRoot.fullscreen > Border#ControlsBar">
+        <Setter Property="Grid.Row" Value="0" />
+        <Setter Property="VerticalAlignment" Value="Bottom" />
+    </Style>
+    <Style Selector="Border.playerControls">
+        <Setter Property="Transitions">
+            <Transitions>
+                <DoubleTransition Property="Opacity" Duration="0:0:0.15" />
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Grid.playerRoot.compact Slider.volume, Grid.playerRoot.compact Button.lessonNav">
+        <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="Border.seekPreview">
+        <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSm}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingBadge}" />
+    </Style>
+    <Style Selector="Slider.volume">
+        <Setter Property="Width" Value="{StaticResource VolumeSliderWidth}" />
+        <Setter Property="Margin" Value="{StaticResource PaddingTab}" />
+    </Style>
+    <!-- Pôster escurecido, para o título e o botão por cima continuarem legíveis. -->
+    <Style Selector="Image.poster">
+        <Setter Property="Opacity" Value="0.45" />
+    </Style>
+    <Style Selector="StackPanel.posterOverlay">
+        <Setter Property="Margin" Value="{StaticResource PaddingEmptyState}" />
+    </Style>
+    <Style Selector="Button.bigPlay">
+        <Setter Property="Width" Value="{StaticResource BigPlaySize}" />
+        <Setter Property="Height" Value="{StaticResource BigPlaySize}" />
+        <Setter Property="CornerRadius" Value="{StaticResource BigPlayRadius}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.bigPlay ic|SymbolIcon">
+        <Setter Property="FontSize" Value="{StaticResource IconSizeEmptyState}" />
+    </Style>
+    <Style Selector="Border.countdown">
+        <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusLg}" />
+        <Setter Property="Padding" Value="{StaticResource PaddingPanel}" />
+        <Setter Property="Margin" Value="{StaticResource PaddingEmptyState}" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Bottom" />
+    </Style>
+    <!-- Texto só para leitores de tela (anúncio de estado): presente na árvore, invisível. -->
+    <Style Selector="TextBlock.srOnly">
+        <Setter Property="Opacity" Value="0" />
+        <Setter Property="IsHitTestVisible" Value="False" />
+        <Setter Property="MaxHeight" Value="1" />
+    </Style>
+
+    <!-- Miniaturas na árvore da biblioteca. -->
+    <Style Selector="Border.thumbnail">
+        <Setter Property="Width" Value="{StaticResource ThumbnailWidth}" />
+        <Setter Property="Height" Value="{StaticResource ThumbnailHeight}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSm}" />
+        <Setter Property="ClipToBounds" Value="True" />
+        <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="ic|SymbolIcon.completed">
+        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
+        <Setter Property="FontSize" Value="{StaticResource IconSizeSmall}" />
+    </Style>
+    <Style Selector="ic|SymbolIcon.inProgress">
+        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+        <Setter Property="FontSize" Value="{StaticResource IconSizeSmall}" />
+    </Style>
 </Styles>

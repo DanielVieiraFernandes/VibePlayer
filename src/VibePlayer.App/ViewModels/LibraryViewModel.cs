@@ -9,6 +9,9 @@ using VibePlayer.App.Resources;
 using VibePlayer.App.Services;
 using VibePlayer.Core;
 using VibePlayer.Core.Library;
+using VibePlayer.Core.Playback;
+using VibePlayer.Core.Threading;
+using Avalonia.Threading;
 
 namespace VibePlayer.App.ViewModels;
 
@@ -31,7 +34,17 @@ public sealed partial class LibraryViewModel : ViewModelBase
     private readonly VideoSelectionValidator _videoValidator;
     private readonly IAppPaths? _paths;
     private readonly ILogger<LibraryViewModel> _logger;
+    private static readonly TimeSpan DurationReloadInterval = TimeSpan.FromSeconds(2);
+
     private readonly CancellationTokenSource _shutdown = new();
+    private readonly ILessonProgressStore? _progress;
+    private readonly ILessonDurationUpdater? _durations;
+    private readonly IThumbnailService? _thumbnails;
+    private readonly ThumbnailImages? _images;
+
+    // Estado da árvore que sobrevive às recargas (ela é recriada inteira; ver LibraryItemViewModel).
+    private readonly HashSet<Guid> _expanded = [];
+    private int _reloadScheduled;
 
     /// <summary>Usado apenas pelo previewer de XAML.</summary>
     public LibraryViewModel()
@@ -51,6 +64,10 @@ public sealed partial class LibraryViewModel : ViewModelBase
         LibraryFolderValidator folderValidator,
         VideoSelectionValidator videoValidator,
         IAppPaths paths,
+        ILessonProgressStore progress,
+        ILessonDurationUpdater durations,
+        IThumbnailService thumbnails,
+        ThumbnailImages images,
         ILogger<LibraryViewModel> logger)
     {
         _library = library;
@@ -59,6 +76,11 @@ public sealed partial class LibraryViewModel : ViewModelBase
         _folderValidator = folderValidator;
         _videoValidator = videoValidator;
         _paths = paths;
+        _progress = progress;
+        _durations = durations;
+        _thumbnails = thumbnails;
+        _images = images;
+        thumbnails.ThumbnailReady += (_, lessonId) => Dispatcher.UIThread.Post(() => ApplyThumbnails(lessonId));
         _logger = logger;
     }
 
@@ -98,6 +120,40 @@ public sealed partial class LibraryViewModel : ViewModelBase
 
     /// <summary>Cancela a atualização em andamento (app fechando).</summary>
     public void Shutdown() => _shutdown.Cancel();
+
+    /// <summary>
+    /// Marca na árvore a aula que o player abriu sozinho (próxima aula, reabertura do app),
+    /// abrindo o curso e o módulo dela.
+    /// </summary>
+    public void ShowCurrentLesson(Guid lessonId)
+    {
+        foreach (var course in Courses)
+        {
+            foreach (var parent in new LibraryItemViewModel[] { course }.Concat(course.Children.OfType<ModuleItemViewModel>()))
+            {
+                if (parent.Children.OfType<LessonItemViewModel>().FirstOrDefault(l => l.Id == lessonId) is { } lesson)
+                {
+                    course.IsExpanded = true;
+                    parent.IsExpanded = true;
+                    SelectedItem = lesson;
+                    return;
+                }
+            }
+        }
+    }
+
+    /// <summary>Recarrega a árvore (ex.: aula concluída), agrupando pedidos seguidos numa recarga só.</summary>
+    public void ReloadInBackground()
+    {
+        if (Interlocked.Exchange(ref _reloadScheduled, 1) == 0)
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                Interlocked.Exchange(ref _reloadScheduled, 0);
+                ReloadAsync().FireAndForget(_logger, "RecarregarBiblioteca");
+            });
+        }
+    }
 
     [RelayCommand]
     private Task AddFolderAsync() => RunAsync(async () =>
@@ -160,6 +216,9 @@ public sealed partial class LibraryViewModel : ViewModelBase
                 ProgressText = string.Format(CultureInfo.CurrentCulture, Strings.Library_Refreshing, p.LessonsFound));
             await _library.RefreshAsync(progress, _shutdown.Token);
             await ReloadAsync();
+
+            // Durações em segundo plano; a árvore recarrega a cada lote gravado.
+            UpdateDurationsAsync().FireAndForget(_logger, "LerDuracoes");
         }
         catch (OperationCanceledException) when (_shutdown.IsCancellationRequested)
         {
@@ -245,6 +304,16 @@ public sealed partial class LibraryViewModel : ViewModelBase
     [RelayCommand]
     private void DismissError() => ErrorMessage = null;
 
+    [RelayCommand]
+    private Task ToggleCompletedAsync(LibraryItemViewModel? item) => RunAsync(async () =>
+    {
+        if (item is LessonItemViewModel lesson && _progress is not null)
+        {
+            await _progress.SetCompletedAsync(lesson.Id, !lesson.IsCompleted, _shutdown.Token);
+            await ReloadAsync();
+        }
+    });
+
     partial void OnSelectedItemChanged(LibraryItemViewModel? value)
     {
         if (value is LessonItemViewModel { IsAvailable: true } lesson)
@@ -255,14 +324,138 @@ public sealed partial class LibraryViewModel : ViewModelBase
 
     private async Task ReloadAsync()
     {
+        var selectedLessonId = (SelectedItem as LessonItemViewModel)?.Id;
         var courses = await _library.GetCoursesAsync(_shutdown.Token);
         Courses.Clear();
-        foreach (var course in courses)
+        foreach (var node in courses)
         {
-            Courses.Add(new CourseItemViewModel(course));
+            var course = new CourseItemViewModel(node);
+            TrackExpansion(course, node.Id);
+            foreach (var module in course.Children.OfType<ModuleItemViewModel>())
+            {
+                TrackExpansion(module, module.Id);
+            }
+
+            Courses.Add(course);
+            RequestCover(course);
         }
 
         OnPropertyChanged(nameof(HasCourses));
+        if (selectedLessonId is { } id)
+        {
+            ShowCurrentLesson(id);
+        }
+    }
+
+    /// <summary>
+    /// Lê as durações que faltam. A árvore é recriada inteira a cada recarga, então uma biblioteca
+    /// grande recarrega no máximo a cada <see cref="DurationReloadInterval"/>, e uma vez no fim.
+    /// </summary>
+    private async Task UpdateDurationsAsync()
+    {
+        if (_durations is null)
+        {
+            return;
+        }
+
+        var lastReload = Environment.TickCount64;
+        await _durations.UpdateMissingAsync(
+            () =>
+            {
+                var now = Environment.TickCount64;
+                if (now - Interlocked.Read(ref lastReload) >= (long)DurationReloadInterval.TotalMilliseconds)
+                {
+                    Interlocked.Exchange(ref lastReload, now);
+                    ReloadInBackground();
+                }
+            },
+            _shutdown.Token);
+        ReloadInBackground();
+    }
+
+    /// <summary>
+    /// Mantém aberto o que estava aberto e, ao abrir um curso ou módulo, pede as miniaturas das
+    /// aulas dele (as de cursos fechados só são geradas quando alguém os abre; spec 0006).
+    /// </summary>
+    private void TrackExpansion(LibraryItemViewModel item, Guid id)
+    {
+        item.IsExpanded = _expanded.Contains(id);
+        if (item.IsExpanded)
+        {
+            RequestLessonThumbnails(item);
+        }
+
+        item.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName != nameof(LibraryItemViewModel.IsExpanded))
+            {
+                return;
+            }
+
+            if (item.IsExpanded)
+            {
+                _expanded.Add(id);
+                RequestLessonThumbnails(item);
+            }
+            else
+            {
+                _expanded.Remove(id);
+            }
+        };
+    }
+
+    private void RequestLessonThumbnails(LibraryItemViewModel parent)
+    {
+        foreach (var lesson in parent.Children.OfType<LessonItemViewModel>())
+        {
+            ShowThumbnail(lesson, lesson.Node, ThumbnailPriority.Normal);
+        }
+    }
+
+    // A capa do curso é a miniatura da primeira aula disponível.
+    private void RequestCover(CourseItemViewModel course)
+    {
+        if (course.AllLessons.FirstOrDefault(l => l.IsAvailable) is { } first)
+        {
+            ShowThumbnail(course, first.Node, ThumbnailPriority.Low);
+        }
+    }
+
+    private void ShowThumbnail(LibraryItemViewModel item, LessonNode lesson, ThumbnailPriority priority)
+    {
+        if (_thumbnails is null || _images is null || lesson.Thumbnail is not { } request || !lesson.IsAvailable)
+        {
+            return;
+        }
+
+        if (_thumbnails.TryGetPath(request) is { } path)
+        {
+            LoadThumbnailAsync(item, path).FireAndForget(_logger, "CarregarMiniatura");
+        }
+        else
+        {
+            _thumbnails.Request(request, priority);
+        }
+    }
+
+    private async Task LoadThumbnailAsync(LibraryItemViewModel item, string path) =>
+        item.Thumbnail = await _images!.LoadAsync(path);
+
+    private void ApplyThumbnails(Guid lessonId)
+    {
+        foreach (var course in Courses)
+        {
+            var lessons = course.AllLessons.Where(l => l.Id == lessonId).ToList();
+            foreach (var lesson in lessons)
+            {
+                ShowThumbnail(lesson, lesson.Node, ThumbnailPriority.Normal);
+            }
+
+            if (course.AllLessons.FirstOrDefault(l => l.IsAvailable)?.Id == lessonId)
+            {
+                RequestCover(course);
+            }
+        }
     }
 
     private async Task RunAsync(Func<Task> operation)

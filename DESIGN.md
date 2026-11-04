@@ -151,6 +151,12 @@ Elevação é feita com **superfície** (`SurfaceRaised`) e borda sutil, não co
 | Árvore da biblioteca | `TreeView` + `StackPanel.libraryItem` | — | Título `body` e, quando houver, segunda linha `caption secondary` (contagem de aulas, "Indisponível", "Pasta não encontrada") |
 | Item indisponível | `TextBlock.unavailable` | — | Título em `TextDisabled`; continua com foco e menu (para remover ou localizar), mas não vira a aula atual |
 | Ações de uma linha | `Button.rowActions` ("⋯") + menu | 32 × 32, à direita da linha | Sempre visível em itens com ações, para quem não conhece o clique direito. O clique direito e a tecla Menu abrem o mesmo menu em qualquer ponto da linha. Itens de menu com ícone (`Delete` para remover, `FolderSearch` para localizar) |
+| Barra do player | `Border.playerControls` | altura 56 | Anterior, reproduzir, próxima, tempo, posição, duração, mudo, volume, velocidade, tela cheia. Abaixo de 560 de largura fica compacta (sem anterior/próxima e sem o controle de volume). Em tela cheia fica sobre o vídeo e some após 3 s com o ponteiro parado (tocando) |
+| Tempo sob o ponteiro | `Border.seekPreview` | texto `caption` | Acima da barra, centralizado no ponteiro e não no ponto atual do vídeo; acompanha o mouse e o arraste |
+| Pôster | `Image.poster` + `Button.bigPlay` | botão 64 | Miniatura escurecida, título, curso e botão de reproduzir, enquanto a aula não começou a tocar |
+| Contagem da próxima aula | `Border.countdown` | raio 12 | Canto inferior direito do vídeo, com "Ir agora" e "Cancelar" |
+| Miniatura | `Border.thumbnail` | 64 × 36, raio 4 | À esquerda da aula e do curso (capa); ícone `Video` enquanto não existe |
+| Progresso da aula | `SymbolIcon.completed` / `.inProgress` | ícone 16 | `CheckmarkCircle` em `Success`; `CircleHalfFill` em `AccentText`; sempre com o texto ao lado ("Concluída", "Em andamento") |
 | Link de ação | `Button.link` | sem fundo nem borda | Texto `AccentText`, sublinhado no hover. Para a saída óbvia de um estado (ex.: "Localizar pasta…" numa pasta não encontrada) |
 | Selo | `Border.badge` | — | Texto `caption` sobre `AccentSubtle` (ex.: "sugerido") |
 | Caixa de prévia | `Border.previewBox` | raio 8 | Fundo `AppBackground` com borda sutil, dentro de diálogos |

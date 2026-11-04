@@ -84,6 +84,8 @@
             <TreeView.Styles>
                 <Style Selector="TreeViewItem" x:DataType="vm:LibraryItemViewModel">
                     <Setter Property="AutomationProperties.Name" Value="{Binding AccessibleName}" />
+                    <!-- Aberto/fechado no ViewModel: mantém entre recargas e dispara as miniaturas. -->
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
                 </Style>
                 <!-- O conteúdo de cada linha ocupa até a borda do painel: o botão de ações fica
                      sempre no mesmo lugar, alinhado à direita. -->
@@ -95,10 +97,23 @@
             <TreeView.ItemTemplate>
                 <!-- O menu de ações (clique direito ou botão "⋯") é montado no código, ver LibraryView.axaml.cs. -->
                 <TreeDataTemplate DataType="vm:LibraryItemViewModel" ItemsSource="{Binding Children}">
-                    <Grid Classes="libraryRow" ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource SpaceSm}">
-                        <StackPanel Classes="libraryItem">
+                    <Grid Classes="libraryRow" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource SpaceSm}">
+                        <!-- Miniatura (aula) ou capa (curso); ícone de vídeo enquanto não existe. -->
+                        <Border Classes="thumbnail" IsVisible="{Binding ShowsThumbnail}">
+                            <Panel>
+                                <ic:SymbolIcon Symbol="Video" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="{StaticResource IconSizeSmall}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !HasThumbnail}" />
+                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill" IsVisible="{Binding HasThumbnail}" />
+                            </Panel>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Classes="libraryItem">
                             <TextBlock Classes="body" Classes.unavailable="{Binding !IsAvailable}" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Classes="caption secondary" Text="{Binding Caption}" IsVisible="{Binding Caption, Converter={x:Static ObjectConverters.IsNotNull}}" TextTrimming="CharacterEllipsis" />
+                            <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpaceXs}" IsVisible="{Binding Caption, Converter={x:Static ObjectConverters.IsNotNull}}">
+                                <ic:SymbolIcon Classes="completed" Symbol="CheckmarkCircle" IsVisible="{Binding $parent[TreeViewItem].((vm:LibraryItemViewModel)DataContext), Converter={x:Static vm:LibraryItemConverters.IsCompleted}}" />
+                                <ic:SymbolIcon Classes="inProgress" Symbol="CircleHalfFill" IsVisible="{Binding $parent[TreeViewItem].((vm:LibraryItemViewModel)DataContext), Converter={x:Static vm:LibraryItemConverters.IsInProgress}}" />
+                                <TextBlock Classes="caption secondary" Text="{Binding Caption}" TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
 
                             <!-- Pasta que sumiu: a saída fica à vista, sem depender de achar o menu. -->
                             <Button Classes="link"
@@ -112,7 +127,7 @@
                             </Button>
                         </StackPanel>
 
-                        <Button Grid.Column="1"
+                        <Button Grid.Column="2"
                                 Classes="icon rowActions"
                                 VerticalAlignment="Center"
                                 IsVisible="{Binding HasActions}"

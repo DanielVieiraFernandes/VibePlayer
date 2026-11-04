@@ -98,4 +98,24 @@ public sealed class LessonEntity
     public bool IsAvailable { get; set; } = true;
 
     public DateTimeOffset FirstSeenAt { get; set; }
+
+    /// <summary>Duração lida do arquivo; nula enquanto não lida ou depois que o arquivo mudou.</summary>
+    public long? DurationMs { get; set; }
+}
+
+/// <summary>
+/// Progresso do usuário numa aula. Tabela própria, e não colunas em <see cref="LessonEntity"/>:
+/// a aula espelha o arquivo e é reescrita a cada atualização; o progresso é dado do usuário.
+/// </summary>
+public sealed class LessonProgressEntity
+{
+    public Guid LessonId { get; set; }
+
+    public long PositionMs { get; set; }
+
+    public bool IsCompleted { get; set; }
+
+    public DateTimeOffset? CompletedAt { get; set; }
+
+    public DateTimeOffset LastWatchedAt { get; set; }
 }

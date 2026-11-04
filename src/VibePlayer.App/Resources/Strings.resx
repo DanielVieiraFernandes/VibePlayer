@@ -309,4 +309,75 @@
     <value>Ações de “{0}”</value>
     <comment>Botão "⋯" de cada curso; {0} = título.</comment>
   </data>
+  <data name="Player_Pause" xml:space="preserve">
+    <value>Pausar</value>
+  </data>
+  <data name="Player_Mute" xml:space="preserve">
+    <value>Ativar mudo</value>
+  </data>
+  <data name="Player_Unmute" xml:space="preserve">
+    <value>Desativar mudo</value>
+  </data>
+  <data name="Player_ExitFullscreen" xml:space="preserve">
+    <value>Sair da tela cheia</value>
+  </data>
+  <data name="Player_PreviousLesson" xml:space="preserve">
+    <value>Aula anterior</value>
+  </data>
+  <data name="Player_NextLesson" xml:space="preserve">
+    <value>Próxima aula</value>
+  </data>
+  <data name="Player_ErrorTitle" xml:space="preserve">
+    <value>Não foi possível reproduzir esta aula</value>
+  </data>
+  <data name="Player_ErrorFileNotFound" xml:space="preserve">
+    <value>O arquivo do vídeo não foi encontrado.</value>
+  </data>
+  <data name="Player_ErrorCannotPlay" xml:space="preserve">
+    <value>O formato do vídeo não é suportado ou o arquivo está danificado. Os detalhes estão no log.</value>
+  </data>
+  <data name="Player_UnavailableTitle" xml:space="preserve">
+    <value>O VLC não está instalado</value>
+  </data>
+  <data name="Player_UnavailableDescription" xml:space="preserve">
+    <value>O VibePlayer usa o VLC para tocar os vídeos. Instale pelo gerenciador de pacotes da sua distribuição (por exemplo: sudo apt install vlc) e abra o app de novo.</value>
+  </data>
+  <data name="Player_StatusPlaying" xml:space="preserve">
+    <value>Tocando</value>
+  </data>
+  <data name="Player_StatusPaused" xml:space="preserve">
+    <value>Pausado</value>
+  </data>
+  <data name="Player_StatusEnded" xml:space="preserve">
+    <value>Aula terminada</value>
+  </data>
+  <data name="Player_NextLessonIn" xml:space="preserve">
+    <value>Próxima aula em {0} s</value>
+    <comment>{0} = segundos restantes.</comment>
+  </data>
+  <data name="Player_CancelNext" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Player_PlayNextNow" xml:space="preserve">
+    <value>Ir agora</value>
+  </data>
+  <data name="Library_CourseProgress" xml:space="preserve">
+    <value>{0} de {1} aulas</value>
+    <comment>{0} = concluídas, {1} = total.</comment>
+  </data>
+  <data name="Library_LessonCompleted" xml:space="preserve">
+    <value>Concluída</value>
+  </data>
+  <data name="Library_LessonInProgress" xml:space="preserve">
+    <value>Em andamento</value>
+  </data>
+  <data name="Library_MarkCompleted" xml:space="preserve">
+    <value>Marcar como concluída</value>
+  </data>
+  <data name="Library_MarkNotCompleted" xml:space="preserve">
+    <value>Marcar como não concluída</value>
+  </data>
+  <data name="Player_VideoArea" xml:space="preserve">
+    <value>Vídeo</value>
+  </data>
 </root>

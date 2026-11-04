@@ -2,11 +2,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using VibePlayer.Core;
 using VibePlayer.Core.Library;
+using VibePlayer.Core.Playback;
 using VibePlayer.Core.Persistence;
 using VibePlayer.Core.Settings;
 using VibePlayer.Infrastructure.FileSystem;
 using VibePlayer.Infrastructure.Library;
 using VibePlayer.Infrastructure.Persistence;
+using VibePlayer.Infrastructure.Playback;
 using VibePlayer.Infrastructure.Settings;
 
 namespace VibePlayer.Infrastructure;
@@ -34,6 +36,15 @@ public static class DependencyInjection
         services.AddSingleton<ICourseLibrary, CourseLibrary>();
         services.AddSingleton<LibraryFolderValidator>();
         services.AddSingleton<VideoSelectionValidator>();
+
+        // Reprodução (spec 0006). O VLC só é carregado quando alguém usa o player.
+        services.AddSingleton<VlcRuntime>();
+        services.AddSingleton<IMediaPlayer, VlcMediaPlayer>();
+        services.AddSingleton<IMediaInfoReader, VlcMediaInfoReader>();
+        services.AddSingleton<IThumbnailGenerator, VlcThumbnailGenerator>();
+        services.AddSingleton<IThumbnailService, ThumbnailService>();
+        services.AddSingleton<ILessonProgressStore, LessonProgressStore>();
+        services.AddSingleton<ILessonDurationUpdater, LessonDurationUpdater>();
         return services;
     }
 }

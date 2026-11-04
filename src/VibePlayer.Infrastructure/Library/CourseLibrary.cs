@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using VibePlayer.Core.Library;
+using VibePlayer.Core.Playback;
 using VibePlayer.Infrastructure.Persistence;
 
 namespace VibePlayer.Infrastructure.Library;
@@ -47,12 +48,15 @@ public sealed class CourseLibrary(
             .AsSplitQuery()
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
+        var progress = await db.LessonProgress.AsNoTracking()
+            .ToDictionaryAsync(p => p.LessonId, cancellationToken)
+            .ConfigureAwait(false);
 
         // Ordem natural por título; "Vídeos avulsos" sempre por último.
         return courses
             .OrderBy(c => c.IsLooseVideos)
             .ThenBy(c => c.Title, NaturalStringComparer.Instance)
-            .Select(ToNode)
+            .Select(c => ToNode(c, progress))
             .ToList();
     }
 
@@ -395,6 +399,7 @@ public sealed class CourseLibrary(
 
             lesson.Title = scannedLesson.Title;
             lesson.Position = scannedLesson.Position;
+            ForgetDurationIfChanged(lesson, scannedLesson.Size, scannedLesson.LastWriteUtc);
             lesson.FileSize = scannedLesson.Size;
             lesson.LastWriteUtc = scannedLesson.LastWriteUtc;
             lesson.ModuleId = scannedLesson.ModuleRelativePath is { } modulePath ? moduleIds[modulePath] : null;
@@ -421,6 +426,7 @@ public sealed class CourseLibrary(
         {
             if (fileSystem.GetFile(lesson.Path) is { } entry)
             {
+                ForgetDurationIfChanged(lesson, entry.Size, entry.LastWriteUtc);
                 lesson.FileSize = entry.Size;
                 lesson.LastWriteUtc = entry.LastWriteUtc;
                 lesson.IsAvailable = true;
@@ -436,6 +442,21 @@ public sealed class CourseLibrary(
         course.IsAvailable = course.Lessons.Any(l => l.IsAvailable);
         return stats;
     }
+
+    /// <summary>Arquivo trocado (tamanho ou data diferentes): a duração gravada pode não valer mais.</summary>
+    private static void ForgetDurationIfChanged(LessonEntity lesson, long size, DateTime lastWriteUtc)
+    {
+        if (lesson.FileSize != size || lesson.LastWriteUtc != lastWriteUtc)
+        {
+            lesson.DurationMs = null;
+        }
+    }
+
+    /// <summary>Caminho completo do vídeo de uma aula (pasta adicionada + curso + aula, ou absoluto).</summary>
+    internal static string FullPath(CourseEntity course, LessonEntity lesson) =>
+        course.Kind == CourseKind.Files || course.Root is null
+            ? lesson.Path
+            : LibraryPaths.Combine(LibraryPaths.Combine(course.Root.Path, course.RelativePath ?? string.Empty), lesson.Path);
 
     private static void MarkUnavailable(CourseEntity course)
     {
@@ -486,13 +507,14 @@ public sealed class CourseLibrary(
 
     private static string Key(string courseRelativePath, string lessonPath) => courseRelativePath + "\n" + lessonPath;
 
-    private static CourseNode ToNode(CourseEntity course)
+    private static CourseNode ToNode(CourseEntity course, IReadOnlyDictionary<Guid, LessonProgressEntity> progress)
     {
         var lessons = course.Lessons.OrderBy(l => l.Position).ToList();
+        LessonNode Lesson(LessonEntity l) => ToNode(course, l, progress.GetValueOrDefault(l.Id));
         var modules = course.Modules
             .Where(m => m.IsAvailable || lessons.Any(l => l.ModuleId == m.Id))
             .OrderBy(m => m.Position)
-            .Select(m => new ModuleNode(m.Id, m.Title, m.IsAvailable, lessons.Where(l => l.ModuleId == m.Id).Select(ToNode).ToList()))
+            .Select(m => new ModuleNode(m.Id, m.Title, m.IsAvailable, lessons.Where(l => l.ModuleId == m.Id).Select(Lesson).ToList()))
             .ToList();
 
         return new CourseNode(
@@ -504,11 +526,22 @@ public sealed class CourseLibrary(
             course.RootId,
             course.Root?.Path,
             course.Root?.IsAvailable ?? true,
-            lessons.Where(l => l.ModuleId is null).Select(ToNode).ToList(),
+            lessons.Where(l => l.ModuleId is null).Select(Lesson).ToList(),
             modules);
     }
 
-    private static LessonNode ToNode(LessonEntity lesson) => new(lesson.Id, lesson.Title, lesson.IsAvailable);
+    private static LessonNode ToNode(CourseEntity course, LessonEntity lesson, LessonProgressEntity? progress)
+    {
+        TimeSpan? duration = lesson.DurationMs is { } ms ? TimeSpan.FromMilliseconds(ms) : null;
+        var status = progress switch
+        {
+            { IsCompleted: true } => LessonStatus.Completed,
+            { PositionMs: > 0 } => LessonStatus.InProgress,
+            _ => LessonStatus.NotStarted,
+        };
+        var thumbnail = new ThumbnailRequest(lesson.Id, FullPath(course, lesson), lesson.FileSize, lesson.LastWriteUtc, duration);
+        return new LessonNode(lesson.Id, lesson.Title, lesson.IsAvailable, duration, status, thumbnail);
+    }
 
     private readonly record struct SyncStats(int Added = 0, int Matched = 0, int Missing = 0)
     {

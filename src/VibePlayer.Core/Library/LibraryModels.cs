@@ -21,7 +21,22 @@ public enum CourseKind
 
 // Modelos de leitura para a UI: imutáveis e já na ordem de exibição.
 
-public sealed record LessonNode(Guid Id, string Title, bool IsAvailable);
+public enum LessonStatus
+{
+    NotStarted,
+    InProgress,
+    Completed,
+}
+
+/// <param name="Duration">Nula enquanto o arquivo não foi lido.</param>
+/// <param name="Thumbnail">O que identifica a miniatura desta versão do arquivo.</param>
+public sealed record LessonNode(
+    Guid Id,
+    string Title,
+    bool IsAvailable,
+    TimeSpan? Duration = null,
+    LessonStatus Status = LessonStatus.NotStarted,
+    Playback.ThumbnailRequest? Thumbnail = null);
 
 public sealed record ModuleNode(Guid Id, string Title, bool IsAvailable, IReadOnlyList<LessonNode> Lessons);
 
@@ -41,6 +56,13 @@ public sealed record CourseNode(
     IReadOnlyList<ModuleNode> Modules)
 {
     public int LessonCount => Lessons.Count + Modules.Sum(m => m.Lessons.Count);
+
+    public IEnumerable<LessonNode> AllLessons => Lessons.Concat(Modules.SelectMany(m => m.Lessons));
+
+    public int CompletedCount => AllLessons.Count(l => l.Status == LessonStatus.Completed);
+
+    /// <summary>Soma das aulas com duração conhecida.</summary>
+    public TimeSpan TotalDuration => AllLessons.Aggregate(TimeSpan.Zero, (sum, l) => sum + (l.Duration ?? TimeSpan.Zero));
 }
 
 // Prévia antes de adicionar.

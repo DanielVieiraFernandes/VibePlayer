@@ -42,6 +42,7 @@ public static class AppComposition
         services.AddSingleton<StorageFilePicker>();
         services.AddSingleton<IFilePicker>(sp => sp.GetRequiredService<StorageFilePicker>());
         services.AddSingleton<WindowDialogService>();
+        services.AddSingleton<ThumbnailImages>();
         services.AddSingleton<IDialogService>(sp => sp.GetRequiredService<WindowDialogService>());
 
         services.AddTransient<MainWindowViewModel>();

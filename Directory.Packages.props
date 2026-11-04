@@ -17,6 +17,16 @@
     <PackageVersion Include="FluentIcons.Avalonia" Version="2.1.345" />
   </ItemGroup>
 
+  <ItemGroup Label="Vídeo">
+    <!-- LGPL-2.1+: distribuídos como bibliotecas separadas (linkagem dinâmica). Plugins filtrados
+         em src/VibePlayer.App/VlcPlugins.targets. -->
+    <PackageVersion Include="LibVLCSharp" Version="3.10.2" />
+    <PackageVersion Include="VideoLAN.LibVLC.Windows" Version="3.0.24" />
+    <PackageVersion Include="VideoLAN.LibVLC.Mac" Version="3.1.3.2" />
+    <!-- Mesma versão que o Avalonia usa; referência direta só para codificar as miniaturas. -->
+    <PackageVersion Include="SkiaSharp" Version="3.119.4" />
+  </ItemGroup>
+
   <ItemGroup Label="Infraestrutura">
     <PackageVersion Include="FluentValidation" Version="12.2.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.14" />
