@@ -10,7 +10,11 @@ set -euo pipefail
 folder="${1:?Informe a pasta do build ou do publish}"
 allowed="$(dirname "$0")/vlc-allowed-plugins.txt"
 
-mapfile -t plugins < <(find "$folder" -type f -path '*libvlc*' -path '*/plugins/*' \( -name '*.dll' -o -name '*.dylib' \))
+# Laço de read, e não mapfile: o bash do macOS é o 3.2, que não tem mapfile.
+plugins=()
+while IFS= read -r plugin; do
+  plugins+=("$plugin")
+done < <(find "$folder" -type f -path '*libvlc*' -path '*/plugins/*' \( -name '*.dll' -o -name '*.dylib' \))
 
 # No Linux o app usa o VLC do sistema, e o pacote não leva plugins.
 if [ "${#plugins[@]}" -eq 0 ]; then

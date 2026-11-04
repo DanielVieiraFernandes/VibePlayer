@@ -158,6 +158,9 @@ public sealed class LibraryTests : IDisposable
         vm.IsRefreshing.ShouldBeFalse();
         vm.Courses.Single().Node.LessonCount.ShouldBe(2000);
         progressTexts.Count.ShouldBeGreaterThan(2, "O progresso deveria ser relatado durante a leitura");
+
+        // A leitura das durações segue em segundo plano; para antes de a pasta temporária sair.
+        vm.Shutdown();
     }
 
     [Fact]

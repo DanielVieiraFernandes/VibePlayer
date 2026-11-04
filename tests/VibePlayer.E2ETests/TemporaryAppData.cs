@@ -33,8 +33,21 @@ public sealed class TemporaryAppData : IDisposable
 
     public void Dispose()
     {
-        // O pool de conexões do SQLite mantém o arquivo aberto; sem isso a pasta não sai no Windows.
-        SqliteConnection.ClearAllPools();
-        Directory.Delete(Paths.DataDirectory, recursive: true);
+        // Algumas tentativas: trabalho em segundo plano do app (durações, miniaturas) pode estar
+        // terminando e reabrir o banco. O pool do SQLite mantém o arquivo aberto, e no Windows a
+        // pasta só sai com ele limpo. Por ser temporária, não sair no fim não é falha de teste.
+        for (var attempt = 0; attempt < 20; attempt++)
+        {
+            SqliteConnection.ClearAllPools();
+            try
+            {
+                Directory.Delete(Paths.DataDirectory, recursive: true);
+                return;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                Thread.Sleep(50);
+            }
+        }
     }
 }
