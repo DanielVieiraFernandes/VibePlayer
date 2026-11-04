@@ -1,6 +1,6 @@
 # 0007 — Transcrição das aulas
 
-**Status:** Rascunho
+**Status:** Aprovada
 **Branch:** `feature/0007-transcricao`
 
 ## Problema
@@ -98,15 +98,17 @@ Segurança dos dados:
 - **Pacote:** cerca de 20 MB a mais no download do Windows e do Linux, e cerca de 3 MB no macOS (ver Q4).
 - **Wiki:** nova página sobre transcrição: como usar, tempos esperados, legendas aceitas, e o VLC necessário no Linux.
 
-## Questões em aberto
+## Decisões do mantenedor
 
-Cada questão traz a recomendação. O detalhe e os números estão em `design.md`.
+Todas as recomendações foram aprovadas em 2026-11-03. O detalhe e os números estão em `design.md`.
 
-- **Q1 — Extração de áudio: VLC ou ffmpeg?** Recomendo o **VLC** com o caminho `smem`. Roda a cerca de 600x o tempo real, em todos os codecs testados, e não adiciona binário: só dois plugins, de 120 KB, LGPL 2.1+. Não existe build LGPL pronto e confiável do ffmpeg para `osx-x64`. **Custo:** se o áudio começar alguns segundos depois do vídeo sem preenchimento no arquivo, os tempos saem adiantados nessa mesma medida (caso raro, ver Riscos). Aprovar isto muda a stack do `CLAUDE.md`, que hoje cita o ffmpeg.
-- **Q2 — Processo separado:** o mesmo executável com o argumento `--transcription-worker`, ou um segundo executável? Recomendo o **mesmo executável**: não muda o empacotamento nem a spec 0009 e o custo por execução é desprezível.
-- **Q3 — Modelo padrão:** recomendo o **`small` quantizado** (190 MB), com o **`large-v3-turbo` quantizado** (574 MB) como opção "Mais preciso". **Ressalva importante:** a fala sintética do teste é limpa demais e não separou os modelos. Peço uma aula real sua, de 5 a 10 minutos, para comparar antes de fechar. Pode ser uma aula com vocabulário técnico.
-- **Q4 — Vulkan no pacote:** vale aceitar cerca de 58 MB descompactados (cerca de 17 MB no download, estimativa pelo tamanho do pacote NuGet) em `win-x64` e `linux-x64`? Recomendo **sim**. Na GPU integrada, a transcrição ficou 50% mais rápida e usou 96% menos CPU, o que deve deixar o player fluido durante a transcrição.
-- **Q5 — Aba nova:** "Transcrição" como quinta aba, ou o conteúdo dentro de outra? Recomendo a **quinta aba**, depois de "Aulas". Ela dá onde ver o resultado antes de o chat existir.
-- **Q6 — Quando transcrever:** só quando o usuário pedir, ou ao abrir a aula? Recomendo **só a pedido** nesta spec, por causa do custo de CPU e do download. A spec do chat pode rever isso.
-- **Q7 — Legenda sempre vence?** Recomendo **sim**, automaticamente, com o botão "Transcrever com o Whisper" para quem preferir.
-- **Q8 — Legenda sobre o vídeo:** a spec 0006 dizia que as legendas "entram com a transcrição", o que pode ser lido como exibição no player. Recomendo tratar exibição como **spec própria** e manter `--no-sub-autodetect-file`.
+| Questão | Decisão |
+|---|---|
+| Q1 — Extração de áudio | VLC com `transcode` + `smem`, sem ffmpeg. Aceito o limite do áudio que começa depois do vídeo |
+| Q2 — Processo separado | Mesmo executável, com `--transcription-worker` |
+| Q3 — Modelo padrão | `small` quantizado (190 MB), com `large-v3-turbo` quantizado (574 MB) como "Mais preciso". **Provisório até comparar com uma aula real (T1)** |
+| Q4 — Vulkan no pacote | Sim, em `win-x64` e `linux-x64` |
+| Q5 — Interface | Quinta aba, "Transcrição", depois de "Aulas" |
+| Q6 — Quando transcrever | Só a pedido do usuário |
+| Q7 — Legenda ao lado do vídeo | Vence automaticamente, com "Transcrever com o Whisper" para quem preferir |
+| Q8 — Legenda sobre o vídeo | Fica para uma spec própria |

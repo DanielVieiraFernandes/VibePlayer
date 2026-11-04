@@ -135,6 +135,8 @@ libspatializer_plugin
 libspeex_plugin
 libspeex_resampler_plugin
 libstereo_widen_plugin
+libstream_out_smem_plugin
+libstream_out_transcode_plugin
 libswscale_plugin
 libtheora_plugin
 libtospdif_plugin
