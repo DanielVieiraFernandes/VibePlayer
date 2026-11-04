@@ -10,6 +10,9 @@ namespace VibePlayer.E2ETests;
 /// amostras de tests/fixtures/videos (vídeos de 3 s gerados com padrões de teste, sem conteúdo de
 /// terceiros). No Linux exige o VLC do sistema (a CI instala).
 /// </summary>
+// Coleção com AudioExtractionIntegrationTests: duas instâncias do LibVLC subindo ao mesmo tempo no
+// processo de testes travam a reprodução. Em produção cada processo tem a sua, sem esse risco.
+[Collection("VLC real")]
 public sealed class VlcIntegrationTests : IDisposable
 {
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(15);

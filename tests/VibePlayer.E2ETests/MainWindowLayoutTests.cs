@@ -15,6 +15,7 @@ public sealed class MainWindowLayoutTests
     private static readonly (SidePanelTab Tab, string EmptyTitle)[] TabEmptyStates =
     [
         (SidePanelTab.Lessons, Strings.Library_EmptyTitle),
+        (SidePanelTab.Transcription, Strings.Transcription_NoLessonTitle),
         (SidePanelTab.Chat, Strings.Chat_EmptyTitle),
         (SidePanelTab.Summary, Strings.Summary_EmptyTitle),
         (SidePanelTab.KeyPoints, Strings.KeyPoints_EmptyTitle),
@@ -72,7 +73,7 @@ public sealed class MainWindowLayoutTests
     {
         var window = WindowTestExtensions.OpenMainWindow();
         var sidePanel = window.Find<SidePanel>("SidePanel");
-        PhysicalKey[] keys = [PhysicalKey.Digit1, PhysicalKey.Digit2, PhysicalKey.Digit3, PhysicalKey.Digit4];
+        PhysicalKey[] keys = [PhysicalKey.Digit1, PhysicalKey.Digit2, PhysicalKey.Digit3, PhysicalKey.Digit4, PhysicalKey.Digit5];
 
         foreach (var ((tab, emptyTitle), key) in TabEmptyStates.Zip(keys))
         {

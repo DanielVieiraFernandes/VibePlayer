@@ -49,6 +49,7 @@ public static class AppComposition
         services.AddTransient<LibraryViewModel>();
         services.AddTransient<PlayerViewModel>();
         services.AddTransient<AssistantViewModel>();
+        services.AddTransient<TranscriptionViewModel>();
 
         overrides?.Invoke(services);
 

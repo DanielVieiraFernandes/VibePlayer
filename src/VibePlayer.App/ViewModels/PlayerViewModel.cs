@@ -375,6 +375,9 @@ public sealed partial class PlayerViewModel : ViewModelBase
         SeekTo(PositionSeconds);
     }
 
+    /// <summary>Vai a um ponto do vídeo, como um clique num tempo da transcrição.</summary>
+    public void SeekToTime(TimeSpan position) => SeekTo(position.TotalSeconds);
+
     public void SeekShort(bool forward) => SeekBy((forward ? ShortSeek : -ShortSeek).TotalSeconds);
 
     public void SeekLong(bool forward) => SeekBy((forward ? LongSeek : -LongSeek).TotalSeconds);

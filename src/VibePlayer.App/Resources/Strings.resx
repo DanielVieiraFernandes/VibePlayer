@@ -380,4 +380,139 @@
   <data name="Player_VideoArea" xml:space="preserve">
     <value>Vídeo</value>
   </data>
+  <data name="Tab_Transcription" xml:space="preserve">
+    <value>Transcrição</value>
+  </data>
+  <data name="Library_Transcribe" xml:space="preserve">
+    <value>Transcrever</value>
+  </data>
+  <data name="Library_TranscribeCourse" xml:space="preserve">
+    <value>Transcrever curso</value>
+  </data>
+  <data name="Transcription_NoLessonTitle" xml:space="preserve">
+    <value>Nenhuma aula aberta</value>
+  </data>
+  <data name="Transcription_NoLessonDescription" xml:space="preserve">
+    <value>Abra uma aula para ver a transcrição dela.</value>
+  </data>
+  <data name="Transcription_NotTranscribedTitle" xml:space="preserve">
+    <value>Aula sem transcrição</value>
+  </data>
+  <data name="Transcription_NotTranscribedDescription" xml:space="preserve">
+    <value>O texto da aula é gerado no seu computador. Nada é enviado para a internet.</value>
+  </data>
+  <data name="Transcription_Language" xml:space="preserve">
+    <value>Idioma da aula</value>
+  </data>
+  <data name="Transcription_LanguageAuto" xml:space="preserve">
+    <value>Detectar o idioma</value>
+  </data>
+  <data name="Transcription_LanguagePortuguese" xml:space="preserve">
+    <value>Português</value>
+  </data>
+  <data name="Transcription_LanguageEnglish" xml:space="preserve">
+    <value>Inglês</value>
+  </data>
+  <data name="Transcription_LanguageSpanish" xml:space="preserve">
+    <value>Espanhol</value>
+  </data>
+  <data name="Transcription_Start" xml:space="preserve">
+    <value>Transcrever esta aula</value>
+  </data>
+  <data name="Transcription_ProgressName" xml:space="preserve">
+    <value>Andamento da transcrição</value>
+  </data>
+  <data name="Transcription_Queued" xml:space="preserve">
+    <value>Na fila</value>
+  </data>
+  <data name="Transcription_DownloadingModel" xml:space="preserve">
+    <value>Baixando o modelo</value>
+  </data>
+  <data name="Transcription_StagePreparing" xml:space="preserve">
+    <value>Preparando</value>
+  </data>
+  <data name="Transcription_StageExtracting" xml:space="preserve">
+    <value>Extraindo o áudio</value>
+  </data>
+  <data name="Transcription_StageTranscribing" xml:space="preserve">
+    <value>Transcrevendo</value>
+  </data>
+  <data name="Transcription_NoAudioTitle" xml:space="preserve">
+    <value>Aula sem áudio</value>
+  </data>
+  <data name="Transcription_NoAudioDescription" xml:space="preserve">
+    <value>Este vídeo não tem faixa de áudio para transcrever.</value>
+  </data>
+  <data name="Transcription_FailedTitle" xml:space="preserve">
+    <value>Não foi possível transcrever</value>
+  </data>
+  <data name="Transcription_Retry" xml:space="preserve">
+    <value>Tentar de novo</value>
+  </data>
+  <data name="Transcription_ErrorUnreadable" xml:space="preserve">
+    <value>Não foi possível ler o áudio deste arquivo.</value>
+  </data>
+  <data name="Transcription_ErrorFileMissing" xml:space="preserve">
+    <value>O arquivo do vídeo não foi encontrado.</value>
+  </data>
+  <data name="Transcription_ErrorModelMissing" xml:space="preserve">
+    <value>O modelo de transcrição não está baixado.</value>
+  </data>
+  <data name="Transcription_ErrorModelInvalid" xml:space="preserve">
+    <value>O modelo de transcrição está corrompido. Baixe de novo.</value>
+  </data>
+  <data name="Transcription_ErrorCrashed" xml:space="preserve">
+    <value>A transcrição foi interrompida. Se acontecer de novo, escolha um modelo menor.</value>
+  </data>
+  <data name="Transcription_ErrorUnexpected" xml:space="preserve">
+    <value>Ocorreu um erro inesperado.</value>
+  </data>
+  <data name="Transcription_VlcMissingTitle" xml:space="preserve">
+    <value>VLC necessário</value>
+  </data>
+  <data name="Transcription_VlcMissingDescription" xml:space="preserve">
+    <value>Para transcrever vídeos, instale o VLC. Legendas ao lado do vídeo funcionam sem ele.</value>
+  </data>
+  <data name="Transcription_SourceSubtitle" xml:space="preserve">
+    <value>Origem: legenda ao lado do vídeo</value>
+  </data>
+  <data name="Transcription_SourceWhisper" xml:space="preserve">
+    <value>Origem: Whisper · {0}</value>
+  </data>
+  <data name="Transcription_UseWhisper" xml:space="preserve">
+    <value>Transcrever com o Whisper</value>
+  </data>
+  <data name="Transcription_TextName" xml:space="preserve">
+    <value>Texto da aula</value>
+  </data>
+  <data name="Transcription_JumpTo" xml:space="preserve">
+    <value>Ir para {0}</value>
+  </data>
+  <data name="Transcription_ModelDialogTitle" xml:space="preserve">
+    <value>Baixar o modelo de transcrição</value>
+  </data>
+  <data name="Transcription_ModelDialogDescription" xml:space="preserve">
+    <value>O modelo é baixado uma vez e fica no seu computador. Depois disso, a transcrição funciona sem internet, e nada da aula é enviado.</value>
+  </data>
+  <data name="Transcription_ModelBalanced" xml:space="preserve">
+    <value>Equilibrado (190 MB, recomendado)</value>
+  </data>
+  <data name="Transcription_ModelAccurate" xml:space="preserve">
+    <value>Mais preciso (574 MB, bem mais lento)</value>
+  </data>
+  <data name="Transcription_ModelDownload" xml:space="preserve">
+    <value>Baixar</value>
+  </data>
+  <data name="Transcription_DownloadFailedTitle" xml:space="preserve">
+    <value>Não foi possível baixar o modelo</value>
+  </data>
+  <data name="Transcription_DownloadNetwork" xml:space="preserve">
+    <value>Verifique a conexão e tente de novo. O download continua de onde parou.</value>
+  </data>
+  <data name="Transcription_DownloadNoSpace" xml:space="preserve">
+    <value>Não há espaço livre suficiente no disco.</value>
+  </data>
+  <data name="Transcription_DownloadCorrupted" xml:space="preserve">
+    <value>O arquivo baixado veio com defeito. Tente de novo.</value>
+  </data>
 </root>

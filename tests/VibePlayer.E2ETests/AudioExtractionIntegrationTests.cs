@@ -7,6 +7,7 @@ namespace VibePlayer.E2ETests;
 /// tempo conhecido, porque só a duração não mostraria um áudio deslocado: gerados com aevalsrc do
 /// ffmpeg, sem conteúdo de terceiros. No Linux exige o VLC do sistema (a CI instala).
 /// </summary>
+[Collection("VLC real")]
 public sealed class AudioExtractionIntegrationTests
 {
     private const int SampleRate = PtsGapFiller.SampleRate;

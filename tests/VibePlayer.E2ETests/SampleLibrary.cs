@@ -1,5 +1,6 @@
 using VibePlayer.App.Services;
 using VibePlayer.Core.Library;
+using VibePlayer.Core.Transcription;
 
 namespace VibePlayer.E2ETests;
 
@@ -77,6 +78,16 @@ public sealed class ScriptedDialogs : IDialogService
     }
 
     public Task<VideoDestination?> AskVideoDestinationAsync(IReadOnlyList<string> files) => Task.FromResult(VideosAnswer(files));
+
+    public WhisperModel? ModelAnswer { get; set; } = WhisperModels.SmallQuantized;
+
+    public int ModelQuestions { get; private set; }
+
+    public Task<WhisperModel?> AskWhisperModelAsync()
+    {
+        ModelQuestions++;
+        return Task.FromResult(ModelAnswer);
+    }
 
     public Task<bool> ConfirmAsync(string title, string message, string confirmLabel)
     {

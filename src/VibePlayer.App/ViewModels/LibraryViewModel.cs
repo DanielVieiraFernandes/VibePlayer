@@ -88,6 +88,9 @@ public sealed partial class LibraryViewModel : ViewModelBase
 
     public bool HasCourses => Courses.Count > 0;
 
+    /// <summary>O usuário pediu para transcrever estas aulas.</summary>
+    public event EventHandler<IReadOnlyList<Guid>>? TranscriptionRequested;
+
     [ObservableProperty]
     public partial bool IsRefreshing { get; private set; }
 
@@ -313,6 +316,23 @@ public sealed partial class LibraryViewModel : ViewModelBase
             await ReloadAsync();
         }
     });
+
+    /// <summary>Transcrever a aula, ou todas as aulas disponíveis do curso.</summary>
+    [RelayCommand]
+    private void Transcribe(LibraryItemViewModel? item)
+    {
+        IReadOnlyList<Guid> lessons = item switch
+        {
+            LessonItemViewModel lesson => [lesson.Id],
+            CourseItemViewModel course => [.. course.AllLessons.Where(lesson => lesson.IsAvailable).Select(lesson => lesson.Id)],
+            _ => [],
+        };
+
+        if (lessons.Count > 0)
+        {
+            TranscriptionRequested?.Invoke(this, lessons);
+        }
+    }
 
     partial void OnSelectedItemChanged(LibraryItemViewModel? value)
     {
