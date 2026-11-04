@@ -28,6 +28,12 @@ public sealed class VibePlayerDbContext(DbContextOptions<VibePlayerDbContext> op
 
     public DbSet<LessonProgressEntity> LessonProgress => Set<LessonProgressEntity>();
 
+    public DbSet<TranscriptEntity> Transcripts => Set<TranscriptEntity>();
+
+    public DbSet<TranscriptSegmentEntity> TranscriptSegments => Set<TranscriptSegmentEntity>();
+
+    public DbSet<LessonTranscriptionEntity> LessonTranscriptions => Set<LessonTranscriptionEntity>();
+
     /// <summary>
     /// Connection string do banco do app.
     /// </summary>

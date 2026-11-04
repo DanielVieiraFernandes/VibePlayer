@@ -122,7 +122,7 @@ public partial class MainWindow : Window
 
         KeyBindings.Add(new KeyBinding { Gesture = new KeyGesture(Key.B, modifier), Command = vm.ToggleSidePanelCommand });
 
-        Key[] tabKeys = [Key.D1, Key.D2, Key.D3, Key.D4];
+        Key[] tabKeys = [Key.D1, Key.D2, Key.D3, Key.D4, Key.D5];
         foreach (var (key, tab) in tabKeys.Zip(Enum.GetValues<SidePanelTab>()))
         {
             KeyBindings.Add(new KeyBinding { Gesture = new KeyGesture(key, modifier), Command = vm.ShowTabCommand, CommandParameter = tab });

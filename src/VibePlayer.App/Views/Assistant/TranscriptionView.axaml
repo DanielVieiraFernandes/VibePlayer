@@ -1,0 +1,99 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ic="using:FluentIcons.Avalonia"
+             xmlns:res="using:VibePlayer.App.Resources"
+             xmlns:vm="using:VibePlayer.App.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="380" d:DesignHeight="600"
+             x:Class="VibePlayer.App.Views.Assistant.TranscriptionView"
+             x:DataType="vm:TranscriptionViewModel"
+             x:Name="Root">
+
+    <Panel>
+        <StackPanel x:Name="NoLessonState" Classes="emptyState" Margin="{StaticResource PaddingEmptyState}" IsVisible="{Binding IsNoLesson}">
+            <ic:SymbolIcon Symbol="ClosedCaption" />
+            <TextBlock Classes="subtitle" Text="{x:Static res:Strings.Transcription_NoLessonTitle}" />
+            <TextBlock Classes="body secondary" Text="{x:Static res:Strings.Transcription_NoLessonDescription}" />
+        </StackPanel>
+
+        <StackPanel x:Name="NotTranscribedState" Classes="emptyState" Margin="{StaticResource PaddingEmptyState}" Spacing="{StaticResource SpaceMd}" IsVisible="{Binding IsNotTranscribed}">
+            <ic:SymbolIcon Symbol="ClosedCaption" />
+            <TextBlock Classes="subtitle" Text="{x:Static res:Strings.Transcription_NotTranscribedTitle}" />
+            <TextBlock Classes="body secondary" Text="{x:Static res:Strings.Transcription_NotTranscribedDescription}" />
+            <ComboBox x:Name="LanguageSelector"
+                      HorizontalAlignment="Center"
+                      ItemsSource="{Binding Languages}"
+                      SelectedItem="{Binding SelectedLanguage}"
+                      AutomationProperties.Name="{x:Static res:Strings.Transcription_Language}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:TranscriptionLanguageOption">
+                        <TextBlock Text="{Binding Label}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Button x:Name="TranscribeButton" Classes="primary" HorizontalAlignment="Center" Content="{x:Static res:Strings.Transcription_Start}" Command="{Binding TranscribeCommand}" />
+        </StackPanel>
+
+        <StackPanel x:Name="WorkingState" Classes="emptyState" Margin="{StaticResource PaddingEmptyState}" Spacing="{StaticResource SpaceMd}" IsVisible="{Binding IsWorking}">
+            <TextBlock x:Name="StageLabel" Classes="subtitle" Text="{Binding StageText}" />
+            <ProgressBar x:Name="Progress" Minimum="0" Maximum="100"
+                         Value="{Binding ProgressPercent}"
+                         IsIndeterminate="{Binding !IsProgressKnown}"
+                         AutomationProperties.Name="{x:Static res:Strings.Transcription_ProgressName}" />
+            <Button x:Name="CancelButton" HorizontalAlignment="Center" Content="{x:Static res:Strings.Common_Cancel}" Command="{Binding CancelCommand}" />
+        </StackPanel>
+
+        <StackPanel x:Name="NoAudioState" Classes="emptyState" Margin="{StaticResource PaddingEmptyState}" IsVisible="{Binding IsNoAudio}">
+            <ic:SymbolIcon Symbol="SpeakerMute" />
+            <TextBlock Classes="subtitle" Text="{x:Static res:Strings.Transcription_NoAudioTitle}" />
+            <TextBlock Classes="body secondary" Text="{x:Static res:Strings.Transcription_NoAudioDescription}" />
+        </StackPanel>
+
+        <StackPanel x:Name="FailedState" Classes="emptyState" Margin="{StaticResource PaddingEmptyState}" Spacing="{StaticResource SpaceMd}" IsVisible="{Binding IsFailed}">
+            <ic:SymbolIcon Symbol="ErrorCircle" />
+            <TextBlock Classes="subtitle" Text="{x:Static res:Strings.Transcription_FailedTitle}" />
+            <TextBlock x:Name="FailedMessage" Classes="body secondary" Text="{Binding ErrorText}" />
+            <Button x:Name="RetryButton" HorizontalAlignment="Center" Content="{x:Static res:Strings.Transcription_Retry}" Command="{Binding TranscribeCommand}" />
+        </StackPanel>
+
+        <StackPanel x:Name="VlcMissingState" Classes="emptyState" Margin="{StaticResource PaddingEmptyState}" IsVisible="{Binding IsVlcMissing}">
+            <ic:SymbolIcon Symbol="ErrorCircle" />
+            <TextBlock Classes="subtitle" Text="{x:Static res:Strings.Transcription_VlcMissingTitle}" />
+            <TextBlock Classes="body secondary" Text="{x:Static res:Strings.Transcription_VlcMissingDescription}" />
+        </StackPanel>
+
+        <Grid x:Name="DoneState" RowDefinitions="Auto,*" IsVisible="{Binding IsDone}">
+            <Border Classes="toolbar">
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock x:Name="SourceLabel" Classes="caption secondary" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding SourceText}" />
+                    <Button x:Name="UseWhisperButton" Grid.Column="1" Classes="ghost"
+                            Content="{x:Static res:Strings.Transcription_UseWhisper}"
+                            Command="{Binding TranscribeWithWhisperCommand}"
+                            IsVisible="{Binding IsFromSubtitle}" />
+                </Grid>
+            </Border>
+            <ListBox x:Name="SegmentList" Grid.Row="1"
+                     Background="{DynamicResource SurfaceBackgroundBrush}"
+                     ItemsSource="{Binding Segments}"
+                     SelectionMode="Toggle"
+                     AutomationProperties.Name="{x:Static res:Strings.Transcription_TextName}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:TranscriptSegmentItem">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="{StaticResource SpaceSm}">
+                            <Button Classes="link"
+                                    VerticalAlignment="Top"
+                                    Command="{Binding #Root.((vm:TranscriptionViewModel)DataContext).JumpCommand}"
+                                    CommandParameter="{Binding}"
+                                    AutomationProperties.Name="{Binding JumpLabel}">
+                                <TextBlock Classes="tabular" Text="{Binding Time}" />
+                            </Button>
+                            <TextBlock Grid.Column="1" Classes="body" TextWrapping="Wrap" Text="{Binding Text}" />
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+    </Panel>
+
+</UserControl>

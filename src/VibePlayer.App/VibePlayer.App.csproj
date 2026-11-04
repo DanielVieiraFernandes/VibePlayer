@@ -54,5 +54,13 @@
                       Condition="$(RuntimeIdentifier.StartsWith('osx')) Or ('$(RuntimeIdentifier)' == '' And $([MSBuild]::IsOSPlatform('OSX')))" />
   </ItemGroup>
 
+  <!-- Referenciados aqui porque os targets que copiam os nativos não passam de projeto para projeto. -->
+  <ItemGroup>
+    <PackageReference Include="Whisper.net.Runtime" />
+    <PackageReference Include="Whisper.net.Runtime.Vulkan" />
+    <PackageReference Include="Whisper.net.Runtime.NoAvx" />
+  </ItemGroup>
+
   <Import Project="VlcPlugins.targets" />
+  <Import Project="WhisperRuntimes.targets" />
 </Project>

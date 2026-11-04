@@ -10,6 +10,10 @@ namespace VibePlayer.E2ETests;
 /// amostras de tests/fixtures/videos (vídeos de 3 s gerados com padrões de teste, sem conteúdo de
 /// terceiros). No Linux exige o VLC do sistema (a CI instala).
 /// </summary>
+// Coleção com os testes de extração e de processo. Duas instâncias do LibVLC subindo juntas no
+// processo de testes atrapalham a reprodução, e um filho aberto no Windows herda os arquivos nativos
+// abertos no momento (a miniatura gravada aqui, por exemplo), que ficam presos enquanto ele viver.
+[Collection("VLC real")]
 public sealed class VlcIntegrationTests : IDisposable
 {
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(15);
@@ -48,6 +52,38 @@ public sealed class VlcIntegrationTests : IDisposable
             height.ShouldBe(180);
             pixels.Length.ShouldBeGreaterThan(0);
         }).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Dispose_LogoDepoisDeComecarATocar_NaoDerrubaOProcesso()
+    {
+        RequireVlc();
+        var player = new VlcMediaPlayer(_runtime, NullLogger<VlcMediaPlayer>.Instance);
+        using var release = new ManualResetEventSlim();
+
+        // Ocupa o pool antes de o player agendar o volume, no próprio aviso de "tocando": a tarefa
+        // dele fica atrás destas, e só roda depois do Dispose. Sem a proteção, o processo inteiro cai.
+        ThreadPool.GetMinThreads(out var workers, out _);
+        var blocked = 0;
+        player.StateChanged += (_, _) =>
+        {
+            if (player.State == PlaybackState.Playing && Interlocked.Exchange(ref blocked, 1) == 0)
+            {
+                for (var i = 0; i < workers * 2; i++)
+                {
+                    ThreadPool.QueueUserWorkItem(_ => release.Wait());
+                }
+            }
+        };
+
+        player.Open(Fixture("amostra-h264.mp4"), TimeSpan.Zero, autoPlay: true);
+        SpinWait.SpinUntil(() => Volatile.Read(ref blocked) == 1, Timeout).ShouldBeTrue("não começou a tocar");
+
+        player.Dispose();
+        release.Set();
+
+        // Dá tempo de a tarefa adiada rodar sobre o player liberado.
+        Thread.Sleep(500);
     }
 
     [Fact]

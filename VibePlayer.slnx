@@ -7,5 +7,6 @@
   <Folder Name="/tests/">
     <Project Path="tests/VibePlayer.E2ETests/VibePlayer.E2ETests.csproj" />
     <Project Path="tests/VibePlayer.UnitTests/VibePlayer.UnitTests.csproj" />
+    <Project Path="tests/VibePlayer.WorkerStub/VibePlayer.WorkerStub.csproj" />
   </Folder>
 </Solution>

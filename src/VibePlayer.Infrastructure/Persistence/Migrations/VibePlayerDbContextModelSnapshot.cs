@@ -126,6 +126,47 @@ namespace VibePlayer.Infrastructure.Persistence.Migrations
                     b.ToTable("LessonProgress", (string)null);
                 });
 
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.LessonTranscriptionEntity", b =>
+                {
+                    b.Property<Guid>("LessonId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ErrorCode")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long?>("HashedFileSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("HashedLastWriteUtc")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("PreferWhisper")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTimeOffset?>("QueuedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid?>("TranscriptId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VideoHash")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("LessonId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("TranscriptId");
+
+                    b.ToTable("LessonTranscriptions", (string)null);
+                });
+
             modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.LibraryRootEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -218,6 +259,58 @@ namespace VibePlayer.Infrastructure.Persistence.Migrations
                     b.ToTable("Settings", (string)null);
                 });
 
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.TranscriptEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Language")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Model")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("SourceHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SourceHash", "Source")
+                        .IsUnique();
+
+                    b.ToTable("Transcripts", (string)null);
+                });
+
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.TranscriptSegmentEntity", b =>
+                {
+                    b.Property<Guid>("TranscriptId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("EndMs")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("StartMs")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("TranscriptId", "Position");
+
+                    b.ToTable("TranscriptSegments", (string)null);
+                });
+
             modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.CourseEntity", b =>
                 {
                     b.HasOne("VibePlayer.Infrastructure.Persistence.LibraryRootEntity", "Root")
@@ -251,6 +344,20 @@ namespace VibePlayer.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.LessonTranscriptionEntity", b =>
+                {
+                    b.HasOne("VibePlayer.Infrastructure.Persistence.LessonEntity", null)
+                        .WithOne()
+                        .HasForeignKey("VibePlayer.Infrastructure.Persistence.LessonTranscriptionEntity", "LessonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VibePlayer.Infrastructure.Persistence.TranscriptEntity", null)
+                        .WithMany()
+                        .HasForeignKey("TranscriptId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
             modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.ModuleEntity", b =>
                 {
                     b.HasOne("VibePlayer.Infrastructure.Persistence.CourseEntity", null)
@@ -269,6 +376,15 @@ namespace VibePlayer.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.TranscriptSegmentEntity", b =>
+                {
+                    b.HasOne("VibePlayer.Infrastructure.Persistence.TranscriptEntity", null)
+                        .WithMany("Segments")
+                        .HasForeignKey("TranscriptId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.CourseEntity", b =>
                 {
                     b.Navigation("Lessons");
@@ -281,6 +397,11 @@ namespace VibePlayer.Infrastructure.Persistence.Migrations
                     b.Navigation("Courses");
 
                     b.Navigation("RemovedCourses");
+                });
+
+            modelBuilder.Entity("VibePlayer.Infrastructure.Persistence.TranscriptEntity", b =>
+                {
+                    b.Navigation("Segments");
                 });
 #pragma warning restore 612, 618
         }

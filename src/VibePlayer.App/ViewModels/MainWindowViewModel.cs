@@ -7,7 +7,7 @@ using VibePlayer.Core.Threading;
 namespace VibePlayer.App.ViewModels;
 
 /// <summary>
-/// Shell da janela: player à esquerda e painel lateral (Aulas, Chat, Resumo, Pontos principais)
+/// Shell da janela: player à esquerda e painel lateral (Aulas, Transcrição, Chat, Resumo, Pontos principais)
 /// à direita, que pode ser recolhido e redimensionado.
 /// </summary>
 /// <remarks>
@@ -27,7 +27,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     /// <summary>Usado apenas pelo previewer de XAML.</summary>
     public MainWindowViewModel()
-        : this(NullLogger<MainWindowViewModel>.Instance, new LibraryViewModel(), new PlayerViewModel(), new AssistantViewModel())
+        : this(NullLogger<MainWindowViewModel>.Instance, new LibraryViewModel(), new PlayerViewModel(), new AssistantViewModel(), new TranscriptionViewModel())
     {
     }
 
@@ -35,12 +35,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         ILogger<MainWindowViewModel> logger,
         LibraryViewModel library,
         PlayerViewModel player,
-        AssistantViewModel assistant)
+        AssistantViewModel assistant,
+        TranscriptionViewModel transcription)
     {
         _logger = logger;
         Library = library;
         Player = player;
         Assistant = assistant;
+        Transcription = transcription;
         IsSidePanelOpen = true;
         SidePanelWidth = DefaultSidePanelWidth;
         SelectedTab = SidePanelTab.Lessons;
@@ -55,7 +57,17 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                 player.LoadAsync(lesson.Id, autoPlay: true).FireAndForget(_logger, "AbrirAula");
             }
         };
-        player.LessonStarted += (_, lessonId) => library.ShowCurrentLesson(lessonId);
+        player.LessonStarted += (_, lessonId) =>
+        {
+            library.ShowCurrentLesson(lessonId);
+            transcription.ShowLessonAsync(lessonId).FireAndForget(_logger, "MostrarTranscricao");
+        };
+        transcription.SeekRequested += (_, position) => player.SeekToTime(position);
+        library.TranscriptionRequested += (_, lessons) =>
+        {
+            ShowTab(SidePanelTab.Transcription);
+            transcription.TranscribeLessonsAsync(lessons).FireAndForget(_logger, "PedirTranscricao");
+        };
         player.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(PlayerViewModel.IsFullscreen))
@@ -74,7 +86,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public async Task InitializeAsync()
     {
         await Player.LoadPreferencesAsync();
+        await Transcription.LoadPreferencesAsync();
         await Library.InitializeAsync();
+
+        // Não espera a fila: ela só agenda o trabalho em segundo plano.
+        await Transcription.ResumeQueueAsync();
         if (await Player.GetLastLessonIdAsync() is { } lastLesson)
         {
             await Player.LoadAsync(lastLesson, autoPlay: false);
@@ -93,6 +109,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     public PlayerViewModel Player { get; }
 
     public AssistantViewModel Assistant { get; }
+
+    public TranscriptionViewModel Transcription { get; }
 
     [ObservableProperty]
     public partial bool IsSidePanelOpen { get; set; }
@@ -113,7 +131,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void ToggleSidePanel() => IsSidePanelOpen = !IsSidePanelOpen;
 
-    /// <summary>Abre o painel já na aba pedida (atalhos Ctrl+1 a Ctrl+4).</summary>
+    /// <summary>Abre o painel já na aba pedida (atalhos Ctrl+1 a Ctrl+5).</summary>
     [RelayCommand]
     private void ShowTab(SidePanelTab tab)
     {

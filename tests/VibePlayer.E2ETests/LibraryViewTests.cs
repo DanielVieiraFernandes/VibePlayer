@@ -180,7 +180,7 @@ public sealed class LibraryViewTests : IDisposable
             RightClick(window, row, new Point(x, 12));
 
             var menu = view.OpenActionsMenu.ShouldNotBeNull($"Clique direito em x={x} não abriu o menu");
-            menu.Items.OfType<MenuItem>().Select(i => i.Header).ShouldBe([Strings.Library_Remove]);
+            menu.Items.OfType<MenuItem>().Select(i => i.Header).ShouldBe([Strings.Library_TranscribeCourse, Strings.Library_Remove]);
             menu.Close();
         }
 
@@ -198,7 +198,7 @@ public sealed class LibraryViewTests : IDisposable
         var actions = course.GetVisualDescendants().OfType<Button>().First(b => b.Classes.Contains("rowActions"));
         actions.IsEffectivelyVisible.ShouldBeTrue();
         window.Click(actions);
-        view.OpenActionsMenu.ShouldNotBeNull().Items.OfType<MenuItem>().Select(i => i.Header).ShouldBe([Strings.Library_Remove]);
+        view.OpenActionsMenu.ShouldNotBeNull().Items.OfType<MenuItem>().Select(i => i.Header).ShouldBe([Strings.Library_TranscribeCourse, Strings.Library_Remove]);
         view.OpenActionsMenu!.Close();
 
         // Módulo não tem ações: o clique direito nele não pode abrir o menu do curso.

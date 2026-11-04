@@ -20,6 +20,9 @@
             <TabItem Header="{x:Static res:Strings.Tab_Lessons}">
                 <lib:LibraryView DataContext="{Binding Library}" />
             </TabItem>
+            <TabItem Header="{x:Static res:Strings.Tab_Transcription}">
+                <assistant:TranscriptionView DataContext="{Binding Transcription}" />
+            </TabItem>
             <TabItem Header="{x:Static res:Strings.Tab_Chat}">
                 <assistant:ChatView DataContext="{Binding Assistant}" />
             </TabItem>

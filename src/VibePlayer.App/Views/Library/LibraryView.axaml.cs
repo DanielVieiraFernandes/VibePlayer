@@ -66,6 +66,12 @@ public partial class LibraryView : UserControl
             menu.Items.Add(MenuItem(Strings.Library_Locate, Symbol.FolderSearch, library.LocateCommand, item));
         }
 
+        if (item is LessonItemViewModel { IsAvailable: true } or CourseItemViewModel { IsAvailable: true })
+        {
+            var label = item is LessonItemViewModel ? Strings.Library_Transcribe : Strings.Library_TranscribeCourse;
+            menu.Items.Add(MenuItem(label, Symbol.ClosedCaption, library.TranscribeCommand, item));
+        }
+
         if (item is LessonItemViewModel lesson)
         {
             menu.Items.Add(lesson.IsCompleted

@@ -15,6 +15,10 @@ namespace VibePlayer.Infrastructure.Playback;
 public sealed class VlcMediaPlayer(VlcRuntime runtime, ILogger<VlcMediaPlayer> logger) : IMediaPlayer
 {
     private readonly FrameSource _video = new();
+
+    // Protege a liberação do MediaPlayer contra a tarefa agendada em OnPlaying: usar o player nativo
+    // depois de liberado é violação de acesso, que derruba o processo sem passar por nenhum catch.
+    private readonly Lock _releaseLock = new();
     private MediaPlayer? _player;
     private VlcFrameBuffer? _frames;
     private Media? _media;
@@ -154,7 +158,12 @@ public sealed class VlcMediaPlayer(VlcRuntime runtime, ILogger<VlcMediaPlayer> l
     public void Dispose()
     {
         Stop();
-        _player?.Dispose();
+        lock (_releaseLock)
+        {
+            _player?.Dispose();
+            _player = null;
+        }
+
         _frames?.Dispose();
     }
 
@@ -206,12 +215,17 @@ public sealed class VlcMediaPlayer(VlcRuntime runtime, ILogger<VlcMediaPlayer> l
         // Volume, mudo e velocidade só "pegam" depois que a saída de áudio existe, então são
         // reaplicados ao começar a tocar. Fora do evento: qualquer chamada ao LibVLC de dentro de
         // um evento dele derruba o processo (foi o que aconteceu na primeira versão).
-        var player = _player!;
         ThreadPool.QueueUserWorkItem(_ =>
         {
-            player.Volume = _volume;
-            player.Mute = _muted;
-            player.SetRate((float)_rate);
+            lock (_releaseLock)
+            {
+                if (_player is { } player)
+                {
+                    player.Volume = _volume;
+                    player.Mute = _muted;
+                    player.SetRate((float)_rate);
+                }
+            }
         });
     }
 

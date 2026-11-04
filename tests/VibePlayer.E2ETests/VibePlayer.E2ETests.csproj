@@ -7,6 +7,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\VibePlayer.App\VibePlayer.App.csproj" />
+    <!-- Só para compilar junto: os testes o abrem como processo. -->
+    <ProjectReference Include="..\VibePlayer.WorkerStub\VibePlayer.WorkerStub.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>

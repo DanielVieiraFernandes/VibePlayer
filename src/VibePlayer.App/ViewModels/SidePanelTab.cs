@@ -4,7 +4,8 @@ namespace VibePlayer.App.ViewModels;
 public enum SidePanelTab
 {
     Lessons = 0,
-    Chat = 1,
-    Summary = 2,
-    KeyPoints = 3,
+    Transcription = 1,
+    Chat = 2,
+    Summary = 3,
+    KeyPoints = 4,
 }
