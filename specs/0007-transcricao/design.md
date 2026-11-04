@@ -60,6 +60,7 @@ Cada detalhe dessa cadeia veio de uma falha real no protótipo:
 - **`smem`, e não WAV em arquivo.** O WAV não guarda timestamps: um buraco de 30 s no áudio deixa tudo depois dele 30 s adiantado. O `smem` entrega o PTS de cada bloco, e o worker preenche com silêncio quando a posição calculada passa 100 ms da gravada.
 - **`no-time-sync`.** Sem isso, o `smem` espera o tempo real. `time-sync=false` não funciona: a sintaxe é a de booleano da cadeia.
 - **PTS relativo.** O PTS vem em base de relógio do sistema, então a conta usa a diferença para o primeiro bloco. É por isso que um atraso no começo do áudio não pode ser recuperado (ver Riscos).
+- **`:no-sout-all`.** Sem isso, um arquivo com duas faixas de áudio entrega as duas no mesmo callback, emendadas: 150 s viraram 300 s no teste. Vale a primeira faixa.
 - **Callbacks.** São funções `UnmanagedCallersOnly` e não chamam o LibVLC. Só copiam para o buffer. O endereço vai como número na opção, que é a interface do `smem`.
 
 O áudio fica em memória como `float[]` e vai para `WhisperProcessor.ProcessAsync(ReadOnlyMemory<float>)`, sem arquivo temporário nem cópia do áudio em disco.
@@ -91,7 +92,24 @@ Comparação com o ffmpeg, por correlação de janelas de 5 s (vídeo de 20 min,
 | MP2 em TS | 150,000 s | −12 ms | 0,996 |
 | 3 horas (AAC) | 10800,000 s, 423x | — | — |
 
-A tabela foi medida com `transcode` + WAV, exceto a linha de 20 min. Com `smem`, medi os 4 fixtures, o arquivo de 20 min, o buraco de 30 s e o atraso de 3 s. T5 repete a tabela com o caminho final.
+Repetido com o caminho final (`smem`), pelo próprio `VlcAudioExtractor` (T5):
+
+| Arquivo | Duração | Tempo |
+|---|---|---|
+| AAC 44,1 kHz | 150,001 s | — |
+| E-AC-3 5.1 / AC-3 5.1 | 149,984 s | 0,44 s |
+| FLAC em MKV | 149,856 s | 0,33 s |
+| Vorbis em MKV | 150,012 s | 0,44 s |
+| MP3 em MP4 | 149,976 s | 0,35 s |
+| WMA em WMV | 149,888 s | 0,30 s |
+| PCM em MOV | 149,981 s | 0,26 s |
+| MP2 em TS | 149,952 s | 0,34 s |
+| Buraco de 30 s | 150,001 s | 0,41 s |
+| Duas faixas de áudio | 150,037 s | 0,50 s |
+| 20 min de vídeo 1080p | 1200,000 s | 2,10 s |
+| 3 horas (AAC) | 10800,107 s | 16,7 s |
+
+A primeira abertura depois de instalar leva mais (9 a 17 s no teste), provavelmente pela verificação do antivírus nos plugins novos; as seguintes abrem em menos de 0,5 s.
 
 Casos de borda com `smem`:
 
@@ -102,7 +120,7 @@ Casos de borda com `smem`:
 | Sem `speex_resampler` (plugin removido) | Cai no `ugly`; a correção por PTS limita o erro a 113 ms, mas o áudio piora muito (correlação de 0,2 a 0,3) |
 | Fixtures (MP4, MKV, AVI, WebM) | 0,13 a 0,30 s cada, já contando abrir o VLC |
 
-Os dois primeiros casos terminam igual, com 0 blocos, e o VLC **não** disparou `EncounteredError` no arquivo corrompido. A distinção precisa vir das faixas lidas por `Media.Parse`: nenhuma faixa significa arquivo ilegível; faixa de vídeo sem áudio significa "Sem áudio". Esse caminho ainda não foi testado (T2).
+Os dois primeiros casos terminam igual, com 0 blocos, e o VLC **não** dispara `EncounteredError` no arquivo corrompido. A distinção vem das faixas lidas por `Media.Parse`: nenhuma faixa significa arquivo ilegível; faixa de vídeo sem áudio significa "Sem áudio".
 
 ### Alternativa: ffmpeg LGPL
 
@@ -149,7 +167,7 @@ Sem VLC, a opção real seria compilar um ffmpeg mínimo em CI para os quatro RI
 
 - **Pacotes:** `Whisper.net` e `Whisper.net.Runtime` (CPU, e Metal em `macos-arm64`), `Whisper.net.Runtime.Vulkan` (`win-x64`, `linux-x64`) e `Whisper.net.Runtime.NoAvx` (CPU antiga).
 - **Ordem de runtime:** `[Vulkan, Cpu, NoAvx]`. O carregador do Whisper.net verifica compatibilidade e passa para o seguinte.
-- **Falha com GPU:** se o worker morrer usando Vulkan ou Metal, o app repete a aula uma vez só com CPU e grava `transcription.forceCpu = true`. Driver ruim não pode virar falha em toda aula. Em `macos-arm64`, o Metal vem no mesmo runtime da CPU: como desligá-lo ainda precisa ser confirmado em T10.
+- **Falha com GPU:** se o worker morrer usando Vulkan ou Metal, o app repete a aula uma vez só com CPU e grava `transcription.forceCpu = true`. Driver ruim não pode virar falha em toda aula. Em `macos-arm64`, o Metal vem no mesmo runtime da CPU, por isso a repetição também passa `UseGpu = false`.
 - **Threads:** `Math.Clamp(ProcessorCount / 2, 1, 8)`.
 - **Idioma:** preferência `transcription.language`, padrão `auto`, com seletor na aba (Automático, Português, Inglês, Espanhol). O idioma detectado acertou no teste, com cerca de 10% a mais de tempo.
 - **Silêncio:** no teste de 60 s de silêncio, o modelo inventou `[MÚSICA]`. `TranscriptSegmentFilter` remove segmentos que são só uma marcação entre colchetes ou parênteses, e segmentos vazios.
@@ -271,6 +289,7 @@ LessonTranscriptions
   HashedLastWriteUtc  DATETIME, nulo
   ErrorCode      TEXT, nulo
   QueuedAt       DateTimeOffset, nulo
+  PreferWhisper  BOOL, o usuário escolheu o Whisper apesar da legenda
   UpdatedAt      DateTimeOffset
 ```
 
@@ -331,4 +350,15 @@ Sempre metadados, nunca texto:
 - **Reprodução durante a transcrição:** não medida. Sem GPU, o worker ocupa 8 threads, mesmo em prioridade baixa. **Mitigação:** verificação manual, coordenada com a spec 0008. Se engasgar, reduzir as threads enquanto o vídeo toca.
 - **Qualidade em aula real:** só testada com voz sintética. **Mitigação:** Q3.
 - **Driver de GPU:** Vulkan com driver ruim pode falhar. **Mitigação:** volta automática para CPU, testada no CA12.
+- **Handles herdados no Windows:** um processo filho herda arquivos abertos por código nativo (`fopen` do Skia, por exemplo) no instante em que nasce. Se o worker abrir enquanto uma miniatura é gravada, esse arquivo fica preso até ele terminar. Efeito em produção: uma miniatura antiga deixa de ser apagada nessa limpeza, e sai na seguinte. Nos testes, os que abrem processo ficam na coleção `VLC real`.
 - **Hugging Face fora ou URL alterada:** commit fixado reduz o risco, mas não o elimina. Um espelho próprio não entra nesta spec.
+
+## Achado durante a implementação (aguardando decisão)
+
+**Condição de corrida em `VlcMediaPlayer.OnPlaying`, da spec 0006, fora do escopo aprovado.** Medido com dump do crash: `OnPlaying` agenda no pool uma tarefa que chama `player.Volume`, `Mute` e `SetRate`. Se `Dispose` chegar antes de ela rodar, o ponteiro nativo já foi liberado e o processo cai com violação de acesso (`0xC0000005`), o que `GlobalExceptionHandler` não pega.
+
+- **Em produção:** `Dispose` só acontece ao fechar o app, então seria preciso fechar a janela no mesmo instante em que uma aula começa a tocar.
+- **Nos testes:** cada teste do VLC libera o player, e os testes novos deixam o pool mais ocupado. Foram 4 crashes em 8 execuções completas locais, sem nunca ter derrubado a CI até aqui. Pode tornar a CI instável.
+- **Proposta:** proteger a tarefa com um lock e uma marca de "liberado", em `VlcMediaPlayer`. Mudança pequena, com um teste que libera o player logo depois de `Playing`.
+
+A correção muda arquivo fora do escopo aprovado, por isso espera a decisão do mantenedor.

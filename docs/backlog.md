@@ -25,7 +25,7 @@ Pontos para a spec decidir:
 ## Specs previstas
 
 - Player (LibVLC): reprodução, progresso, "continuar de onde parei", duração e miniaturas.
-- Transcrição (Whisper.net + ffmpeg) em segundo plano, cache por hash do arquivo, legendas `.srt`/`.vtt` existentes.
+- Exibir legendas sobre o vídeo, a partir da transcrição (decisão da spec 0007).
 - Provedores de LLM (Claude e Ollama), chaves de API no cofre do sistema (`ISecretStore`), aviso de privacidade sobre o envio da transcrição.
 - Chat, resumo e pontos principais com timestamps clicáveis.
 - Configurações:

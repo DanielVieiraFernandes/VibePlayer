@@ -7,35 +7,35 @@ Marque cada tarefa ao concluir.
 Validação primeiro, porque as decisões mais arriscadas só foram testadas no Windows:
 
 - [ ] T1 — Comparar os modelos com a aula real enviada pelo mantenedor e fechar o padrão (Q3). Se o resultado mudar a decisão, atualizar a spec.
-- [ ] T2 — `VlcAudioExtractor` no worker, incluindo a distinção entre "sem áudio" e arquivo ilegível, com a CI rodando `AudioExtractionIntegrationTests` nos três SOs **antes** do restante. Falhou no Linux ou no macOS: parar e rever a spec.
-- [ ] T3 — Plugins `libstream_out_transcode_plugin` e `libstream_out_smem_plugin` em `VlcPlugins.targets` e `vlc-allowed-plugins.txt`.
-- [ ] T4 — Fixtures novos: tom contínuo de 60 s (deriva), áudio com buraco de PTS, vídeo sem áudio, fala curta de domínio público (`jfk.wav`, do whisper.cpp).
-- [ ] T5 — Repetir a tabela de codecs do `design.md` com o caminho final (`smem`).
+- [x] T2 — `VlcAudioExtractor` no worker, incluindo a distinção entre "sem áudio" e arquivo ilegível, com a CI rodando `AudioExtractionIntegrationTests` nos três SOs **antes** do restante. Falhou no Linux ou no macOS: parar e rever a spec.
+- [x] T3 — Plugins `libstream_out_transcode_plugin` e `libstream_out_smem_plugin` em `VlcPlugins.targets` e `vlc-allowed-plugins.txt`.
+- [x] T4 — Fixtures novos: tom contínuo de 60 s (deriva), áudio com buraco de PTS, vídeo sem áudio, fala curta de domínio público (`jfk.wav`, do whisper.cpp).
+- [x] T5 — Repetir a tabela de codecs do `design.md` com o caminho final (`smem`).
 
 Core e dados:
 
-- [ ] T6 — `Core/Transcription`: interfaces, modelos, `WorkerProtocol`.
-- [ ] T7 — `SubtitleParser`, `SubtitleEncoding`, `TranscriptSegmentFilter`.
-- [ ] T8 — Entidades, configurações e migration `AddTranscription`; `TranscriptStore`.
+- [x] T6 — `Core/Transcription`: interfaces, modelos, `WorkerProtocol`.
+- [x] T7 — `SubtitleParser`, `SubtitleEncoding`, `TranscriptSegmentFilter`.
+- [x] T8 — Entidades, configurações e migration `AddTranscription`; `TranscriptStore`.
 
 Worker:
 
-- [ ] T9 — `WorkerEntryPoint` e entrada em `Program.Main`, antes de Serilog e Avalonia.
-- [ ] T10 — `WhisperTranscriber`, com ordem de runtime e `forceCpu`.
-- [ ] T11 — `ProcessTranscriptionWorker`: abrir, prioridade, eventos, cancelar, fim anormal.
+- [x] T9 — `WorkerEntryPoint` e entrada em `Program.Main`, antes de Serilog e Avalonia.
+- [x] T10 — `WhisperTranscriber`, com ordem de runtime e `forceCpu`.
+- [x] T11 — `ProcessTranscriptionWorker`: abrir, prioridade, eventos, cancelar, fim anormal.
 
 Serviços:
 
-- [ ] T12 — `WhisperModelStore`: download com retomada, hash e espaço em disco.
-- [ ] T13 — `Sha256FileHasher` e `PhysicalSubtitleSource`.
-- [ ] T14 — `TranscriptionService`: fila, prioridade, cache, reabertura, volta para CPU.
-- [ ] T15 — Pacotes e `Directory.Packages.props`; `AddInfrastructure`; cada RID leva só os nativos dele.
+- [x] T12 — `WhisperModelStore`: download com retomada, hash e espaço em disco.
+- [x] T13 — `Sha256FileHasher` e `PhysicalSubtitleSource`.
+- [x] T14 — `TranscriptionService`: fila, prioridade, cache, reabertura, volta para CPU.
+- [x] T15 — Pacotes e `Directory.Packages.props`; `AddInfrastructure`; cada RID leva só os nativos dele.
 
 Interface:
 
-- [ ] T16 — `TranscriptionViewModel`, `TranscriptionView` e a aba nova em `SidePanelTab`.
-- [ ] T17 — Menus da aula e do curso; diálogo de primeiro uso.
-- [ ] T18 — Textos em `Strings.resx`.
+- [x] T16 — `TranscriptionViewModel`, `TranscriptionView` e a aba nova em `SidePanelTab`.
+- [x] T17 — Menus da aula e do curso; diálogo de primeiro uso.
+- [x] T18 — Textos em `Strings.resx`.
 
 ## Testes
 
@@ -43,6 +43,7 @@ Interface:
 |---|---|---|
 | CA1 | Integração | `AudioExtractionIntegrationTests.Extract_FormatosDosFixtures_SaiPcm16kMonoComDuracaoDoVideo` |
 | CA1 | Integração | `AudioExtractionIntegrationTests.Extract_TomDe60s_NaoDeriva` |
+| CA1 | Integração | `AudioExtractionIntegrationTests.Extract_DuasFaixas_UsaSoAPrimeira` |
 | CA2 | Integração | `AudioExtractionIntegrationTests.Extract_ComBuracoDePts_PreencheComSilencio` |
 | CA2 | Unitário | `PtsGapFillerTests.Append_PosicaoPassaDoLimite_InsereSilencio` |
 | CA3 | Integração | `AudioExtractionIntegrationTests.Extract_SemFaixaDeAudio_InformaSemAudio` |
@@ -86,9 +87,9 @@ O provedor de Whisper real só roda em `WhisperIntegrationTests`. Os E2E usam um
 
 ## Documentação
 
-- [ ] `CLAUDE.md`: stack (sem ffmpeg, se Q1 for aprovada), licenças, seção de transcrição, regras do worker, estrutura.
-- [ ] `docs/backlog.md`: tirar a transcrição das previstas; incluir legendas sobre o vídeo.
-- [ ] `DESIGN.md`: aba Transcrição.
-- [ ] `THIRD-PARTY-NOTICES.md`: Whisper.net, whisper.cpp, ggml, `Microsoft.Extensions.AI.Abstractions`.
+- [x] `CLAUDE.md`: stack (sem ffmpeg, se Q1 for aprovada), licenças, seção de transcrição, regras do worker, estrutura.
+- [x] `docs/backlog.md`: tirar a transcrição das previstas; incluir legendas sobre o vídeo.
+- [x] `DESIGN.md`: aba Transcrição.
+- [x] `THIRD-PARTY-NOTICES.md`: Whisper.net, whisper.cpp, ggml, `Microsoft.Extensions.AI.Abstractions`.
 - [ ] Wiki: página de transcrição, tempos esperados, legendas aceitas.
 - [ ] `specs/0007-transcricao`: status Implementada.

@@ -66,7 +66,7 @@
         <Grid x:Name="DoneState" RowDefinitions="Auto,*" IsVisible="{Binding IsDone}">
             <Border Classes="toolbar">
                 <Grid ColumnDefinitions="*,Auto">
-                    <TextBlock x:Name="SourceLabel" Classes="caption secondary" VerticalAlignment="Center" Text="{Binding SourceText}" />
+                    <TextBlock x:Name="SourceLabel" Classes="caption secondary" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding SourceText}" />
                     <Button x:Name="UseWhisperButton" Grid.Column="1" Classes="ghost"
                             Content="{x:Static res:Strings.Transcription_UseWhisper}"
                             Command="{Binding TranscribeWithWhisperCommand}"
@@ -74,6 +74,7 @@
                 </Grid>
             </Border>
             <ListBox x:Name="SegmentList" Grid.Row="1"
+                     Background="{DynamicResource SurfaceBackgroundBrush}"
                      ItemsSource="{Binding Segments}"
                      SelectionMode="Toggle"
                      AutomationProperties.Name="{x:Static res:Strings.Transcription_TextName}">

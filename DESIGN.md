@@ -18,7 +18,7 @@ Padrão visual do app. Toda tela segue este documento; os valores vivem em
 ┌──────────────────────────── Barra superior (48) ─────────────────────────────┐
 │ ▣ VibePlayer                                                   [◨] [⚙]      │
 ├──────────────────────────────────────────────────┬┬──────────────────────────┤
-│ Área do vídeo (sempre escura, ocupa o restante)  ││ Aulas│Chat│Resumo│Pontos │
+│ Área do vídeo (sempre escura, ocupa o restante)  ││ Aulas│Transc│Chat│Res│Pts│
 │                                                  ││ Painel lateral           │
 │                                                  ││ 380 (320–560)            │
 ├──────────────────────────────────────────────────┤│                          │
@@ -32,7 +32,7 @@ Padrão visual do app. Toda tela segue este documento; os valores vivem em
 | Janela | Mínimo 960 × 600; abre com 1280 × 800. Barra de título do sistema. |
 | Player | Largura mínima 400; ocupa o espaço que sobra. |
 | Painel lateral | Padrão 380, de 320 a 560, nunca deixando o player abaixo de 400. Recolhe por completo (Ctrl/⌘+B); ao reabrir, volta à última largura. |
-| Abas do painel | *Aulas*, *Chat*, *Resumo*, *Pontos principais*, nesta ordem; Ctrl/⌘+1…4 abre direto em cada uma. |
+| Abas do painel | *Aulas*, *Transcrição*, *Chat*, *Resumo*, *Pontos principais*, nesta ordem; Ctrl/⌘+1…5 abre direto em cada uma. |
 | Notificações | Canto inferior direito, no máximo 3 ao mesmo tempo. |
 
 ## Cores
@@ -142,7 +142,7 @@ Elevação é feita com **superfície** (`SurfaceRaised`) e borda sutil, não co
 | Botão de ícone | `Button.icon` / `ToggleButton.icon` | 32 × 32, ícone 20 | Sem fundo; toggle ligado usa `AccentSubtle` |
 | Botão compacto de texto | `Button.ghost` | altura 32 | Ex.: velocidade "1x" |
 | Campo de texto | `TextBox` | altura 36, raio 8 | Placeholder diz o que digitar |
-| Abas | `TabItem` | altura 40, texto 14 SemiBold | Quatro abas cabem em 320 |
+| Abas | `TabItem` | altura 40, texto 14 SemiBold | As abas passam para uma segunda linha em 320 |
 | Divisória | `Thumb.splitter` | largura 4 | `BorderSubtle`; `Accent` no hover |
 | Estado vazio | `StackPanel.emptyState` | largura máx. 320 | Ícone 40 em `AccentText`, título `subtitle`, explicação `body secondary`, ação opcional |
 | Notificação | `WindowNotificationManager` | — | Erro: "Algo deu errado" + "Os detalhes foram registrados no log." |

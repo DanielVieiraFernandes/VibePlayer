@@ -17,6 +17,11 @@ switch (args[0])
         Thread.Sleep(Timeout.Infinite);
         break;
 
+    case "slow-exit":
+        Console.WriteLine("""{"Kind":"Done","Value":"pt"}""");
+        Thread.Sleep(Timeout.Infinite);
+        break;
+
     case "noise":
         Console.WriteLine("whisper_init: isto não é um evento");
         Console.WriteLine("""{"Kind":"Done","Value":"pt"}""");

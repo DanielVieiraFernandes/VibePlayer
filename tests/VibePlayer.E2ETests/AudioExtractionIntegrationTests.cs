@@ -49,6 +49,16 @@ public sealed class AudioExtractionIntegrationTests
     }
 
     [Fact]
+    public async Task Extract_DuasFaixas_UsaSoAPrimeira()
+    {
+        var result = await Extract("audio/duas-faixas.mkv");
+
+        result.Status.ShouldBe(AudioExtractionStatus.Completed);
+        Duration(result).TotalSeconds.ShouldBe(4, Tolerance.TotalSeconds);
+        FirstLoudSample(result).TotalSeconds.ShouldBe(0, Tolerance.TotalSeconds);
+    }
+
+    [Fact]
     public async Task Extract_SemFaixaDeAudio_InformaSemAudio()
     {
         var result = await Extract("audio/sem-audio.mp4");

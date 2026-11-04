@@ -74,6 +74,10 @@ public sealed class VlcAudioExtractor : IAudioExtractor
         using var session = new Session(media.Duration, progress);
         media.AddOption(":no-video");
         media.AddOption(":sout-keep");
+
+        // Por padrão o smem recebe todas as faixas de áudio no mesmo callback, emendadas. Vale a
+        // primeira, como no player.
+        media.AddOption(":no-sout-all");
         media.AddOption(session.StreamOutput);
 
         var finished = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);

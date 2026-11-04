@@ -8,6 +8,7 @@ namespace VibePlayer.E2ETests;
 /// O processo separado: morte, travamento e cancelamento, com um programa de teste que faz isso
 /// sob comando (tests/VibePlayer.WorkerStub).
 /// </summary>
+[Collection("VLC real")]
 public sealed class ProcessTranscriptionWorkerTests
 {
     private static readonly TranscriptionJob Job = new("/aula.mp4", "/m.bin", "auto", 1, true);
@@ -26,6 +27,14 @@ public sealed class ProcessTranscriptionWorkerTests
     public async Task Run_LinhaEstranhaNaSaida_Ignora()
     {
         var events = await Collect("noise");
+
+        events.ShouldHaveSingleItem().Kind.ShouldBe(WorkerEventKind.Done);
+    }
+
+    [Fact]
+    public async Task Run_ProcessoDemoraASair_MantemOResultado()
+    {
+        var events = await Collect("slow-exit");
 
         events.ShouldHaveSingleItem().Kind.ShouldBe(WorkerEventKind.Done);
     }
@@ -75,6 +84,7 @@ public sealed class ProcessTranscriptionWorkerTests
 /// O executável real do app como processo de transcrição, com VLC e Whisper de verdade. O modelo
 /// vem de VIBEPLAYER_WHISPER_MODEL (a CI baixa o tiny); sem ele, os testes do Whisper são pulados.
 /// </summary>
+[Collection("VLC real")]
 public sealed class WhisperIntegrationTests
 {
     private static readonly string? Model = Environment.GetEnvironmentVariable("VIBEPLAYER_WHISPER_MODEL");

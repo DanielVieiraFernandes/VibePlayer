@@ -25,7 +25,9 @@ public sealed class WorkerEntryPoint(IAudioExtractor extractor, ISpeechTranscrib
     /// <summary>Roda o job lido da entrada padrão.</summary>
     public static int Main()
     {
-        using var input = new StreamReader(Console.OpenStandardInput());
+        // Sem using: liberar a entrada com a leitura de WatchInputAsync pendente trava a saída do
+        // processo. Quem fecha tudo é o fim do processo.
+        var input = new StreamReader(Console.OpenStandardInput());
         using var output = new StreamWriter(Console.OpenStandardOutput()) { AutoFlush = true };
         var worker = new WorkerEntryPoint(new VlcAudioExtractor(), new WhisperTranscriber());
         return worker.RunAsync(input, output, onInputClosed: KillSelf, CancellationToken.None).GetAwaiter().GetResult();

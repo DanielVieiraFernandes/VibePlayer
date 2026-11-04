@@ -51,12 +51,25 @@ public sealed class ProcessTranscriptionWorker(TranscriptionWorkerCommand comman
                 throw new WorkerCrashedException(process.ExitCode);
             }
 
-            using var exit = new CancellationTokenSource(ExitTimeout);
-            await process.WaitForExitAsync(exit.Token).ConfigureAwait(false);
+            await WaitForExitAsync(process).ConfigureAwait(false);
         }
         finally
         {
             KillIfRunning(process);
+        }
+    }
+
+    // O resultado já chegou: um processo lento para sair não pode virar falha da transcrição. Quem
+    // ainda estiver vivo depois do tempo limite é encerrado pelo finally de RunAsync.
+    private static async Task WaitForExitAsync(Process process)
+    {
+        using var exit = new CancellationTokenSource(ExitTimeout);
+        try
+        {
+            await process.WaitForExitAsync(exit.Token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
         }
     }
 

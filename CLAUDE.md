@@ -12,7 +12,7 @@ Player desktop **multiplataforma** (Windows, macOS e Linux) para cursos em víde
 
 O código-fonte fica em repositório público no GitHub, mas o projeto **não é open source** e **não aceita contribuições externas**: a licença é proprietária (todos os direitos reservados), com permissão apenas para baixar e usar os binários publicados em Releases. Não sugira nem adicione licenças open source, `CONTRIBUTING.md` convidando PRs ou templates de contribuição.
 
-O esqueleto (solution, DI, logs, testes, CI), o layout (DESIGN.md), a persistência (SQLite, backups, preferências), a biblioteca e o player existem; transcrição e LLM ainda são **planejados**. Ao criar ou mudar algo estrutural, atualize este arquivo.
+O esqueleto (solution, DI, logs, testes, CI), o layout (DESIGN.md), a persistência (SQLite, backups, preferências), a biblioteca, o player e a transcrição existem; o LLM ainda é **planejado**. Ao criar ou mudar algo estrutural, atualize este arquivo.
 
 ## Fluxo de trabalho (SDD — obrigatório)
 
@@ -47,21 +47,21 @@ Detalhes em [specs/README.md](specs/README.md).
 
 - **.NET / C#** com **Avalonia UI**, padrão MVVM com `CommunityToolkit.Mvvm`.
 - **Vídeo:** LibVLCSharp (sem `LibVLCSharp.Avalonia`: o VLC decodifica e o app desenha os quadros; ver "Reprodução").
-- **Transcrição:** Whisper local via `Whisper.net`; ffmpeg extrai o áudio antes. Modelos do Whisper são baixados na primeira execução, não vão no repositório nem no instalador.
+- **Transcrição:** Whisper local via `Whisper.net`; o próprio VLC extrai o áudio (sem ffmpeg). Modelos do Whisper são baixados no primeiro uso, não vão no repositório nem no instalador.
 - **LLM:** provedores configuráveis — Claude via SDK oficial (`Anthropic`, modelo padrão `claude-opus-5-5`, streaming no chat) e Ollama local (`http://localhost:11434`).
 - **Persistência:** SQLite com EF Core (`Microsoft.EntityFrameworkCore.Sqlite`). Migrations aplicadas automaticamente na inicialização, pois o schema evolui entre versões instaladas nas máquinas dos usuários.
 - **Validação:** FluentValidation. Validadores ficam em `Core` (regras de domínio e de configuração, ex.: URL do Ollama, chave de API, pasta da biblioteca) e os ViewModels os usam para expor erros à UI via `INotifyDataErrorInfo`. Não use DataAnnotations para regras de validação.
 - **Logs:** Serilog, apenas `Serilog.Sinks.File`.
 - **Testes:** xUnit, NSubstitute (fakes/mocks), Shouldly (asserções), `Avalonia.Headless.XUnit` (E2E de UI).
 
-> Licenças de terceiros: o app é proprietário, então toda dependência precisa ter licença que permita uso em software fechado (MIT, Apache 2.0, BSD, LGPL com linkagem dinâmica). LibVLC e ffmpeg são LGPL: distribua-os como bibliotecas/binários separados, use builds LGPL do ffmpeg (nunca GPL) e inclua os avisos e textos das licenças em `THIRD-PARTY-NOTICES.md` e no pacote de release. Nunca adicione dependências GPL/AGPL. FluentAssertions 8+ tem licença comercial — não use. Toda spec que adiciona dependência registra a licença no `design.md`.
+> Licenças de terceiros: o app é proprietário, então toda dependência precisa ter licença que permita uso em software fechado (MIT, Apache 2.0, BSD, LGPL com linkagem dinâmica). LibVLC é LGPL: distribua-a como biblioteca separada e inclua os avisos e textos das licenças em `THIRD-PARTY-NOTICES.md` e no pacote de release. Nunca adicione dependências GPL/AGPL. FluentAssertions 8+ tem licença comercial — não use. Toda spec que adiciona dependência registra a licença no `design.md`.
 
 ## Multiplataforma
 
 - Nunca use APIs exclusivas de um sistema operacional diretamente em `Core` ou nos ViewModels; quando inevitável, isole atrás de interface em `Core` com implementação por SO em `Infrastructure`.
 - Caminhos sempre com `Path.Combine` e `Environment.GetFolderPath`, nunca separadores ou pastas fixas.
 - **Segredos (chaves de API):** interface `ISecretStore` com implementação no cofre nativo de cada SO — Windows: DPAPI/Credential Manager; macOS: Keychain; Linux: libsecret (Secret Service). Se o cofre não estiver disponível (Linux sem keyring), avise o usuário e não grave a chave em texto puro.
-- **Binários nativos por SO:** LibVLC (no Linux depende do `libvlc` instalado no sistema), ffmpeg e runtimes do Whisper.net precisam existir para cada RID publicado.
+- **Binários nativos por SO:** LibVLC (no Linux depende do `libvlc` instalado no sistema) e runtimes do Whisper.net precisam existir para cada RID publicado. `WhisperRuntimes.targets` deixa no pacote só os nativos do RID.
 - No macOS, binários sem assinatura e notarização são bloqueados pelo Gatekeeper; a distribuição para macOS precisa tratar isso.
 
 ## Estrutura
@@ -74,10 +74,11 @@ global.json                   SDK do .NET 10
 src/
   VibePlayer.App/             Avalonia: Views, ViewModels, Program (bootstrap), AppComposition (composition root), Serilog
   VibePlayer.Core/            Domínio e interfaces (sem dependência de UI, VLC, Whisper, SDKs ou EF)
-  VibePlayer.Infrastructure/  Player VLC, ffmpeg, Whisper, provedores de LLM, DbContext/migrations
+  VibePlayer.Infrastructure/  Player VLC, transcrição (fila, processo separado, Whisper), provedores de LLM, DbContext/migrations
 tests/
   VibePlayer.UnitTests/
   VibePlayer.E2ETests/
+  VibePlayer.WorkerStub/      Processo falso que morre e trava, para testar o processo separado
 specs/                          Specs do SDD (uma pasta por mudança)
 docs/                           Documentação técnica versionada (arquitetura, decisões)
 DESIGN.md                       Design system da UI (tokens em src/VibePlayer.App/Styles)
@@ -141,13 +142,23 @@ Comentários, nomes de testes e mensagens de commit em português; identificador
 - **Progresso:** `ILessonProgressStore` (tabela `LessonProgress`) e regras puras em `PlaybackRules`. Limiares: retoma entre 10 s e 95%; conclui aos 95% ou no fim.
 - **Miniaturas:** `ThumbnailService` (cache em `thumbnails/`, nome com tamanho e data do vídeo, fila com prioridade, uma por vez).
 
+## Transcrição
+
+- **Processo separado:** extração e Whisper rodam no mesmo executável com `--transcription-worker` (`WorkerEntryPoint`), sem Serilog, banco ou Avalonia, em prioridade baixa. O .NET não recupera falha nativa: em processo único, um `abort` do whisper.cpp fecharia o app. Protocolo em `WorkerProtocol`: job em JSON no stdin, eventos em JSON por linha no stdout. Stdin fechado significa que o app morreu, e o worker sai.
+- **Extração:** `VlcAudioExtractor` usa `transcode` + `smem`, com instância própria do LibVLC no worker. Não troque por `amem` (1x, ou perde áudio) nem por WAV (perde o PTS). `--audio-resampler=speex_resampler` é obrigatório: sem ele o VLC usa o `ugly` e perde 1,17 s a cada 20 min. Testes com arquivos de tom em tempo conhecido (`tests/fixtures/audio`) pegam deriva e buracos.
+- **Limite conhecido:** áudio que começa depois do vídeo, sem preenchimento no arquivo, sai adiantado nessa medida, porque o PTS do VLC é relativo.
+- **Dados:** `Transcripts` e `TranscriptSegments` são por hash do arquivo de origem; `LessonTranscriptions` liga a `LessonEntity.Id`. Segmentos entram no banco só no fim, numa transação; uma aula interrompida recomeça.
+- **Modelos:** `WhisperModelStore` baixa de um commit fixo do Hugging Face, retoma com `Range` e confere o SHA-256 antes de usar. É a única conexão de rede da transcrição.
+- **GPU:** ordem `[Vulkan, Cpu, CpuNoAvx]`; se o worker morrer na GPU, o app repete na CPU e grava `transcription.forceCpu`.
+- **Testes:** `WhisperIntegrationTests` roda o executável real; o modelo vem de `VIBEPLAYER_WHISPER_MODEL` (a CI baixa o tiny, localmente o teste é pulado sem a variável). `VlcIntegrationTests` e `AudioExtractionIntegrationTests` ficam na mesma coleção: duas instâncias do LibVLC subindo juntas no processo de testes travam a reprodução.
+
 ## Persistência
 
 Tudo fica na pasta de dados do usuário, `Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)/VibePlayer` (resolve para `%APPDATA%` no Windows e `~/.config` no Linux/macOS), nunca dentro da pasta do curso:
 
 - `vibePlayer.db` — SQLite: cursos, aulas, progresso, transcrições (segmentos com timestamps), resumos, pontos principais, histórico de chat, configurações.
 - `backups/` — backups do banco: um diário na primeira abertura do dia (mantém 7) e um antes de cada atualização do banco (mantém 3), sempre verificados com `integrity_check`. Restaurar é manual por enquanto (fechar o app e copiar o backup sobre `vibePlayer.db`).
-- `models/` — modelos do Whisper; `logs/` — Serilog; `thumbnails/` — miniaturas das aulas (cache regenerável, fora dos backups).
+- `models/` — modelos do Whisper (`.part` durante o download); `logs/` — Serilog; `thumbnails/` — miniaturas das aulas (cache regenerável, fora dos backups).
 - **Banco:** `VibePlayerDbContext` (Infrastructure), sempre via `IDbContextFactory` com contextos curtos e acesso `async`; WAL ligado. Cada spec cria suas tabelas com uma migration própria; migrations publicadas nunca são editadas. `MigrationTests` falha se o modelo mudar sem migration.
 - **Inicialização:** `AppStartup.Prepare` (usado pelo `Program` e pelos E2E) roda o `DatabaseInitializer` antes da UI: backup → migrate → em falha, restaura o backup, mostra `DatabaseErrorWindow` e sai com código 2. Nunca abra a janela principal sobre um banco que não ficou pronto.
 - **Preferências:** `ISettingsStore` (Core) com chaves `SettingKey<T>` (nome permanente com prefixo por área, padrão, validação), gravadas como JSON na tabela `Settings`. Valor inválido volta ao padrão com aviso no log (só a chave). Layout da janela: `UiSettings` + `WindowStateTracker` (grava 500 ms depois da última mudança e ao fechar).
@@ -162,7 +173,7 @@ Tudo fica na pasta de dados do usuário, `Environment.GetFolderPath(Environment.
    - **Leitura das pastas:** `LibraryScanner` e a detecção ficam no `Core`, sobre `IFileSystemReader`, e são testados com `FakeFileSystem`. `CourseLibrary` (Infrastructure) sincroniza com o banco pelo **caminho relativo** (com "/", NFC e caixa conforme o SO; ver `LibraryPaths`).
    - **Identidade:** aula que some fica `IsAvailable = false` com o **mesmo Id**. Dados futuros (progresso, transcrição, chat) devem apontar para `LessonEntity.Id`. Nunca apague aulas na sincronização.
    - **Atualização:** ao abrir o app e pelo botão "Atualizar", sem `FileSystemWatcher`. "Localizar pasta" reconecta uma raiz movida.
-2. **Transcrição:** em segundo plano, com progresso e cancelamento. Cache chaveado por hash do arquivo de vídeo (não pelo caminho), para não transcrever de novo se a pasta for movida. Legendas `.srt`/`.vtt` ao lado do vídeo podem substituir o Whisper.
+2. **Transcrição** (spec 0007): só a pedido do usuário, em segundo plano, com fila, progresso e cancelamento. Cache chaveado pelo SHA-256 do arquivo de vídeo (não pelo caminho), para não transcrever de novo se a pasta for movida. Legendas `.srt`/`.vtt` ao lado do vídeo substituem o Whisper automaticamente, salvo se o usuário escolher "Transcrever com o Whisper".
 3. **Chat:** a transcrição da aula atual (com timestamps) vai no início do contexto. Com Claude, transcrição + system prompt formam um prefixo estável com prompt caching.
 4. **Resumo e pontos principais:** gerados uma vez por aula e salvos. Os pontos usam saída estruturada (JSON com `timestamp` + `texto`) para virarem links de seek no player.
 
@@ -181,7 +192,7 @@ Tudo fica na pasta de dados do usuário, `Environment.GetFolderPath(Environment.
 
 ## UI
 
-Toda tela segue o [`DESIGN.md`](DESIGN.md) (paleta clara/escura, tipografia, espaçamento, componentes, estados, acessibilidade). Layout: player à esquerda; à direita, painel lateral recolhível com as abas *Aulas*, *Chat*, *Resumo* e *Pontos principais*.
+Toda tela segue o [`DESIGN.md`](DESIGN.md) (paleta clara/escura, tipografia, espaçamento, componentes, estados, acessibilidade). Layout: player à esquerda; à direita, painel lateral recolhível com as abas *Aulas*, *Transcrição*, *Chat*, *Resumo* e *Pontos principais*.
 
 - **Tokens** em `src/VibePlayer.App/Styles/Tokens.axaml` (cores em `ThemeDictionaries` Light/Dark, sempre via `DynamicResource`; tamanhos, espaçamentos e raios via `StaticResource`) e **estilos por classe** em `Styles/Controls.axaml` (`TextBlock.title`, `Button.primary`, `Button.icon`, `StackPanel.emptyState`...). Views nunca têm cor, tamanho de fonte ou espaçamento literal — `ViewConventionsTests` falha se tiverem. Cor nova: nos dois temas e com par de contraste em `DESIGN.md` e `DesignTokenTests.Pairs`.
 - **Textos** em `src/VibePlayer.App/Resources/Strings.resx` (pt-BR; classe `Strings` gerada no build), usados com `{x:Static res:Strings.Area_Elemento}`. Nenhuma string visível solta em View ou ViewModel.
