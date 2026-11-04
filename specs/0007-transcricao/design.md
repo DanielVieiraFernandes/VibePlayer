@@ -353,12 +353,12 @@ Sempre metadados, nunca texto:
 - **Handles herdados no Windows:** um processo filho herda arquivos abertos por código nativo (`fopen` do Skia, por exemplo) no instante em que nasce. Se o worker abrir enquanto uma miniatura é gravada, esse arquivo fica preso até ele terminar. Efeito em produção: uma miniatura antiga deixa de ser apagada nessa limpeza, e sai na seguinte. Nos testes, os que abrem processo ficam na coleção `VLC real`.
 - **Hugging Face fora ou URL alterada:** commit fixado reduz o risco, mas não o elimina. Um espelho próprio não entra nesta spec.
 
-## Achado durante a implementação (aguardando decisão)
+## Achado durante a implementação
 
-**Condição de corrida em `VlcMediaPlayer.OnPlaying`, da spec 0006, fora do escopo aprovado.** Medido com dump do crash: `OnPlaying` agenda no pool uma tarefa que chama `player.Volume`, `Mute` e `SetRate`. Se `Dispose` chegar antes de ela rodar, o ponteiro nativo já foi liberado e o processo cai com violação de acesso (`0xC0000005`), o que `GlobalExceptionHandler` não pega.
+**Condição de corrida em `VlcMediaPlayer.OnPlaying`, da spec 0006.** A correção entrou nesta spec por decisão do mantenedor (2026-11-04).
 
-- **Em produção:** `Dispose` só acontece ao fechar o app, então seria preciso fechar a janela no mesmo instante em que uma aula começa a tocar.
-- **Nos testes:** cada teste do VLC libera o player, e os testes novos deixam o pool mais ocupado. Foram 4 crashes em 8 execuções completas locais, sem nunca ter derrubado a CI até aqui. Pode tornar a CI instável.
-- **Proposta:** proteger a tarefa com um lock e uma marca de "liberado", em `VlcMediaPlayer`. Mudança pequena, com um teste que libera o player logo depois de `Playing`.
-
-A correção muda arquivo fora do escopo aprovado, por isso espera a decisão do mantenedor.
+- **Causa, vista no dump do crash:** `OnPlaying` agendava no pool uma tarefa que chama `player.Volume`, `Mute` e `SetRate`. Se `Dispose` chegasse antes de ela rodar, o ponteiro nativo já estava liberado, e o processo caía com violação de acesso (`0xC0000005`), o que `GlobalExceptionHandler` não pega.
+- **Em produção:** seria preciso fechar o app no instante em que uma aula começa a tocar.
+- **Nos testes:** cada teste do VLC libera o player, e os testes novos deixaram o pool mais ocupado: 4 crashes em 8 execuções completas locais.
+- **Correção:** `_releaseLock` protege a liberação e a tarefa, que confere se o player ainda existe.
+- **Teste:** `VlcIntegrationTests.Dispose_LogoDepoisDeComecarATocar_NaoDerrubaOProcesso` ocupa o pool para forçar a ordem ruim. Derrubava o processo em 3 de 3 execuções antes da correção.

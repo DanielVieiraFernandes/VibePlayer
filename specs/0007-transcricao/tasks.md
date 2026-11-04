@@ -37,6 +37,8 @@ Interface:
 - [x] T17 — Menus da aula e do curso; diálogo de primeiro uso.
 - [x] T18 — Textos em `Strings.resx`.
 
+- [x] T19 — Corrigir a condição de corrida de `VlcMediaPlayer.OnPlaying` (ver `design.md`, decisão do mantenedor).
+
 ## Testes
 
 | Critério | Tipo | Teste |
