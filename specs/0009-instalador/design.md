@@ -120,7 +120,7 @@ Sem ferramenta nova: `hdiutil` e `codesign` já estão no sistema.
 - **Sem scripts `postinst`/`postrm`:** nada a fazer, e sem eles nem o `purge` chega perto da pasta do usuário.
 - **Atualização:** o `dpkg` troca os arquivos e remove os que saíram do pacote.
 - **Dependências:** o `Depends` repete o que a CI instala para o VLC e o que o .NET e o Avalonia pedem:
-  - `libvlc5, vlc-plugin-base, vlc-plugin-video-output`;
+  - `libvlc5, libvlc-dev, vlc-plugin-base, vlc-plugin-video-output` (`libvlc-dev` cria o link `libvlc.so`, o nome que o LibVLCSharp procura; sem ele, o app acusa VLC ausente);
   - `libc6, libgcc-s1, libstdc++6, libssl3 | libssl3t64, libicu78 | libicu76 | libicu74 | libicu72`;
   - `libx11-6, libice6, libsm6, libfontconfig1`.
 - **Versão:** troca `-` por `~` (`0.2.1~alpha.0.1`), para um pré-lançamento ficar abaixo da versão final na ordenação do `dpkg`. Em release é só `X.Y.Z`.

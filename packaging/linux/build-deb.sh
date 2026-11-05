@@ -5,6 +5,9 @@
 # isso para o apt instalá-lo junto. Não há scripts postinst nem postrm, então nem um "apt purge"
 # chega perto da pasta de dados do usuário.
 #
+# O Depends traz libvlc-dev, e não só libvlc5, porque o LibVLCSharp procura o nome libvlc.so, e é esse
+# pacote que cria o link: só com libvlc5 existe apenas libvlc.so.5, e o app acusa VLC ausente.
+#
 # Uso: build-deb.sh <pasta do publish> <pasta de saída> <versão>
 set -euo pipefail
 
