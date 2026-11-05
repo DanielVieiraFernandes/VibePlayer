@@ -7,6 +7,7 @@ Os instaladores empacotam a mesma saída de `dotnet publish` que já vai nos `.z
 ```
 packaging/
   windows/VibePlayer.iss        Script do Inno Setup
+  windows/build-installer.ps1   Chama o compilador com a versão do MinVer
   macos/Info.plist              Modelo, com a versão preenchida no build
   macos/build-dmg.sh            Monta o .app, assina ad-hoc, gera o .dmg
   linux/control                 Modelo do pacote, com a versão preenchida no build
@@ -15,9 +16,10 @@ packaging/
 .github/scripts/
   install-inno-setup.ps1        Instala a versão fixada, conferindo o SHA-256
   package-version.sh            Lê a versão do MinVer e confere com a tag
-  smoke-test-windows.ps1        Instala, abre, transcreve, atualiza, remove
+  smoke-transcription.ps1       Transcreve com o executável instalado (pwsh, nos três sistemas)
+  smoke-test-windows.ps1        Instala, abre, atualiza, transcreve, remove
   smoke-test-macos.sh           Monta o .dmg, copia, transcreve, remove
-  smoke-test-linux.sh           apt install, transcreve, apt remove
+  smoke-test-linux.sh           apt install, atualiza, transcreve, apt purge
 .github/workflows/
   build-packages.yml            Novo, reutilizável (workflow_call): publica, empacota e testa
   check-packages.yml            Novo: dispara a conferência antes do merge em main
@@ -60,11 +62,12 @@ No Linux, o runner `ubuntu-latest` não tem VLC, e este job não o instala (o sc
 | Transcrever a amostra | Sim | Sim (x64 via Rosetta; sem Rosetta no runner, só verificação estrutural) | Sim |
 | Assinatura ad-hoc válida | Não se aplica | `codesign --verify --deep --strict` | Não se aplica |
 | Abrir a janela | Sim: processo vivo após 15 s | Roteiro manual | Roteiro manual |
-| Atualizar a partir da release anterior | Sim: baixa o instalador anterior, se existir | Roteiro manual | Sim, a partir da próxima release |
+| Atualizar sobre versão antiga | Sim, com instalador 0.0.1 gerado no teste | Roteiro manual | Sim, com `.deb` 0.0.1 gerado no teste |
+| Recusar versão antiga | Sim, com o mesmo instalador 0.0.1 | Não se aplica | Não se aplica |
 | Remover em silêncio | `unins000.exe /VERYSILENT` | Apagar o `.app` | `apt-get remove` e `purge` |
 | Marcador na pasta de dados sobrevive | Sim | Trivial: nada a toca | Sim |
 
-A primeira versão com instalador não tem de onde atualizar; nesse caso o teste de atualização registra aviso e segue. O CA4 é coberto pelo roteiro manual gerando dois instaladores.
+**Ajuste durante a implementação:** o desenho aprovado baixava o instalador da release anterior, o que deixaria a atualização e a recusa sem teste até haver um publicado. O teste gera uma versão 0.0.1 com os mesmos arquivos, e assim cobre os dois casos em toda execução, sem depender de rede nem de `gh`. Um arquivo plantado em `libvlc` prova que sobras da versão antiga são apagadas.
 
 ### Windows
 
@@ -99,7 +102,7 @@ Sem ferramenta nova: `hdiutil` e `codesign` já estão no sistema.
 - **Identificador:** `io.github.danielvieirafernandes.vibeplayer`, permanente.
 - **Versão:** `CFBundleShortVersionString` e `CFBundleVersion` usam `X.Y.Z`, porque o macOS não aceita sufixo de pré-lançamento.
 - **Assinatura ad-hoc:** `codesign --force --deep --sign - VibePlayer.app`. Copiar `Info.plist` e reorganizar arquivos invalida o que veio do publish, e o Apple Silicon recusa código sem assinatura válida. Ela não substitui a assinatura de desenvolvedor: o Gatekeeper continua bloqueando.
-- **Versão mínima:** `LSMinimumSystemVersion` segue o suporte do .NET 10, conferido ao implementar.
+- **Versão mínima:** `LSMinimumSystemVersion` é 15.0, a menor versão do macOS na lista de suporte atual do .NET 10.
 - **Caminho dos dados:** `AppPaths` usa `SpecialFolder.ApplicationData`, e o código diz `~/.config`, mas isso não foi conferido num Mac. A wiki só cita o caminho depois de confirmado (T15).
 
 **LGPL:** o usuário continua podendo trocar as bibliotecas do LibVLC dentro do `.app`. Isso invalida a assinatura ad-hoc, que basta refazer com o mesmo comando, e a wiki explica.
@@ -195,7 +198,6 @@ A licença do Inno foi lida em `https://jrsoftware.org/files/is/license.txt` em 
 | `codesign --deep` recusa arquivos que não são código em `Contents/MacOS` | Validar com `--verify --strict` no teste; se recusar, assinar cada `.dylib` e o executável antes do bundle |
 | Sem Rosetta no runner, o `.dmg` x64 não executa na CI | Só verificação estrutural nele, com o roteiro manual em Mac Intel, se houver |
 | `Depends` varia entre distribuições (`libicu`, `libssl`) | Alternativas com `\|`; o teste cobre o Ubuntu do runner, e o roteiro manual inclui Debian |
-| `LICENSE` em UTF-8 sem BOM aparece com acentos errados no assistente | Conferir na implementação; se preciso, o script passa uma cópia com BOM ao Inno |
 | Tag criada e instalador falhando em `release.yml` | A conferência roda antes do merge; se escapar, "Re-run failed jobs" ou hotfix |
 | Fechar o app no meio de uma transcrição | A aula recomeça; é o comportamento conhecido da spec 0007 |
 | Trabalho em paralelo da spec 0008 | Esta spec não toca em Views nem em Styles |

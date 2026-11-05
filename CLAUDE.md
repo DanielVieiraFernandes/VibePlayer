@@ -41,7 +41,7 @@ Detalhes em [specs/README.md](specs/README.md).
 - **Versão:** calculada pelo MinVer a partir das tags `vX.Y.Z`. Nunca edite número de versão em arquivo nem crie tags manualmente.
 - As pipelines usam o secret `RELEASE_TOKEN` (fine-grained PAT do mantenedor, só deste repositório, com Contents, Pull requests e Workflows em leitura e escrita), porque PRs abertos com o `GITHUB_TOKEN` não disparam a CI. Quando vencer, as pipelines de release falham com aviso explícito.
 - Commits no padrão Conventional Commits, em português: `feat(chat): adiciona streaming de respostas`. O título do PR segue o mesmo padrão, porque vira o commit do squash e as notas da release.
-- Pacotes publicados: self-contained, sem assinatura, um por RID (`win-x64`, `osx-arm64`, `osx-x64`, `linux-x64`), cada um com `LICENSE` e `THIRD-PARTY-NOTICES.md`.
+- Pacotes publicados: self-contained, sem assinatura, um por RID (`win-x64`, `osx-arm64`, `osx-x64`, `linux-x64`), cada um com `LICENSE`, `THIRD-PARTY-NOTICES.md` e `licenses/`. Cada RID sai como pacote portátil (`.zip`/`.tar.gz`) e instalador (ver "Instaladores").
 
 ## Stack
 
@@ -62,7 +62,7 @@ Detalhes em [specs/README.md](specs/README.md).
 - Caminhos sempre com `Path.Combine` e `Environment.GetFolderPath`, nunca separadores ou pastas fixas.
 - **Segredos (chaves de API):** interface `ISecretStore` com implementação no cofre nativo de cada SO — Windows: DPAPI/Credential Manager; macOS: Keychain; Linux: libsecret (Secret Service). Se o cofre não estiver disponível (Linux sem keyring), avise o usuário e não grave a chave em texto puro.
 - **Binários nativos por SO:** LibVLC (no Linux depende do `libvlc` instalado no sistema) e runtimes do Whisper.net precisam existir para cada RID publicado. `WhisperRuntimes.targets` deixa no pacote só os nativos do RID.
-- No macOS, binários sem assinatura e notarização são bloqueados pelo Gatekeeper; a distribuição para macOS precisa tratar isso.
+- No macOS, binários sem assinatura e notarização são bloqueados pelo Gatekeeper. Por ora, a wiki e as notas da release explicam como liberar; assinatura e notarização estão no backlog.
 
 ## Estrutura
 
@@ -79,6 +79,7 @@ tests/
   VibePlayer.UnitTests/
   VibePlayer.E2ETests/
   VibePlayer.WorkerStub/      Processo falso que morre e trava, para testar o processo separado
+packaging/                      Instaladores: windows/ (Inno Setup), macos/ (.app e .dmg), linux/ (.deb)
 specs/                          Specs do SDD (uma pasta por mudança)
 docs/                           Documentação técnica versionada (arquitetura, decisões)
 DESIGN.md                       Design system da UI (tokens em src/VibePlayer.App/Styles)
@@ -152,6 +153,19 @@ Comentários, nomes de testes e mensagens de commit em português; identificador
 - **Modelos:** `WhisperModelStore` baixa de um commit fixo do Hugging Face, retoma com `Range` e confere o SHA-256 antes de usar. É a única conexão de rede da transcrição.
 - **GPU:** ordem `[Vulkan, Cpu, CpuNoAvx]`; se o worker morrer na GPU, o app repete na CPU e grava `transcription.forceCpu`.
 - **Testes:** `WhisperIntegrationTests` roda o executável real; o modelo vem de `VIBEPLAYER_WHISPER_MODEL` (a CI baixa o tiny, localmente o teste é pulado sem a variável). `VlcIntegrationTests` e `AudioExtractionIntegrationTests` ficam na mesma coleção: duas instâncias do LibVLC subindo juntas no processo de testes travam a reprodução.
+
+## Instaladores
+
+Spec 0009. Empacotam a saída do `dotnet publish`; nada no app sabe que foi instalado.
+
+- **Windows:** `.exe` do Inno Setup, fixado com hash em `.github/scripts/install-inno-setup.ps1`. Instala só para o usuário, sem administrador, em `%LOCALAPPDATA%\Programs\VibePlayer`. A desinstalação pergunta antes de apagar a pasta de dados, com **Não** como padrão; em modo silencioso, nunca apaga.
+- **macOS:** `.dmg` com `.app`, um por arquitetura, com a saída do publish em `Contents/MacOS` e assinatura ad-hoc (não evita o Gatekeeper).
+- **Linux:** `.deb` em `/opt/vibeplayer`. O `Depends` traz o VLC, porque o app usa o do sistema. Sem scripts de manutenção: nem `purge` toca nos dados. Outras distribuições usam o `.tar.gz`.
+- **Identificadores permanentes:** `AppGuid` em `VibePlayer.iss`, `CFBundleIdentifier` em `Info.plist` e `Package` em `control`. Trocar um deles cria uma segunda instalação.
+- **Versão:** `package-version.sh` lê do MinVer. Nenhum arquivo de `packaging/` tem número de versão, e a release falha se ele divergir da tag.
+- **Pipeline:** `build-packages.yml` é reutilizável e gera e testa tudo; `release.yml` e `check-packages.yml` o chamam. A conferência roda no push de `release/*` e `hotfix/*` e em PRs que mexem em empacotamento, porque `release.yml` cria a tag antes de empacotar. Ela fica fora dos checks obrigatórios (o filtro de caminhos deixaria PRs presos).
+- **Testes:** `smoke-test-*` instalam de verdade, atualizam sobre uma versão 0.0.1 gerada no próprio teste e transcrevem uma amostra com o binário instalado (`--transcription-worker`), o que prova VLC e Whisper no lugar final. O teste do Linux roda sem VLC prévio e falha se faltar algo em `Depends`.
+- **Inno Setup:** o site pede licença comercial acima de US$ 5.000/ano de receita (sem obrigar). Com o app gratuito, não se aplica hoje; reavalie se isso mudar.
 
 ## Persistência
 

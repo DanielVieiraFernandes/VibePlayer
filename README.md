@@ -12,11 +12,13 @@ Funciona no **Windows**, **macOS** e **Linux**. A IA pode ser o Claude (Anthropi
 
 ## Status
 
-🚧 Em desenvolvimento inicial — ainda não há versão para download.
+🚧 Em desenvolvimento inicial.
 
 ## Download
 
-Quando disponíveis, as versões ficarão na página de [Releases](../../releases).
+Baixe o instalador do seu sistema na página de [Releases](../../releases). A [wiki](../../wiki) explica como instalar, atualizar e remover.
+
+Os binários ainda não são assinados, então o Windows e o macOS mostram um aviso de segurança na primeira vez.
 
 ## Licença e contribuições
 

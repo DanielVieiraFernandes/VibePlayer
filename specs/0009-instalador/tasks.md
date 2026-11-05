@@ -11,7 +11,7 @@ Base:
 Windows:
 - [ ] T3 — `packaging/windows/VibePlayer.iss`: identidade (`AppId` gerado uma vez), pasta, instalação por usuário, pt-BR, licença, atalhos, `[InstallDelete]`, `CloseApplications`, opção de abrir o app ao concluir.
 - [ ] T4 — `[Code]`: recusa de versão antiga e pergunta sobre os dados na desinstalação.
-- [ ] T5 — Conferir no assistente real os acentos de `LICENSE`; corrigir se necessário.
+- [ ] T5 — Conferir no assistente real os acentos de `LICENSE` (a documentação do Inno aceita UTF-8 sem BOM).
 
 macOS:
 - [ ] T6 — `packaging/macos/Info.plist` e `build-dmg.sh`: `.app`, avisos de licença, assinatura ad-hoc e `.dmg` com atalho para Aplicativos.
@@ -21,7 +21,7 @@ Linux:
 
 Pipeline:
 - [ ] T8 — `build-packages.yml` (reutilizável): mover os passos de `build` de `release.yml`, sem mudar `.zip` e `.tar.gz`, e acrescentar instalador e teste por RID.
-- [ ] T9 — `smoke-test-windows.ps1`, `smoke-test-macos.sh` e `smoke-test-linux.sh`, com a matriz do `design.md`.
+- [ ] T9 — `smoke-transcription.ps1`, `smoke-test-windows.ps1`, `smoke-test-macos.sh` e `smoke-test-linux.sh`, com a matriz do `design.md`.
 - [ ] T10 — `check-packages.yml` com os gatilhos do `design.md`.
 - [ ] T11 — `release.yml`: chamar o workflow reutilizável e atualizar as notas da release (qual arquivo baixar, avisos de segurança).
 - [ ] T12 — Acompanhar `check-packages.yml` no PR desta branch e corrigir o que aparecer nos três sistemas.
@@ -40,14 +40,14 @@ Esta spec não muda código C#, então não há novos testes unitários nem E2E.
 | CA1 | CI + manual | `smoke-test-windows.ps1` (instalação silenciosa e transcrição) + roteiro W1 |
 | CA2 | Manual | Roteiro W1 |
 | CA3 | Manual | Roteiro W2 |
-| CA4 | CI + manual | `smoke-test-windows.ps1` (atualização, quando há instalador anterior) + roteiro W3 |
-| CA5 | CI + manual | `smoke-test-windows.ps1` (instalador antigo sobre novo, código de saída, quando há instalador anterior) + roteiro W4 |
+| CA4 | CI + manual | `smoke-test-windows.ps1` (atualização sobre 0.0.1) + roteiro W3 |
+| CA5 | CI + manual | `smoke-test-windows.ps1` (instalador 0.0.1 sobre o novo, código de saída) + roteiro W4 |
 | CA6, CA7 | Manual | Roteiro W5 e W6 (precisam da pergunta na tela) |
 | CA8 | CI | `smoke-test-windows.ps1` (marcador sobrevive) |
 | CA9 | CI + manual | `smoke-test-macos.sh` + roteiro M1 |
 | CA10 | Manual | Roteiro M2 |
 | CA11 | CI + manual | `smoke-test-linux.sh` (runner sem VLC) + roteiro L1 |
-| CA12 | CI + manual | `smoke-test-linux.sh` (marcador sobrevive ao `purge`) + roteiro L2 |
+| CA12 | CI + manual | `smoke-test-linux.sh` (atualização sobre 0.0.1; marcador sobrevive ao `purge`) + roteiro L2 |
 | CA13 | Manual | Release real, ou pré-visualização dos artefatos de `check-packages.yml` |
 | CA14 | CI | `package-version.sh`; `iscc` falha sem `AppVersion` |
 | CA15 | CI | Os três `smoke-test-*` (arquivos no disco) + `check-vlc-plugins.sh` no publish |

@@ -1,6 +1,6 @@
 # 0009 — Instaladores
 
-**Status:** Rascunho
+**Status:** Aprovada
 **Branch:** `feature/0009-instalador`
 
 ## Problema
@@ -80,7 +80,7 @@ Pipeline:
 - [ ] CA14 — Dado qualquer arquivo de `packaging/`, então nenhum contém número de versão do app. Toda versão vem do MinVer, e a pipeline falha se ela divergir da tag.
 - [ ] CA15 — Dado qualquer instalador, quando instalado, então `LICENSE`, `THIRD-PARTY-NOTICES.md` e `licenses/LGPL-2.1.txt` estão no disco, e a lista de plugins do VLC continua conferida (nenhum plugin fora da lista de permissão).
 - [ ] CA16 — Dado um push em `release/*` ou `hotfix/*`, ou um PR que mexa em empacotamento, quando a conferência roda, então cada instalador é gerado, instalado em silêncio, transcreve a amostra com o binário instalado (provando VLC e Whisper no lugar final) e é removido em silêncio, tudo antes do merge em `main`.
-- [ ] CA17 — Dada a conferência no Windows, então ela também prova que a janela abre, que a atualização sobre a versão publicada anterior funciona (quando já houver instalador publicado) e que um arquivo marcador na pasta de dados sobrevive à desinstalação silenciosa.
+- [ ] CA17 — Dada a conferência no Windows, então ela também prova que a janela abre, que a atualização sobre uma versão anterior funciona, que a versão anterior é recusada por cima da nova e que um arquivo marcador na pasta de dados sobrevive à desinstalação silenciosa.
 
 Documentação:
 - [ ] CA18 — Dada a wiki, então ela explica, por sistema, como instalar, atualizar e remover, como passar pelo aviso do SmartScreen e do Gatekeeper, onde ficam os dados e como apagá-los no macOS e no Linux.
@@ -93,12 +93,13 @@ Documentação:
 - **Smart App Control:** no Windows 11 com esse recurso ligado, programas sem assinatura são bloqueados sem opção de continuar, tanto no `.exe` quanto no `.zip`. A única saída é desligar o recurso, e a wiki deixa isso claro.
 - **Wiki:** sim, página de instalação reescrita (CA18). O `README.md` ganha a seção de download, que hoje diz que não há versões disponíveis.
 
-## Questões em aberto
+## Decisões do mantenedor
 
-Decisões do mantenedor antes da aprovação (cada uma tem recomendação em `design.md`):
+Aprovadas com a spec, conforme as recomendações do `design.md`:
 
-- **Q1 — Windows, `.exe` ou `.msi`:** recomendo `.exe` com Inno Setup. O Inno pede (sem obrigar) uma licença comercial a quem tem atividade com fins lucrativos e receita anual acima de US$ 5.000. Com o app gratuito, entendo que isso não se aplica hoje: confirme. O `.msi` só compensa para implantação por empresas, que não é o público.
-- **Q2 — Windows, para quem instalar:** recomendo só para o usuário atual, sem administrador. A alternativa é permitir instalar para todos, em `Program Files`, com pedido de administrador.
-- **Q3 — macOS e Linux nesta spec ou depois:** recomendo fazer os três agora, porque a pipeline e a conferência são compartilhadas. A alternativa é entregar só o Windows e abrir outra spec para os demais.
-- **Q4 — Publicar sem ícone:** recomendo publicar com o ícone padrão e trocá-lo quando a spec do ícone sair. A alternativa é fazer o ícone antes, o que atrasa esta spec.
-- **Q5 — Contato no `.deb`:** o campo `Maintainer` é obrigatório e público. Recomendo `Daniel Vieira Fernandes <DanielVieiraFernandes@users.noreply.github.com>`, para não expor um e-mail pessoal.
+- **Q1 — Windows:** `.exe` com Inno Setup. Com o app gratuito, a licença comercial que o Inno pede não se aplica hoje.
+- **Q2 — Para quem instalar:** só o usuário atual, sem administrador.
+- **Q3 — macOS e Linux:** entram nesta spec, junto do Windows.
+- **Q4 — Ícone:** publicar com o ícone padrão; o ícone próprio fica para a spec dele.
+- **Q5 — Contato no `.deb`:** `Daniel Vieira Fernandes <DanielVieiraFernandes@users.noreply.github.com>`.
+- **Assinatura:** continua fora, por enquanto. Windows e Linux instalam sem ela.
