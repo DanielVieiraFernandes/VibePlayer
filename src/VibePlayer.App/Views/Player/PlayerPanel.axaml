@@ -10,8 +10,10 @@
              x:Class="VibePlayer.App.Views.Player.PlayerPanel"
              x:DataType="vm:PlayerViewModel">
 
-    <!-- Em tela cheia a barra passa da linha de baixo para cima do vídeo (classe "fullscreen";
-         ver Controls.axaml) e some sozinha com o ponteiro parado (code-behind). -->
+    <!-- A barra NÃO leva Grid.Row aqui: valor local vence qualquer estilo, e foi isso que mantinha a
+         linha de baixo reservada em tela cheia (spec 0008). A linha vem de Controls.axaml: embaixo do
+         vídeo normalmente, por cima dele em tela cheia (classe "fullscreen"), onde some sozinha com o
+         ponteiro parado (code-behind). -->
     <Grid x:Name="Root" Classes="playerRoot" Classes.fullscreen="{Binding IsFullscreen}" RowDefinitions="*,Auto">
         <!-- Fundo do vídeo sempre escuro, nos dois temas (DESIGN.md, "Vídeo sempre escuro"). -->
         <Border x:Name="VideoArea"
@@ -75,7 +77,6 @@
         </Border>
 
         <Border x:Name="ControlsBar"
-                Grid.Row="1"
                 Classes="surface playerControls"
                 Height="{StaticResource PlayerControlsHeight}"
                 Padding="{StaticResource PaddingBar}"

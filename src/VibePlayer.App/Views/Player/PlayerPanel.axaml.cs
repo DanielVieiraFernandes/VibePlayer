@@ -15,7 +15,11 @@ public partial class PlayerPanel : UserControl
     /// <summary>Em tela cheia, a barra e o cursor somem depois deste tempo com o ponteiro parado.</summary>
     public static readonly TimeSpan ControlsHideDelay = TimeSpan.FromSeconds(3);
 
+    /// <summary>Plano B se a plataforma não informar o intervalo de duplo clique.</summary>
+    private static readonly TimeSpan DefaultClickDelay = TimeSpan.FromMilliseconds(400);
+
     private readonly DispatcherTimer _hideTimer;
+    private readonly DispatcherTimer _clickTimer = new() { Interval = DefaultClickDelay };
     private const double SeekPreviewGap = 8;
 
     private PlayerViewModel? _viewModel;
@@ -30,7 +34,22 @@ public partial class PlayerPanel : UserControl
         // Clicar no vídeo põe o foco no player: os atalhos simples (setas, letras) só agem com o
         // foco aqui, para não brigarem com a árvore da biblioteca (spec 0006, "Atalhos").
         VideoArea.PointerPressed += (_, _) => VideoArea.Focus();
-        VideoArea.DoubleTapped += (_, _) => _viewModel?.ToggleFullscreenCommand.Execute(null);
+        VideoArea.Tapped += OnVideoTapped;
+        VideoArea.DoubleTapped += (_, _) =>
+        {
+            // O primeiro clique do par só agenda a pausa; o duplo cancela, para entrar na tela
+            // cheia sem mexer na reprodução.
+            _clickTimer.Stop();
+            _viewModel?.ToggleFullscreenCommand.Execute(null);
+        };
+        _clickTimer.Tick += (_, _) =>
+        {
+            _clickTimer.Stop();
+            if (_viewModel is { } viewModel && viewModel.PlayPauseCommand.CanExecute(null))
+            {
+                viewModel.PlayPauseCommand.Execute(null);
+            }
+        };
         PointerMoved += (_, _) => ShowControls();
 
         // Barra compacta em players estreitos: sem anterior/próxima e sem o controle deslizante de
@@ -100,6 +119,24 @@ public partial class PlayerPanel : UserControl
         ControlsBar.Opacity = 0;
         ControlsBar.IsHitTestVisible = false;
         VideoArea.Cursor = new Cursor(StandardCursorType.None);
+    }
+
+    /// <summary>
+    /// Clique no vídeo alterna pausa/reprodução, mas só depois do intervalo de duplo clique da
+    /// plataforma: se vier um segundo clique, a intenção era a tela cheia e a pausa é descartada.
+    /// Botões sobre o vídeo (play do pôster, contagem da próxima aula) tratam o próprio clique.
+    /// </summary>
+    private void OnVideoTapped(object? sender, TappedEventArgs e)
+    {
+        if (e.Source is Visual source && source.FindAncestorOfType<Button>(includeSelf: true) is not null)
+        {
+            return;
+        }
+
+        _clickTimer.Interval = Application.Current?.PlatformSettings?.GetDoubleTapTime(e.Pointer?.Type ?? PointerType.Mouse)
+            ?? DefaultClickDelay;
+        _clickTimer.Stop();
+        _clickTimer.Start();
     }
 
     private void OnPositionPressed(object? sender, PointerPressedEventArgs e)

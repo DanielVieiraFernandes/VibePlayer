@@ -13,26 +13,57 @@
 
     <!-- Sem borda própria: a divisória arrastável já separa o painel do player. -->
     <Border Classes="surface">
+      <DockPanel>
+        <!-- As abas são só ícones (cabem em uma linha em 320 px); o nome da ativa fica aqui. -->
+        <TextBlock x:Name="ActiveTabTitle" DockPanel.Dock="Top" Classes="subtitle"
+                   Margin="{StaticResource PaddingPanel}"
+                   Text="{Binding SelectedTabTitle}" />
         <TabControl x:Name="Tabs"
                     SelectedIndex="{Binding SelectedTabIndex}"
                     Padding="0"
                     AutomationProperties.Name="{x:Static res:Strings.SidePanel_Name}">
-            <TabItem Header="{x:Static res:Strings.Tab_Lessons}">
+            <TabItem Classes="iconTab"
+                     AutomationProperties.Name="{x:Static res:Strings.Tab_Lessons}"
+                     ToolTip.Tip="{x:Static res:Strings.Tab_Lessons}">
+                <TabItem.Header>
+                    <ic:SymbolIcon Symbol="Video" />
+                </TabItem.Header>
                 <lib:LibraryView DataContext="{Binding Library}" />
             </TabItem>
-            <TabItem Header="{x:Static res:Strings.Tab_Transcription}">
+            <TabItem Classes="iconTab"
+                     AutomationProperties.Name="{x:Static res:Strings.Tab_Transcription}"
+                     ToolTip.Tip="{x:Static res:Strings.Tab_Transcription}">
+                <TabItem.Header>
+                    <ic:SymbolIcon Symbol="TextAlignLeft" />
+                </TabItem.Header>
                 <assistant:TranscriptionView DataContext="{Binding Transcription}" />
             </TabItem>
-            <TabItem Header="{x:Static res:Strings.Tab_Chat}">
+            <TabItem Classes="iconTab"
+                     AutomationProperties.Name="{x:Static res:Strings.Tab_Chat}"
+                     ToolTip.Tip="{x:Static res:Strings.Tab_Chat}">
+                <TabItem.Header>
+                    <ic:SymbolIcon Symbol="Chat" />
+                </TabItem.Header>
                 <assistant:ChatView DataContext="{Binding Assistant}" />
             </TabItem>
-            <TabItem Header="{x:Static res:Strings.Tab_Summary}">
+            <TabItem Classes="iconTab"
+                     AutomationProperties.Name="{x:Static res:Strings.Tab_Summary}"
+                     ToolTip.Tip="{x:Static res:Strings.Tab_Summary}">
+                <TabItem.Header>
+                    <ic:SymbolIcon Symbol="Document" />
+                </TabItem.Header>
                 <assistant:SummaryView DataContext="{Binding Assistant}" />
             </TabItem>
-            <TabItem Header="{x:Static res:Strings.Tab_KeyPoints}">
+            <TabItem Classes="iconTab"
+                     AutomationProperties.Name="{x:Static res:Strings.Tab_KeyPoints}"
+                     ToolTip.Tip="{x:Static res:Strings.Tab_KeyPoints}">
+                <TabItem.Header>
+                    <ic:SymbolIcon Symbol="Bookmark" />
+                </TabItem.Header>
                 <assistant:KeyPointsView DataContext="{Binding Assistant}" />
             </TabItem>
         </TabControl>
+      </DockPanel>
     </Border>
 
 </UserControl>

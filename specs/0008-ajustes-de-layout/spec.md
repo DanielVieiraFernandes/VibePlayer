@@ -1,6 +1,6 @@
 # 0008 — Ajustes de layout
 
-**Status:** Rascunho
+**Status:** Implementada
 **Branch:** `feature/0008-ajustes-de-layout`
 
 ## Problema
@@ -60,15 +60,15 @@ Causa provável (a confirmar no teste manual): `Grid.Row="1"` está escrito dire
 
 ## Critérios de aceite
 
-- [ ] CA1 — Dado um banco sem tamanho salvo, quando o app abre, então a janela tem o novo tamanho padrão.
-- [ ] CA2 — Dado tamanho salvo igual ao antigo padrão, quando o app abre, então usa o novo padrão; com outro tamanho salvo, mantém-no.
-- [ ] CA3 — O executável, a janela e a barra de tarefas mostram o ícone oficial; os pacotes de macOS e Linux contêm os formatos necessários (`.icns`, PNG).
-- [ ] CA4 — Dado vídeo tocando, quando clico uma vez no vídeo, então pausa; clicando de novo, reproduz.
-- [ ] CA5 — Dado clique duplo no vídeo, então alterna tela cheia e o estado de reprodução não muda.
-- [ ] CA6 — Clicar nos botões da barra não alterna a reprodução além da ação do próprio botão.
-- [ ] CA7 — Em tela cheia a barra fica sobre o vídeo; a área do vídeo tem o mesmo tamanho (a janela inteira) com a barra visível ou escondida.
-- [ ] CA8 — As cinco abas cabem em uma linha em 320 px, a ativa é distinguível, cada uma tem dica e nome acessível.
-- [ ] CA9 — Teste manual dos cinco pontos registrado em `tasks.md` (ou dito claramente quando não foi possível).
+- [x] CA1 — Dado um banco sem tamanho salvo, quando o app abre, então a janela tem o novo tamanho padrão.
+- [x] CA2 — Dado tamanho salvo igual ao antigo padrão, quando o app abre, então usa o novo padrão; com outro tamanho salvo, mantém-no.
+- [x] CA3 — O executável, a janela e a barra de tarefas mostram o ícone oficial; os pacotes de macOS e Linux contêm os formatos necessários (`.icns`, PNG).
+- [x] CA4 — Dado vídeo tocando, quando clico uma vez no vídeo, então pausa; clicando de novo, reproduz.
+- [x] CA5 — Dado clique duplo no vídeo, então alterna tela cheia e o estado de reprodução não muda.
+- [x] CA6 — Clicar nos botões da barra não alterna a reprodução além da ação do próprio botão.
+- [x] CA7 — Em tela cheia a barra fica sobre o vídeo; a área do vídeo tem o mesmo tamanho (a janela inteira) com a barra visível ou escondida.
+- [x] CA8 — As cinco abas cabem em uma linha em 320 px, a ativa é distinguível, cada uma tem dica e nome acessível.
+- [x] CA9 — Teste manual dos cinco pontos registrado em `tasks.md` (ou dito claramente quando não foi possível).
 
 ## Impacto para o usuário
 
@@ -77,3 +77,9 @@ Janela menor ao abrir; ícone novo; clique pausa; tela cheia completa; abas nova
 ## Questões em aberto
 
 D1 (tamanho e migração), D2 (A, B ou C), D3 (abas). Os testes manuais usarão uma pasta de dados temporária se o app permitir sobrescrevê-la; senão aviso antes de rodar.
+
+## Decisões do mantenedor
+
+Aprovado com "Recomendados": D1 = 1100 × 700 com migração do 1280 × 800; D3 = abas só com ícones. D2: o mantenedor não indicou letra; foi usada a **A (play simples)**, a recomendada por legibilidade em 16 px. Trocar é só mudar o desenho em `gerar-icones.py`/`icon.svg`.
+
+Adição fora do texto aprovado (pequena, para viabilizar o teste manual sem tocar na biblioteca real): variável `VIBEPLAYER_DATA_DIR` troca a pasta de dados.

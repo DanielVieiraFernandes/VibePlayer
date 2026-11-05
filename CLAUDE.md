@@ -134,6 +134,7 @@ Comentários, nomes de testes e mensagens de commit em português; identificador
 ## Reprodução
 
 - `PlayerViewModel` só conhece `IMediaPlayer` (Core). `VlcMediaPlayer` (Infrastructure) é a implementação; os E2E usam `FakeMediaPlayer`, e `VlcIntegrationTests` cobre o VLC real sem janela, com as amostras de `tests/fixtures/videos`.
+- **Clique e tela cheia (spec 0008):** clique simples no `VideoArea` alterna pausa só depois do intervalo de duplo clique da plataforma; o duplo clique cancela a pausa e alterna a tela cheia. A barra de controles **não pode ter `Grid.Row` local** em `PlayerPanel.axaml`: valor local vence o estilo `fullscreen` (`Controls.axaml`) que a põe sobre o vídeo, e a linha reservada deixava uma faixa vazia quando a barra sumia.
 - **Desenho:** `VlcFrameBuffer` recebe os quadros por callbacks (RV32, dois buffers, limite de 1920 px) e `VideoView` os copia para um `WriteableBitmap`. O vídeo é um controle comum: pode ter controles por cima, recebe mouse e teclado e funciona no headless. Não use `NativeControlHost`: sobre ele o app não recebe mouse, e o VLC 3 não troca de janela durante a reprodução.
 - **Regra de threads do VLC (derruba o processo se quebrada):** nunca chame o LibVLC de dentro de um evento ou callback dele. Isso inclui o código depois de `await media.Parse(...)`, que continua na thread do VLC: saia dela com `await Task.Yield()` antes de liberar a mídia. Eventos só atualizam estado e avisam; quem reage passa pela thread de UI ou pelo pool.
 - **Depois do `Dispose`:** tarefa agendada que chame o `MediaPlayer` passa pelo `_releaseLock` e confere se ele ainda existe. Usar o player nativo já liberado é violação de acesso, que nenhum `catch` pega.
@@ -163,6 +164,7 @@ Tudo fica na pasta de dados do usuário, `Environment.GetFolderPath(Environment.
 - **Banco:** `VibePlayerDbContext` (Infrastructure), sempre via `IDbContextFactory` com contextos curtos e acesso `async`; WAL ligado. Cada spec cria suas tabelas com uma migration própria; migrations publicadas nunca são editadas. `MigrationTests` falha se o modelo mudar sem migration.
 - **Inicialização:** `AppStartup.Prepare` (usado pelo `Program` e pelos E2E) roda o `DatabaseInitializer` antes da UI: backup → migrate → em falha, restaura o backup, mostra `DatabaseErrorWindow` e sai com código 2. Nunca abra a janela principal sobre um banco que não ficou pronto.
 - **Preferências:** `ISettingsStore` (Core) com chaves `SettingKey<T>` (nome permanente com prefixo por área, padrão, validação), gravadas como JSON na tabela `Settings`. Valor inválido volta ao padrão com aviso no log (só a chave). Layout da janela: `UiSettings` + `WindowStateTracker` (grava 500 ms depois da última mudança e ao fechar).
+- **Pasta de dados alternativa:** a variável de ambiente `VIBEPLAYER_DATA_DIR` troca a pasta de dados (para testar o app de verdade sem tocar na biblioteca real).
 - Chaves de API ficam no cofre do SO via `ISecretStore` (ver Multiplataforma), nunca no banco.
 - **Sem criptografia do banco (decisão do mantenedor):** o SQLite fica em texto normal, protegido pelas permissões da pasta de dados do usuário. Não adicione criptografia de colunas, SQLCipher, chaves embutidas no código nem senha mestra sem uma spec aprovada.
 
@@ -193,7 +195,7 @@ Tudo fica na pasta de dados do usuário, `Environment.GetFolderPath(Environment.
 
 ## UI
 
-Toda tela segue o [`DESIGN.md`](DESIGN.md) (paleta clara/escura, tipografia, espaçamento, componentes, estados, acessibilidade). Layout: player à esquerda; à direita, painel lateral recolhível com as abas *Aulas*, *Transcrição*, *Chat*, *Resumo* e *Pontos principais*.
+Toda tela segue o [`DESIGN.md`](DESIGN.md) (paleta clara/escura, tipografia, espaçamento, componentes, estados, acessibilidade). Layout: player à esquerda; à direita, painel lateral recolhível com as abas *Aulas*, *Transcrição*, *Chat*, *Resumo* e *Pontos principais*, mostradas só como ícones (com dica e nome acessível; o nome da ativa aparece acima). A janela abre com 1100 × 700. O ícone do app está em `src/VibePlayer.App/Assets` (`.ico`, `.png`, `.icns`, gerados por `gerar-icones.py` a partir de `icon.svg`).
 
 - **Tokens** em `src/VibePlayer.App/Styles/Tokens.axaml` (cores em `ThemeDictionaries` Light/Dark, sempre via `DynamicResource`; tamanhos, espaçamentos e raios via `StaticResource`) e **estilos por classe** em `Styles/Controls.axaml` (`TextBlock.title`, `Button.primary`, `Button.icon`, `StackPanel.emptyState`...). Views nunca têm cor, tamanho de fonte ou espaçamento literal — `ViewConventionsTests` falha se tiverem. Cor nova: nos dois temas e com par de contraste em `DESIGN.md` e `DesignTokenTests.Pairs`.
 - **Textos** em `src/VibePlayer.App/Resources/Strings.resx` (pt-BR; classe `Strings` gerada no build), usados com `{x:Static res:Strings.Area_Elemento}`. Nenhuma string visível solta em View ou ViewModel.
