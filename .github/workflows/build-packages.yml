@@ -21,7 +21,9 @@ jobs:
   package:
     name: Pacote ${{ matrix.rid }}
     strategy:
-      fail-fast: true
+      # Vai até o fim mesmo se um falhar: cada sistema quebra de um jeito, e a publicação depende
+      # de todos de qualquer forma.
+      fail-fast: false
       matrix:
         # Cada pacote é gerado num runner do próprio sistema: LibVLC e Whisper trazem bibliotecas
         # nativas por plataforma, e o instalador é testado onde foi gerado.

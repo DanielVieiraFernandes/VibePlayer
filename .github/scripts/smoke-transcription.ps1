@@ -52,18 +52,19 @@ try {
 
         # Bibliotecas nativas podem escrever na mesma saída: linha que não é JSON não é evento.
         try {
-            $kind = ($line | ConvertFrom-Json).Kind
+            $workerEvent = $line | ConvertFrom-Json
         }
         catch {
             continue
         }
 
-        switch ($kind) {
+        switch ($workerEvent.Kind) {
             'Done' {
                 Write-Host 'Transcrição concluída com o executável instalado.'
                 return
             }
-            'Error' { throw 'O processo de transcrição informou erro.' }
+            # Value é um código de TranscriptionErrors, nunca texto da aula.
+            'Error' { throw "O processo de transcrição informou o erro '$($workerEvent.Value)'." }
             'NoAudio' { throw 'O processo de transcrição não encontrou áudio na amostra.' }
         }
     }
