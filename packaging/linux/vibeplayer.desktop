@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=VibePlayer
+Comment=Player de cursos em vídeo com assistente de IA
+Exec=vibeplayer
+Icon=video-x-generic
+Terminal=false
+Categories=AudioVideo;Video;Player;
+StartupWMClass=VibePlayer

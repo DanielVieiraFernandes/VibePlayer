@@ -1,0 +1,34 @@
+name: Conferir pacotes
+
+# Gera e testa os instaladores antes do merge em main. release.yml cria a tag antes de empacotar,
+# então uma falha só ali deixaria uma tag sem release; aqui ela aparece com tempo de corrigir.
+#
+# Fica fora dos checks obrigatórios dos rulesets: com filtro de caminhos, um check que não dispara
+# deixaria o PR preso esperando por ele.
+on:
+  push:
+    branches: ['release/**', 'hotfix/**']
+  pull_request:
+    branches: [develop]
+    paths:
+      - 'packaging/**'
+      - '.github/workflows/build-packages.yml'
+      - '.github/workflows/check-packages.yml'
+      - '.github/scripts/install-inno-setup.ps1'
+      - '.github/scripts/package-version.sh'
+      - '.github/scripts/smoke-*'
+      - 'src/VibePlayer.App/*.targets'
+      - 'src/**/*.csproj'
+      - 'Directory.Packages.props'
+
+concurrency:
+  group: pacotes-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  packages:
+    name: Conferir
+    uses: ./.github/workflows/build-packages.yml

@@ -1,0 +1,12 @@
+Package: vibeplayer
+Version: @VERSION@
+Section: video
+Priority: optional
+Architecture: amd64
+Installed-Size: @INSTALLED_SIZE@
+Maintainer: Daniel Vieira Fernandes <DanielVieiraFernandes@users.noreply.github.com>
+Depends: libvlc5, libvlc-dev, vlc-plugin-base, vlc-plugin-video-output, libc6, libgcc-s1, libstdc++6, libssl3 | libssl3t64, libicu78 | libicu76 | libicu74 | libicu72, libx11-6, libice6, libsm6, libfontconfig1
+Homepage: https://github.com/DanielVieiraFernandes/VibePlayer
+Description: Player de cursos em vídeo com assistente de IA
+ Organiza cursos em vídeo guardados no computador e transcreve as aulas
+ localmente com o Whisper.

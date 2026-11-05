@@ -32,6 +32,7 @@ Pontos para a spec decidir:
   - tema manual;
   - restaurar backup pela interface e escolher a pasta de backup;
   - quantidade de backups.
-- Instaladores, assinatura e notarização dos binários.
+- Assinatura de código e notarização dos binários (Windows: certificado com HSM; macOS: Apple Developer Program). O Azure Artifact Signing não aceita pessoa física no Brasil.
+- Pacote `.rpm` para Fedora e derivados, se houver demanda.
 - Ícone e logo do app.
 - Bloquear PRs externos no repositório.

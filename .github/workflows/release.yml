@@ -1,7 +1,7 @@
 name: Publicar release
 
 # Dispara quando o PR de uma release/* ou hotfix/* é mesclado em main e faz, em ordem:
-# tag vX.Y.Z → binários por sistema → GitHub Release → PR de volta para develop.
+# tag vX.Y.Z → pacotes e instaladores testados → GitHub Release → PR de volta para develop.
 #
 # Tudo fica num workflow só porque uma tag criada dentro do Actions não dispara outros
 # workflows; separar em "on: push tags" exigiria um token extra só para isso.
@@ -58,71 +58,12 @@ jobs:
           git push origin "refs/tags/v$VERSION"
 
   build:
-    name: Pacote ${{ matrix.rid }}
+    name: Pacotes
     needs: prepare
-    strategy:
-      fail-fast: true
-      matrix:
-        # Cada pacote é gerado num runner do próprio sistema: hoje daria para gerar todos a
-        # partir do Linux, mas LibVLC e Whisper trarão bibliotecas nativas por plataforma.
-        include:
-          - { os: windows-latest, rid: win-x64 }
-          - { os: macos-latest, rid: osx-arm64 }
-          - { os: macos-latest, rid: osx-x64 }
-          - { os: ubuntu-latest, rid: linux-x64 }
-    runs-on: ${{ matrix.os }}
-    env:
-      DOTNET_NOLOGO: true
-      DOTNET_CLI_TELEMETRY_OPTOUT: true
-      VERSION: ${{ needs.prepare.outputs.version }}
-      RID: ${{ matrix.rid }}
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: v${{ needs.prepare.outputs.version }}
-          # O MinVer lê a tag para gravar a versão real nos binários.
-          fetch-depth: 0
-
-      - uses: actions/setup-dotnet@v4
-        with:
-          global-json-file: global.json
-
-      - name: Publicar
-        shell: bash
-        run: |
-          # Self-contained: o usuário não precisa ter o .NET instalado.
-          dotnet publish src/VibePlayer.App/VibePlayer.App.csproj \
-            --configuration Release \
-            --runtime "$RID" \
-            --self-contained true \
-            --output publish/VibePlayer
-          cp -r LICENSE THIRD-PARTY-NOTICES.md licenses publish/VibePlayer/
-
-      - name: Conferir plugins do VLC
-        shell: bash
-        run: bash .github/scripts/check-vlc-plugins.sh publish/VibePlayer
-
-      - name: Empacotar (zip)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force dist | Out-Null
-          Compress-Archive -Path publish/VibePlayer -DestinationPath "dist/VibePlayer-$env:VERSION-$env:RID.zip"
-
-      - name: Empacotar (tar.gz)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          # tar, e não zip, porque preserva a permissão de execução do binário no macOS e no Linux.
-          mkdir -p dist
-          tar -czf "dist/VibePlayer-$VERSION-$RID.tar.gz" -C publish VibePlayer
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: pacote-${{ matrix.rid }}
-          path: dist/*
-          if-no-files-found: error
+    uses: ./.github/workflows/build-packages.yml
+    with:
+      ref: v${{ needs.prepare.outputs.version }}
+      expected-version: ${{ needs.prepare.outputs.version }}
 
   publish:
     name: Publicar GitHub Release
@@ -147,9 +88,18 @@ jobs:
             --verify-tag \
             --title "VibePlayer v$VERSION" \
             --generate-notes \
-            --notes "Baixe o pacote do seu sistema abaixo, extraia e execute \`VibePlayer\`.
+            --notes "Baixe o instalador do seu sistema abaixo:
 
-          > Os binários ainda não são assinados. Na primeira abertura, o Windows mostra \"O Windows protegeu o computador\" (clique em **Mais informações → Executar assim mesmo**) e o macOS pede liberação em **Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim**."
+          | Sistema | Arquivo |
+          |---|---|
+          | Windows | \`VibePlayer-$VERSION-win-x64-setup.exe\` |
+          | macOS (Apple Silicon) | \`VibePlayer-$VERSION-osx-arm64.dmg\` |
+          | macOS (Intel) | \`VibePlayer-$VERSION-osx-x64.dmg\` |
+          | Ubuntu, Debian e derivados | \`VibePlayer-$VERSION-linux-x64.deb\` (instale com \`sudo apt install ./arquivo.deb\`) |
+
+          Os \`.zip\` e \`.tar.gz\` são a versão portátil: extraia e execute \`VibePlayer\`. Em outras distribuições Linux, use o \`.tar.gz\` e instale o VLC pelo gerenciador de pacotes.
+
+          > Os binários ainda não são assinados. O Windows mostra \"O Windows protegeu o computador\" (clique em **Mais informações → Executar assim mesmo**), e o macOS pede liberação em **Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim**. Veja a [wiki](https://github.com/${{ github.repository }}/wiki)."
 
   back-merge:
     name: Levar a release de volta para develop
