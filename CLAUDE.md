@@ -160,7 +160,7 @@ Spec 0009. Empacotam a saída do `dotnet publish`; nada no app sabe que foi inst
 
 - **Windows:** `.exe` do Inno Setup, fixado com hash em `.github/scripts/install-inno-setup.ps1`. Instala só para o usuário, sem administrador, em `%LOCALAPPDATA%\Programs\VibePlayer`. A desinstalação pergunta antes de apagar a pasta de dados, com **Não** como padrão; em modo silencioso, nunca apaga.
 - **macOS:** `.dmg` com `.app`, um por arquitetura, com a saída do publish em `Contents/MacOS` e assinatura ad-hoc (não evita o Gatekeeper).
-- **Linux:** `.deb` em `/opt/vibeplayer`. O `Depends` traz o VLC, porque o app usa o do sistema. Sem scripts de manutenção: nem `purge` toca nos dados. Outras distribuições usam o `.tar.gz`.
+- **Linux:** `.deb` em `/opt/vibeplayer`. O `Depends` traz o VLC, porque o app usa o do sistema, e `libvlc-dev`, que cria o link `libvlc.so`, o nome que o LibVLCSharp procura: só com `libvlc5`, o app acusa VLC ausente. Sem scripts de manutenção: nem `purge` toca nos dados. Outras distribuições usam o `.tar.gz`.
 - **Identificadores permanentes:** `AppGuid` em `VibePlayer.iss`, `CFBundleIdentifier` em `Info.plist` e `Package` em `control`. Trocar um deles cria uma segunda instalação.
 - **Versão:** `package-version.sh` lê do MinVer. Nenhum arquivo de `packaging/` tem número de versão, e a release falha se ele divergir da tag.
 - **Pipeline:** `build-packages.yml` é reutilizável e gera e testa tudo; `release.yml` e `check-packages.yml` o chamam. A conferência roda no push de `release/*` e `hotfix/*` e em PRs que mexem em empacotamento, porque `release.yml` cria a tag antes de empacotar. Ela fica fora dos checks obrigatórios (o filtro de caminhos deixaria PRs presos).

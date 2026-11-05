@@ -5,31 +5,33 @@ Marque cada tarefa ao concluir.
 ## Implementação
 
 Base:
-- [ ] T1 — `package-version.sh`: ler `MinVerVersion`, `Major`, `Minor` e `Patch` com `dotnet msbuild -t:MinVer -getProperty:...` e falhar se divergir da tag numa release.
-- [ ] T2 — `install-inno-setup.ps1`: instalar o Inno Setup 7.1.1 com SHA-256 fixado, depois de reler a licença dessa versão.
+- [x] T1 — `package-version.sh`: ler `MinVerVersion`, `Major`, `Minor` e `Patch` com `dotnet msbuild -t:MinVer -getProperty:...` e falhar se divergir da tag numa release.
+- [x] T2 — `install-inno-setup.ps1`: instalar o Inno Setup 7.1.1 com SHA-256 fixado, depois de reler a licença dessa versão.
 
 Windows:
-- [ ] T3 — `packaging/windows/VibePlayer.iss`: identidade (`AppId` gerado uma vez), pasta, instalação por usuário, pt-BR, licença, atalhos, `[InstallDelete]`, `CloseApplications`, opção de abrir o app ao concluir.
-- [ ] T4 — `[Code]`: recusa de versão antiga e pergunta sobre os dados na desinstalação.
+- [x] T3 — `packaging/windows/VibePlayer.iss`: identidade (`AppId` gerado uma vez), pasta, instalação por usuário, pt-BR, licença, atalhos, `[InstallDelete]`, `CloseApplications`, opção de abrir o app ao concluir.
+- [x] T4 — `[Code]`: recusa de versão antiga e pergunta sobre os dados na desinstalação.
 - [ ] T5 — Conferir no assistente real os acentos de `LICENSE` (a documentação do Inno aceita UTF-8 sem BOM).
 
 macOS:
-- [ ] T6 — `packaging/macos/Info.plist` e `build-dmg.sh`: `.app`, avisos de licença, assinatura ad-hoc e `.dmg` com atalho para Aplicativos.
+- [x] T6 — `packaging/macos/Info.plist` e `build-dmg.sh`: `.app`, avisos de licença, assinatura ad-hoc e `.dmg` com atalho para Aplicativos.
 
 Linux:
-- [ ] T7 — `packaging/linux/control`, `vibeplayer.desktop` e `build-deb.sh`.
+- [x] T7 — `packaging/linux/control`, `vibeplayer.desktop` e `build-deb.sh`.
 
 Pipeline:
-- [ ] T8 — `build-packages.yml` (reutilizável): mover os passos de `build` de `release.yml`, sem mudar `.zip` e `.tar.gz`, e acrescentar instalador e teste por RID.
-- [ ] T9 — `smoke-transcription.ps1`, `smoke-test-windows.ps1`, `smoke-test-macos.sh` e `smoke-test-linux.sh`, com a matriz do `design.md`.
-- [ ] T10 — `check-packages.yml` com os gatilhos do `design.md`.
-- [ ] T11 — `release.yml`: chamar o workflow reutilizável e atualizar as notas da release (qual arquivo baixar, avisos de segurança).
-- [ ] T12 — Acompanhar `check-packages.yml` no PR desta branch e corrigir o que aparecer nos três sistemas.
+- [x] T8 — `build-packages.yml` (reutilizável): mover os passos de `build` de `release.yml`, sem mudar `.zip` e `.tar.gz`, e acrescentar instalador e teste por RID.
+- [x] T9 — `smoke-transcription.ps1`, `smoke-test-windows.ps1`, `smoke-test-macos.sh` e `smoke-test-linux.sh`, com a matriz do `design.md`.
+- [x] T10 — `check-packages.yml` com os gatilhos do `design.md`.
+- [x] T11 — `release.yml`: chamar o workflow reutilizável e atualizar as notas da release (qual arquivo baixar, avisos de segurança).
+- [x] T12 — Acompanhar `check-packages.yml` no PR desta branch e corrigir o que aparecer nos três sistemas.
 
 Conferências finais:
 - [ ] T13 — Executar o roteiro manual e anotar no PR o que não pôde ser testado.
-- [ ] T14 — Conferir que nada em `src/`, `Views` ou `Styles` mudou e que `dotnet test VibePlayer.slnx` continua passando.
+- [x] T14 — Conferir que nada em `src/`, `Views` ou `Styles` mudou e que `dotnet test VibePlayer.slnx` continua passando.
 - [ ] T15 — Confirmar num Mac o caminho real da pasta de dados, antes de citá-lo na wiki.
+
+**Pendentes, porque dependem de máquina real** (T5, T13 e T15): ficam com o mantenedor e estão anotadas no PR, como o CA19 permite.
 
 ## Testes
 
@@ -78,9 +80,9 @@ Use uma máquina ou VM limpa, com o instalador baixado pelo navegador: é o que 
 
 ## Documentação
 
-- [ ] `CLAUDE.md`: seção de empacotamento, pacotes publicados, estrutura (`packaging/`), `AppId` e identificador do macOS como permanentes
-- [ ] `docs/backlog.md`: tirar "Instaladores" das specs previstas, manter assinatura, notarização e atualização automática, registrar `.rpm`
-- [ ] `THIRD-PARTY-NOTICES.md`: incluir o Inno Setup
-- [ ] `README.md`: seção de download e status, que hoje dizem não haver versões
-- [ ] `DESIGN.md`: não se aplica (a UI do app não muda)
-- [ ] Wiki: instalar, atualizar e remover por sistema; SmartScreen, Smart App Control e Gatekeeper; onde ficam os dados e como apagá-los; migração a partir do `.zip`
+- [x] `CLAUDE.md`: seção de empacotamento, pacotes publicados, estrutura (`packaging/`), `AppId` e identificador do macOS como permanentes
+- [x] `docs/backlog.md`: tirar "Instaladores" das specs previstas, manter assinatura, notarização e atualização automática, registrar `.rpm`
+- [x] `THIRD-PARTY-NOTICES.md`: incluir o Inno Setup
+- [x] `README.md`: seção de download e status, que hoje dizem não haver versões
+- [x] `DESIGN.md`: não se aplica (a UI do app não muda)
+- [x] Wiki: instalar, atualizar e remover por sistema; SmartScreen, Smart App Control e Gatekeeper; onde ficam os dados e como apagá-los; migração a partir do `.zip`

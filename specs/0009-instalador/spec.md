@@ -1,6 +1,6 @@
 # 0009 — Instaladores
 
-**Status:** Aprovada
+**Status:** Implementada
 **Branch:** `feature/0009-instalador`
 
 ## Problema
