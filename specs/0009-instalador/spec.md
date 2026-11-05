@@ -67,24 +67,26 @@ Instalador do Windows:
 - [ ] CA5 — Dado o app instalado em versão mais nova, quando o usuário roda um instalador mais antigo, então a instalação é recusada com uma mensagem clara, e nada muda (o banco de uma versão nova não abre com segurança numa antiga).
 - [ ] CA6 — Dado o desinstalador em modo normal, quando o usuário responde **Não** ou fecha a pergunta, então a pasta de programa some e `ApplicationData/VibePlayer` fica intacta. **Não** é a resposta padrão.
 - [ ] CA7 — Dado o desinstalador em modo normal, quando o usuário responde **Sim**, então `ApplicationData/VibePlayer` é apagada. A pergunta mostra o caminho e diz o que se perde (biblioteca, progresso, transcrições, backups, modelos baixados), e que os vídeos não são tocados.
-- [ ] CA8 — Dado o desinstalador em modo silencioso, então a pasta de dados **nunca** é apagada.
+- [x] CA8 — Dado o desinstalador em modo silencioso, então a pasta de dados **nunca** é apagada.
 
 macOS e Linux:
 - [ ] CA9 — Dado o `.dmg` correto para o processador, quando o usuário arrasta o app para Aplicativos e o libera seguindo a wiki, então ele abre, reproduz vídeo e transcreve.
 - [ ] CA10 — Dado o app no macOS, quando ele é arrastado para a Lixeira, ou trocado pelo de uma versão nova, então a pasta de dados fica intacta.
 - [ ] CA11 — Dado Ubuntu ou Debian sem VLC, quando o usuário roda `sudo apt install ./VibePlayer-X.Y.Z-linux-x64.deb`, então o VLC é instalado junto, o app aparece no menu de aplicativos, abre pelo comando `vibeplayer`, reproduz vídeo e transcreve.
-- [ ] CA12 — Dado o `.deb` instalado, quando o usuário instala um `.deb` mais novo, então a versão muda sem resíduos da anterior. Quando roda `apt remove` ou `apt purge`, então os arquivos do app somem e a pasta de dados na pasta do usuário fica intacta.
+- [x] CA12 — Dado o `.deb` instalado, quando o usuário instala um `.deb` mais novo, então a versão muda sem resíduos da anterior. Quando roda `apt remove` ou `apt purge`, então os arquivos do app somem e a pasta de dados na pasta do usuário fica intacta.
 
 Pipeline:
 - [ ] CA13 — Dada uma release, quando a pipeline termina, então o GitHub Release traz os quatro pacotes atuais e mais `-win-x64-setup.exe`, dois `.dmg` e um `.deb`, todos com a versão da tag, e a falha de qualquer instalador impede a publicação.
-- [ ] CA14 — Dado qualquer arquivo de `packaging/`, então nenhum contém número de versão do app. Toda versão vem do MinVer, e a pipeline falha se ela divergir da tag.
-- [ ] CA15 — Dado qualquer instalador, quando instalado, então `LICENSE`, `THIRD-PARTY-NOTICES.md` e `licenses/LGPL-2.1.txt` estão no disco, e a lista de plugins do VLC continua conferida (nenhum plugin fora da lista de permissão).
-- [ ] CA16 — Dado um push em `release/*` ou `hotfix/*`, ou um PR que mexa em empacotamento, quando a conferência roda, então cada instalador é gerado, instalado em silêncio, transcreve a amostra com o binário instalado (provando VLC e Whisper no lugar final) e é removido em silêncio, tudo antes do merge em `main`.
-- [ ] CA17 — Dada a conferência no Windows, então ela também prova que a janela abre, que a atualização sobre uma versão anterior funciona, que a versão anterior é recusada por cima da nova e que um arquivo marcador na pasta de dados sobrevive à desinstalação silenciosa.
+- [x] CA14 — Dado qualquer arquivo de `packaging/`, então nenhum contém número de versão do app. Toda versão vem do MinVer, e a pipeline falha se ela divergir da tag.
+- [x] CA15 — Dado qualquer instalador, quando instalado, então `LICENSE`, `THIRD-PARTY-NOTICES.md` e `licenses/LGPL-2.1.txt` estão no disco, e a lista de plugins do VLC continua conferida (nenhum plugin fora da lista de permissão).
+- [x] CA16 — Dado um push em `release/*` ou `hotfix/*`, ou um PR que mexa em empacotamento, quando a conferência roda, então cada instalador é gerado, instalado em silêncio, transcreve a amostra com o binário instalado (provando VLC e Whisper no lugar final) e é removido em silêncio, tudo antes do merge em `main`.
+- [x] CA17 — Dada a conferência no Windows, então ela também prova que a janela abre, que a atualização sobre uma versão anterior funciona, que a versão anterior é recusada por cima da nova e que um arquivo marcador na pasta de dados sobrevive à desinstalação silenciosa.
 
 Documentação:
-- [ ] CA18 — Dada a wiki, então ela explica, por sistema, como instalar, atualizar e remover, como passar pelo aviso do SmartScreen e do Gatekeeper, onde ficam os dados e como apagá-los no macOS e no Linux.
+- [x] CA18 — Dada a wiki, então ela explica, por sistema, como instalar, atualizar e remover, como passar pelo aviso do SmartScreen e do Gatekeeper, onde ficam os dados e como apagá-los no macOS e no Linux.
 - [ ] CA19 — Dado o roteiro de teste manual de `tasks.md`, então ele foi executado numa máquina real de cada sistema disponível, e o que não pôde ser testado está anotado no PR.
+
+Os critérios sem marca dependem de máquina real ou de uma release (roteiro manual de `tasks.md`) e estão anotados no PR.
 
 ## Impacto para o usuário
 
