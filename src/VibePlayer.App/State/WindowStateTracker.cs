@@ -53,7 +53,7 @@ public sealed class WindowStateTracker(ISettingsStore settings, ILogger<WindowSt
             await settings.GetAsync(UiSettings.SidePanelOpen, cancellationToken).ConfigureAwait(false),
             await settings.GetAsync(UiSettings.SidePanelWidth, cancellationToken).ConfigureAwait(false),
             await settings.GetAsync(UiSettings.SidePanelTab, cancellationToken).ConfigureAwait(false),
-            await settings.GetAsync(UiSettings.WindowSize, cancellationToken).ConfigureAwait(false),
+            UiSettings.WindowSizeOrDefault(await settings.GetAsync(UiSettings.WindowSize, cancellationToken).ConfigureAwait(false)),
             await settings.GetAsync(UiSettings.WindowMaximized, cancellationToken).ConfigureAwait(false));
     }
 

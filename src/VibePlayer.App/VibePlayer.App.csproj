@@ -4,6 +4,8 @@
     <AssemblyName>VibePlayer</AssemblyName>
     <RootNamespace>VibePlayer.App</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Ícone do VibePlayer.exe no Explorer e na barra de tarefas do Windows (spec 0008). -->
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <!-- Cópia dos quadros de vídeo para o bitmap da tela (Controls/VideoView). -->
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -21,6 +23,18 @@
       <StronglyTypedClassName>Strings</StronglyTypedClassName>
       <PublicClass>true</PublicClass>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Ícone da janela (todos os SOs). -->
+    <AvaloniaResource Include="Assets\icon-256.png" />
+    <AvaloniaResource Include="Assets\app.ico" />
+    <!--
+      Arquivos soltos nos pacotes: o .icns é o formato do macOS e o PNG serve a atalhos .desktop no
+      Linux; o instalador (spec 0009) e quem monta o .app usam. Vão para a pasta publicada sem
+      alterar o release.yml.
+    -->
+    <None Include="Assets\app.ico;Assets\app.icns;Assets\icon-256.png" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

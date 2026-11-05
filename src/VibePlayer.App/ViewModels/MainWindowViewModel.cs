@@ -1,3 +1,4 @@
+using VibePlayer.App.Resources;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
@@ -121,6 +122,16 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     public partial SidePanelTab SelectedTab { get; set; }
 
+    /// <summary>Nome da aba ativa, mostrado acima das abas (que são só ícones).</summary>
+    public string SelectedTabTitle => SelectedTab switch
+    {
+        SidePanelTab.Lessons => Strings.Tab_Lessons,
+        SidePanelTab.Transcription => Strings.Tab_Transcription,
+        SidePanelTab.Chat => Strings.Tab_Chat,
+        SidePanelTab.Summary => Strings.Tab_Summary,
+        _ => Strings.Tab_KeyPoints,
+    };
+
     /// <summary>Índice para o TabControl, que trabalha com SelectedIndex.</summary>
     public int SelectedTabIndex
     {
@@ -177,6 +188,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     partial void OnSelectedTabChanged(SidePanelTab value)
     {
         OnPropertyChanged(nameof(SelectedTabIndex));
+        OnPropertyChanged(nameof(SelectedTabTitle));
         _logger.LogDebug("Aba do painel lateral: {Tab}", value);
     }
 }

@@ -74,6 +74,49 @@ public sealed class WindowStateTests : IDisposable
     }
 
     [AvaloniaFact]
+    public void PrimeiraAbertura_UsaOTamanhoPadraoNovo()
+    {
+        using var services = _data.BuildServices();
+        var window = Open(services);
+
+        window.ClientSize.ShouldBe(new Avalonia.Size(UiSettings.WindowSize.Default.Width, UiSettings.WindowSize.Default.Height));
+        window.Close();
+    }
+
+    [AvaloniaFact]
+    public void TamanhoAntigoSalvo_AbreComOPadraoNovoEOutroTamanhoPermanece()
+    {
+        // Quem só abriu e fechou o app tem o padrão antigo gravado.
+        using (var services = _data.BuildServices())
+        {
+            AppStartup.Prepare(services).Succeeded.ShouldBeTrue();
+            services.GetRequiredService<ISettingsStore>().SetAsync(UiSettings.WindowSize, UiSettings.LegacyWindowSize).GetAwaiter().GetResult();
+        }
+
+        using (var services = _data.BuildServices())
+        {
+            var window = Open(services);
+            window.ClientSize.Width.ShouldBe(UiSettings.WindowSize.Default.Width);
+            window.ClientSize.Height.ShouldBe(UiSettings.WindowSize.Default.Height);
+            window.Close();
+        }
+
+        using (var services = _data.BuildServices())
+        {
+            AppStartup.Prepare(services).Succeeded.ShouldBeTrue();
+            services.GetRequiredService<ISettingsStore>().SetAsync(UiSettings.WindowSize, new WindowSize(1000, 650)).GetAwaiter().GetResult();
+        }
+
+        using (var services = _data.BuildServices())
+        {
+            var window = Open(services);
+            window.ClientSize.Width.ShouldBe(1000);
+            window.ClientSize.Height.ShouldBe(650);
+            window.Close();
+        }
+    }
+
+    [AvaloniaFact]
     public void MudancasRapidas_GravamUmaVez()
     {
         CountingSettingsStore? counter = null;

@@ -29,8 +29,8 @@ Padrão visual do app. Toda tela segue este documento; os valores vivem em
 
 | Região | Regra |
 |---|---|
-| Janela | Mínimo 960 × 600; abre com 1280 × 800. Barra de título do sistema. |
-| Player | Largura mínima 400; ocupa o espaço que sobra. |
+| Janela | Mínimo 960 × 600; abre com 1100 × 700 (quem tinha salvo exatamente 1280 × 800, o padrão antigo, passa a abrir com o novo). Barra de título do sistema, com o ícone do app. |
+| Player | Largura mínima 400; ocupa o espaço que sobra. Clique no vídeo alterna pausa (após o intervalo de duplo clique); duplo clique alterna a tela cheia. Em tela cheia a barra de controles fica sobre o vídeo, sem reservar espaço. |
 | Painel lateral | Padrão 380, de 320 a 560, nunca deixando o player abaixo de 400. Recolhe por completo (Ctrl/⌘+B); ao reabrir, volta à última largura. |
 | Abas do painel | *Aulas*, *Transcrição*, *Chat*, *Resumo*, *Pontos principais*, nesta ordem; Ctrl/⌘+1…5 abre direto em cada uma. |
 | Notificações | Canto inferior direito, no máximo 3 ao mesmo tempo. |
@@ -127,6 +127,10 @@ Grade de 4 px.
 
 Elevação é feita com **superfície** (`SurfaceRaised`) e borda sutil, não com sombras: sombras somem no tema escuro e custam desempenho de renderização.
 
+## Ícone do aplicativo
+
+Quadrado arredondado em `#6D4AFF` (o `Accent`) com um triângulo de *play* branco. Fonte em `src/VibePlayer.App/Assets/icon.svg`; `gerar-icones.py` produz `app.ico` (executável e janela no Windows), `icon-256.png` (janela em todos os SOs) e `app.icns` (macOS). Os três vão para a pasta `Assets/` dos pacotes. Toda `Window` recebe o ícone por estilo em `Controls.axaml`.
+
 ## Ícones
 
 [Fluent UI System Icons](https://github.com/microsoft/fluentui-system-icons) via `FluentIcons.Avalonia` (`<ic:SymbolIcon Symbol="Play" />`), no estilo *Regular*. Tamanhos: `IconSize` 20 (padrão), `IconSizeSmall` 16, `IconSizeEmptyState` 40. Ícone sem texto ao lado sempre tem `AutomationProperties.Name` e, quando útil, `ToolTip.Tip`.
@@ -142,7 +146,7 @@ Elevação é feita com **superfície** (`SurfaceRaised`) e borda sutil, não co
 | Botão de ícone | `Button.icon` / `ToggleButton.icon` | 32 × 32, ícone 20 | Sem fundo; toggle ligado usa `AccentSubtle` |
 | Botão compacto de texto | `Button.ghost` | altura 32 | Ex.: velocidade "1x" |
 | Campo de texto | `TextBox` | altura 36, raio 8 | Placeholder diz o que digitar |
-| Abas | `TabItem` | altura 40, texto 14 SemiBold | As abas passam para uma segunda linha em 320 |
+| Abas | `TabItem.iconTab` | altura 40, só ícone 20 | Cinco abas em uma linha em 320. Dica (`ToolTip`) e `AutomationProperties.Name` com o nome; ativa em `AccentText`, ícone preenchido e sublinhado; o nome da ativa fica no título acima das abas |
 | Divisória | `Thumb.splitter` | largura 4 | `BorderSubtle`; `Accent` no hover |
 | Estado vazio | `StackPanel.emptyState` | largura máx. 320 | Ícone 40 em `AccentText`, título `subtitle`, explicação `body secondary`, ação opcional |
 | Notificação | `WindowNotificationManager` | — | Erro: "Algo deu errado" + "Os detalhes foram registrados no log." |
