@@ -6,6 +6,12 @@ public sealed class AppPaths : IAppPaths
 {
     private const string AppFolderName = "VibePlayer";
 
+    /// <summary>
+    /// Pasta de dados alternativa, para testar o app de verdade sem tocar na biblioteca real
+    /// (teste manual da spec 0008). Quem não define a variável não nota diferença.
+    /// </summary>
+    public const string DataDirectoryVariable = "VIBEPLAYER_DATA_DIR";
+
     /// <param name="dataDirectory">
     /// Raiz dos dados. Em produção use <see cref="CreateDefault"/>; os testes passam uma pasta
     /// temporária para não tocar nos dados reais do usuário.
@@ -50,7 +56,9 @@ public sealed class AppPaths : IAppPaths
     /// então não há código específico por plataforma aqui.
     /// </remarks>
     public static AppPaths CreateDefault() =>
-        new(Path.Combine(
+        new(Environment.GetEnvironmentVariable(DataDirectoryVariable) is { Length: > 0 } custom
+            ? custom
+            : Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             AppFolderName));
 }

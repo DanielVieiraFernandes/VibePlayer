@@ -1,0 +1,144 @@
+name: Gerar pacotes
+
+# Publica, empacota e testa cada RID. É um workflow reutilizável para a release e a conferência
+# antes do merge gerarem exatamente os mesmos pacotes (spec 0009).
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: "Referência a empacotar; vazio usa a do evento"
+        type: string
+        default: ""
+      expected-version:
+        description: "Versão que o MinVer precisa calcular; vazio não confere"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Pacote ${{ matrix.rid }}
+    strategy:
+      # Vai até o fim mesmo se um falhar: cada sistema quebra de um jeito, e a publicação depende
+      # de todos de qualquer forma.
+      fail-fast: false
+      matrix:
+        # Cada pacote é gerado num runner do próprio sistema: LibVLC e Whisper trazem bibliotecas
+        # nativas por plataforma, e o instalador é testado onde foi gerado.
+        include:
+          - { os: windows-latest, rid: win-x64 }
+          - { os: macos-latest, rid: osx-arm64 }
+          - { os: macos-latest, rid: osx-x64 }
+          - { os: ubuntu-latest, rid: linux-x64 }
+    runs-on: ${{ matrix.os }}
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      RID: ${{ matrix.rid }}
+      EXPECTED_VERSION: ${{ inputs.expected-version }}
+      MODEL: ${{ github.workspace }}/.whisper-model/ggml-tiny-q5_1.bin
+      FIXTURE: ${{ github.workspace }}/tests/fixtures/audio/fala-jfk.m4a
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          # O MinVer lê a tag para gravar a versão real nos binários.
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Ler a versão do MinVer
+        shell: bash
+        run: bash .github/scripts/package-version.sh "$EXPECTED_VERSION" >> "$GITHUB_ENV"
+
+      - name: Publicar
+        shell: bash
+        run: |
+          # Self-contained: o usuário não precisa ter o .NET instalado.
+          dotnet publish src/VibePlayer.App/VibePlayer.App.csproj \
+            --configuration Release \
+            --runtime "$RID" \
+            --self-contained true \
+            --output publish/VibePlayer
+          cp -r LICENSE THIRD-PARTY-NOTICES.md licenses publish/VibePlayer/
+
+      - name: Conferir plugins do VLC
+        shell: bash
+        run: bash .github/scripts/check-vlc-plugins.sh publish/VibePlayer
+
+      - name: Empacotar (zip)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Compress-Archive -Path publish/VibePlayer -DestinationPath "dist/VibePlayer-$env:PACKAGE_VERSION-$env:RID.zip"
+
+      - name: Empacotar (tar.gz)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          # tar, e não zip, porque preserva a permissão de execução do binário no macOS e no Linux.
+          mkdir -p dist
+          tar -czf "dist/VibePlayer-$PACKAGE_VERSION-$RID.tar.gz" -C publish VibePlayer
+
+      - name: Gerar o instalador (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $compiler = .github/scripts/install-inno-setup.ps1 -Destination "$env:RUNNER_TEMP\inno-setup"
+          "ISCC=$compiler" >> $env:GITHUB_ENV
+          packaging/windows/build-installer.ps1 -Compiler $compiler -Source publish/VibePlayer -Output dist `
+            -Version $env:PACKAGE_VERSION -NumericVersion $env:PACKAGE_NUMERIC_VERSION
+
+      - name: Gerar o instalador (macOS)
+        if: runner.os == 'macOS'
+        run: bash packaging/macos/build-dmg.sh publish/VibePlayer dist "$PACKAGE_VERSION" "$PACKAGE_NUMERIC_VERSION" "$RID"
+
+      - name: Gerar o instalador (Linux)
+        if: runner.os == 'Linux'
+        run: bash packaging/linux/build-deb.sh publish/VibePlayer dist "$PACKAGE_VERSION"
+
+      - name: Cache do modelo do Whisper
+        uses: actions/cache@v4
+        with:
+          path: .whisper-model
+          key: whisper-model-ggml-tiny-q5_1-81871056
+
+      - name: Baixar o modelo do Whisper
+        shell: bash
+        run: bash .github/scripts/download-whisper-test-model.sh .whisper-model/ggml-tiny-q5_1.bin
+
+      - name: Testar o instalador (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          .github/scripts/smoke-test-windows.ps1 -Compiler $env:ISCC -Publish publish/VibePlayer `
+            -Installer "dist/VibePlayer-$env:PACKAGE_VERSION-win-x64-setup.exe" -Version $env:PACKAGE_VERSION `
+            -Model $env:MODEL -Fixture $env:FIXTURE -Logs "$env:RUNNER_TEMP/logs-do-instalador"
+
+      - name: Testar o instalador (macOS)
+        if: runner.os == 'macOS'
+        run: bash .github/scripts/smoke-test-macos.sh "dist/VibePlayer-$PACKAGE_VERSION-$RID.dmg" "$PACKAGE_NUMERIC_VERSION" "$RID" "$MODEL" "$FIXTURE"
+
+      - name: Testar o instalador (Linux)
+        if: runner.os == 'Linux'
+        run: bash .github/scripts/smoke-test-linux.sh "dist/VibePlayer-$PACKAGE_VERSION-linux-x64.deb" publish/VibePlayer "$MODEL" "$FIXTURE"
+
+      - name: Guardar os logs do instalador
+        if: failure() && runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-do-instalador
+          path: ${{ runner.temp }}/logs-do-instalador
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pacote-${{ matrix.rid }}
+          path: dist/*
+          if-no-files-found: error

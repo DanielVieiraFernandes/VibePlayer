@@ -41,7 +41,7 @@ Detalhes em [specs/README.md](specs/README.md).
 - **Versão:** calculada pelo MinVer a partir das tags `vX.Y.Z`. Nunca edite número de versão em arquivo nem crie tags manualmente.
 - As pipelines usam o secret `RELEASE_TOKEN` (fine-grained PAT do mantenedor, só deste repositório, com Contents, Pull requests e Workflows em leitura e escrita), porque PRs abertos com o `GITHUB_TOKEN` não disparam a CI. Quando vencer, as pipelines de release falham com aviso explícito.
 - Commits no padrão Conventional Commits, em português: `feat(chat): adiciona streaming de respostas`. O título do PR segue o mesmo padrão, porque vira o commit do squash e as notas da release.
-- Pacotes publicados: self-contained, sem assinatura, um por RID (`win-x64`, `osx-arm64`, `osx-x64`, `linux-x64`), cada um com `LICENSE` e `THIRD-PARTY-NOTICES.md`.
+- Pacotes publicados: self-contained, sem assinatura, um por RID (`win-x64`, `osx-arm64`, `osx-x64`, `linux-x64`), cada um com `LICENSE`, `THIRD-PARTY-NOTICES.md` e `licenses/`. Cada RID sai como pacote portátil (`.zip`/`.tar.gz`) e instalador (ver "Instaladores").
 
 ## Stack
 
@@ -62,7 +62,7 @@ Detalhes em [specs/README.md](specs/README.md).
 - Caminhos sempre com `Path.Combine` e `Environment.GetFolderPath`, nunca separadores ou pastas fixas.
 - **Segredos (chaves de API):** interface `ISecretStore` com implementação no cofre nativo de cada SO — Windows: DPAPI/Credential Manager; macOS: Keychain; Linux: libsecret (Secret Service). Se o cofre não estiver disponível (Linux sem keyring), avise o usuário e não grave a chave em texto puro.
 - **Binários nativos por SO:** LibVLC (no Linux depende do `libvlc` instalado no sistema) e runtimes do Whisper.net precisam existir para cada RID publicado. `WhisperRuntimes.targets` deixa no pacote só os nativos do RID.
-- No macOS, binários sem assinatura e notarização são bloqueados pelo Gatekeeper; a distribuição para macOS precisa tratar isso.
+- No macOS, binários sem assinatura e notarização são bloqueados pelo Gatekeeper. Por ora, a wiki e as notas da release explicam como liberar; assinatura e notarização estão no backlog.
 
 ## Estrutura
 
@@ -79,6 +79,7 @@ tests/
   VibePlayer.UnitTests/
   VibePlayer.E2ETests/
   VibePlayer.WorkerStub/      Processo falso que morre e trava, para testar o processo separado
+packaging/                      Instaladores: windows/ (Inno Setup), macos/ (.app e .dmg), linux/ (.deb)
 specs/                          Specs do SDD (uma pasta por mudança)
 docs/                           Documentação técnica versionada (arquitetura, decisões)
 DESIGN.md                       Design system da UI (tokens em src/VibePlayer.App/Styles)
@@ -134,6 +135,7 @@ Comentários, nomes de testes e mensagens de commit em português; identificador
 ## Reprodução
 
 - `PlayerViewModel` só conhece `IMediaPlayer` (Core). `VlcMediaPlayer` (Infrastructure) é a implementação; os E2E usam `FakeMediaPlayer`, e `VlcIntegrationTests` cobre o VLC real sem janela, com as amostras de `tests/fixtures/videos`.
+- **Clique e tela cheia (spec 0008):** clique simples no `VideoArea` alterna pausa só depois do intervalo de duplo clique da plataforma; o duplo clique cancela a pausa e alterna a tela cheia. A barra de controles **não pode ter `Grid.Row` local** em `PlayerPanel.axaml`: valor local vence o estilo `fullscreen` (`Controls.axaml`) que a põe sobre o vídeo, e a linha reservada deixava uma faixa vazia quando a barra sumia.
 - **Desenho:** `VlcFrameBuffer` recebe os quadros por callbacks (RV32, dois buffers, limite de 1920 px) e `VideoView` os copia para um `WriteableBitmap`. O vídeo é um controle comum: pode ter controles por cima, recebe mouse e teclado e funciona no headless. Não use `NativeControlHost`: sobre ele o app não recebe mouse, e o VLC 3 não troca de janela durante a reprodução.
 - **Regra de threads do VLC (derruba o processo se quebrada):** nunca chame o LibVLC de dentro de um evento ou callback dele. Isso inclui o código depois de `await media.Parse(...)`, que continua na thread do VLC: saia dela com `await Task.Yield()` antes de liberar a mídia. Eventos só atualizam estado e avisam; quem reage passa pela thread de UI ou pelo pool.
 - **Depois do `Dispose`:** tarefa agendada que chame o `MediaPlayer` passa pelo `_releaseLock` e confere se ele ainda existe. Usar o player nativo já liberado é violação de acesso, que nenhum `catch` pega.
@@ -153,6 +155,19 @@ Comentários, nomes de testes e mensagens de commit em português; identificador
 - **GPU:** ordem `[Vulkan, Cpu, CpuNoAvx]`; se o worker morrer na GPU, o app repete na CPU e grava `transcription.forceCpu`.
 - **Testes:** `WhisperIntegrationTests` roda o executável real; o modelo vem de `VIBEPLAYER_WHISPER_MODEL` (a CI baixa o tiny, localmente o teste é pulado sem a variável). `VlcIntegrationTests` e `AudioExtractionIntegrationTests` ficam na mesma coleção: duas instâncias do LibVLC subindo juntas no processo de testes travam a reprodução.
 
+## Instaladores
+
+Spec 0009. Empacotam a saída do `dotnet publish`; nada no app sabe que foi instalado.
+
+- **Windows:** `.exe` do Inno Setup, fixado com hash em `.github/scripts/install-inno-setup.ps1`. Instala só para o usuário, sem administrador, em `%LOCALAPPDATA%\Programs\VibePlayer`. A desinstalação pergunta antes de apagar a pasta de dados, com **Não** como padrão; em modo silencioso, nunca apaga.
+- **macOS:** `.dmg` com `.app`, um por arquitetura, com a saída do publish em `Contents/MacOS` e assinatura ad-hoc (não evita o Gatekeeper).
+- **Linux:** `.deb` em `/opt/vibeplayer`. O `Depends` traz o VLC, porque o app usa o do sistema, e `libvlc-dev`, que cria o link `libvlc.so`, o nome que o LibVLCSharp procura: só com `libvlc5`, o app acusa VLC ausente. Sem scripts de manutenção: nem `purge` toca nos dados. Outras distribuições usam o `.tar.gz`.
+- **Identificadores permanentes:** `AppGuid` em `VibePlayer.iss`, `CFBundleIdentifier` em `Info.plist` e `Package` em `control`. Trocar um deles cria uma segunda instalação.
+- **Versão:** `package-version.sh` lê do MinVer. Nenhum arquivo de `packaging/` tem número de versão, e a release falha se ele divergir da tag.
+- **Pipeline:** `build-packages.yml` é reutilizável e gera e testa tudo; `release.yml` e `check-packages.yml` o chamam. A conferência roda no push de `release/*` e `hotfix/*` e em PRs que mexem em empacotamento, porque `release.yml` cria a tag antes de empacotar. Ela fica fora dos checks obrigatórios (o filtro de caminhos deixaria PRs presos).
+- **Testes:** `smoke-test-*` instalam de verdade, atualizam sobre uma versão 0.0.1 gerada no próprio teste e transcrevem uma amostra com o binário instalado (`--transcription-worker`), o que prova VLC e Whisper no lugar final. O teste do Linux roda sem VLC prévio e falha se faltar algo em `Depends`.
+- **Inno Setup:** o site pede licença comercial acima de US$ 5.000/ano de receita (sem obrigar). Com o app gratuito, não se aplica hoje; reavalie se isso mudar.
+
 ## Persistência
 
 Tudo fica na pasta de dados do usuário, `Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)/VibePlayer` (resolve para `%APPDATA%` no Windows e `~/.config` no Linux/macOS), nunca dentro da pasta do curso:
@@ -163,6 +178,7 @@ Tudo fica na pasta de dados do usuário, `Environment.GetFolderPath(Environment.
 - **Banco:** `VibePlayerDbContext` (Infrastructure), sempre via `IDbContextFactory` com contextos curtos e acesso `async`; WAL ligado. Cada spec cria suas tabelas com uma migration própria; migrations publicadas nunca são editadas. `MigrationTests` falha se o modelo mudar sem migration.
 - **Inicialização:** `AppStartup.Prepare` (usado pelo `Program` e pelos E2E) roda o `DatabaseInitializer` antes da UI: backup → migrate → em falha, restaura o backup, mostra `DatabaseErrorWindow` e sai com código 2. Nunca abra a janela principal sobre um banco que não ficou pronto.
 - **Preferências:** `ISettingsStore` (Core) com chaves `SettingKey<T>` (nome permanente com prefixo por área, padrão, validação), gravadas como JSON na tabela `Settings`. Valor inválido volta ao padrão com aviso no log (só a chave). Layout da janela: `UiSettings` + `WindowStateTracker` (grava 500 ms depois da última mudança e ao fechar).
+- **Pasta de dados alternativa:** a variável de ambiente `VIBEPLAYER_DATA_DIR` troca a pasta de dados (para testar o app de verdade sem tocar na biblioteca real).
 - Chaves de API ficam no cofre do SO via `ISecretStore` (ver Multiplataforma), nunca no banco.
 - **Sem criptografia do banco (decisão do mantenedor):** o SQLite fica em texto normal, protegido pelas permissões da pasta de dados do usuário. Não adicione criptografia de colunas, SQLCipher, chaves embutidas no código nem senha mestra sem uma spec aprovada.
 
@@ -193,7 +209,7 @@ Tudo fica na pasta de dados do usuário, `Environment.GetFolderPath(Environment.
 
 ## UI
 
-Toda tela segue o [`DESIGN.md`](DESIGN.md) (paleta clara/escura, tipografia, espaçamento, componentes, estados, acessibilidade). Layout: player à esquerda; à direita, painel lateral recolhível com as abas *Aulas*, *Transcrição*, *Chat*, *Resumo* e *Pontos principais*.
+Toda tela segue o [`DESIGN.md`](DESIGN.md) (paleta clara/escura, tipografia, espaçamento, componentes, estados, acessibilidade). Layout: player à esquerda; à direita, painel lateral recolhível com as abas *Aulas*, *Transcrição*, *Chat*, *Resumo* e *Pontos principais*, mostradas só como ícones (com dica e nome acessível; o nome da ativa aparece acima). A janela abre com 1100 × 700. O ícone do app está em `src/VibePlayer.App/Assets` (`.ico`, `.png`, `.icns`, gerados por `gerar-icones.py` a partir de `icon.svg`).
 
 - **Tokens** em `src/VibePlayer.App/Styles/Tokens.axaml` (cores em `ThemeDictionaries` Light/Dark, sempre via `DynamicResource`; tamanhos, espaçamentos e raios via `StaticResource`) e **estilos por classe** em `Styles/Controls.axaml` (`TextBlock.title`, `Button.primary`, `Button.icon`, `StackPanel.emptyState`...). Views nunca têm cor, tamanho de fonte ou espaçamento literal — `ViewConventionsTests` falha se tiverem. Cor nova: nos dois temas e com par de contraste em `DESIGN.md` e `DesignTokenTests.Pairs`.
 - **Textos** em `src/VibePlayer.App/Resources/Strings.resx` (pt-BR; classe `Strings` gerada no build), usados com `{x:Static res:Strings.Area_Elemento}`. Nenhuma string visível solta em View ou ViewModel.

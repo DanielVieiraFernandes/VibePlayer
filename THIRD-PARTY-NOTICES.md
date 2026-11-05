@@ -26,6 +26,7 @@ O VibePlayer usa os componentes abaixo, cada um sob sua própria licença. Esses
 | Serilog.Sinks.File | Apache 2.0 | https://github.com/serilog/serilog-sinks-file |
 | Serilog.Extensions.Logging | Apache 2.0 | https://github.com/serilog/serilog-extensions-logging |
 | .NET Runtime | MIT | https://github.com/dotnet/runtime |
+| Inno Setup (instalador e desinstalador do Windows) | Licença do Inno Setup. Copyright © 1997-2026 Jordan Russell, partes © 2000-2026 Martijn Laan | https://jrsoftware.org/isinfo.php |
 
 ## Usados apenas no desenvolvimento (não distribuídos)
 

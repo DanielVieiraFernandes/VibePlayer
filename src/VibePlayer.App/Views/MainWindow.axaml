@@ -9,7 +9,7 @@
         x:Class="VibePlayer.App.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Title="{Binding Title}"
-        Width="1280" Height="800"
+        Width="1100" Height="700"
         MinWidth="960" MinHeight="600"
         WindowStartupLocation="CenterScreen">
 

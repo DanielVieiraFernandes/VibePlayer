@@ -144,6 +144,19 @@
         <Setter Property="Padding" Value="{StaticResource PaddingTab}" />
     </Style>
 
+    <!-- Aba só com ícone: a ativa fica na cor de destaque, com ícone preenchido e sublinhado do
+         Fluent; as demais em cinza. O nome vem da dica, do nome acessível e do título do painel. -->
+    <Style Selector="TabItem.iconTab">
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="TabItem.iconTab:selected">
+        <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+    </Style>
+    <Style Selector="TabItem.iconTab:selected ic|SymbolIcon">
+        <Setter Property="IconVariant" Value="Filled" />
+    </Style>
+
     <!-- Campos -->
     <Style Selector="TextBox">
         <Setter Property="MinHeight" Value="{StaticResource ButtonHeight}" />
@@ -237,8 +250,16 @@
         <Setter Property="Padding" Value="{StaticResource PaddingPanel}" />
     </Style>
 
+    <!-- Ícone oficial em toda janela (principal, diálogos, erro de banco): barra de título e de tarefas. -->
+    <Style Selector="Window">
+        <Setter Property="Icon" Value="avares://VibePlayer/Assets/icon-256.png" />
+    </Style>
+
     <!-- Player -->
     <!-- Em tela cheia a barra fica por cima da parte de baixo do vídeo, e não abaixo dele. -->
+    <Style Selector="Grid.playerRoot > Border#ControlsBar">
+        <Setter Property="Grid.Row" Value="1" />
+    </Style>
     <Style Selector="Grid.playerRoot.fullscreen > Border#ControlsBar">
         <Setter Property="Grid.Row" Value="0" />
         <Setter Property="VerticalAlignment" Value="Bottom" />
